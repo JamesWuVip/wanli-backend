@@ -1,0 +1,31 @@
+# fly.toml app configuration file generated for wanli-backend on 2024-01-20T10:00:00Z
+
+app = "wanli-backend"
+primary_region = "nrt"
+
+[build]
+
+[env]
+  SPRING_PROFILES_ACTIVE = "prod"
+  DB_SCHEMA = "production"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/actuator/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
