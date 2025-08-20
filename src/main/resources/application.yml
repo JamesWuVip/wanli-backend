@@ -34,7 +34,7 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
   
-  # 日志配置
+# 日志配置
 logging:
   level:
     com.wanli.backend: DEBUG
