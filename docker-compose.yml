@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # PostgreSQL数据库服务
+  postgres:
+    image: postgres:15-alpine
+    container_name: wanli-postgres
+    environment:
+      POSTGRES_DB: wanli_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - wanli-network
+
+  # Spring Boot应用服务
+  app:
+    build: .
+    container_name: wanli-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DATABASE_URL: jdbc:postgresql://postgres:5432/wanli_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_SCHEMA: public
+      CORS_ALLOWED_ORIGINS: http://localhost:3000
+      JPA_SHOW_SQL: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - wanli-network
+
+volumes:
+  postgres_data:
+
+networks:
+  wanli-network:
+    driver: bridge
