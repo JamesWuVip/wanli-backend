@@ -34,3 +34,13 @@ info:
     version: 1.0.0
     environment: production
     author: wanli-team
+
+# Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
