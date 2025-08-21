@@ -48,10 +48,8 @@ info:
     name: 万里后端系统
     description: 基于Spring Boot的Java后端项目 - 生产环境
     version: 1.0.0
-    author: wanli-team
-    environment: production
 
-# Actuator配置
+# 健康检查配置
 management:
   endpoints:
     web:
