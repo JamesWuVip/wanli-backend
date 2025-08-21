@@ -7,6 +7,9 @@ WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 
+# 赋予mvnw执行权限
+RUN chmod +x ./mvnw
+
 # 下载依赖（利用Docker缓存）
 RUN ./mvnw dependency:go-offline
 
