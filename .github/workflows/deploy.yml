@@ -3,12 +3,10 @@ name: Deploy to Railway
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  deploy:
-    name: Deploy app
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +30,26 @@ jobs:
       - name: Build with Maven
         run: ./mvnw clean package -DskipTests
         
-      - name: Deploy to Railway
-        uses: bervProject/railway-deploy@v1.2.0
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
         with:
-          service: ${{ secrets.RAILWAY_SERVICE_ID }}
+          name: jar-artifact
+          path: target/*.jar
+
+  deploy:
+    name: Deploy to Railway
+    needs: build
+    runs-on: ubuntu-latest
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      SVC_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jar-artifact
+          path: target/
+      - name: Deploy to Railway
+        run: railway up --service=${{ env.SVC_ID }}
