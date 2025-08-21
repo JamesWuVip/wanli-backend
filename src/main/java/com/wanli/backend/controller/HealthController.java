@@ -25,12 +25,9 @@ public class HealthController {
      * @return 健康状态信息
      */
     @GetMapping("/health")
-    public ResponseEntity<Map<String, Object>> health() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "UP");
-        response.put("timestamp", LocalDateTime.now());
-        response.put("service", "wanli-backend");
-        response.put("version", "1.0.0");
+    public ResponseEntity<Map<String, String>> health() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Hello from Backend!");
         
         return ResponseEntity.ok(response);
     }
