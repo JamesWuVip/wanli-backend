@@ -2,7 +2,7 @@ name: Deploy to Railway
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
 
 jobs:
   deploy:
@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Set environment variables
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_ENV
+            echo "SERVICE_ID=${{ secrets.RAILWAY_PRODUCTION_SERVICE_ID }}" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" = "refs/heads/staging" ]; then
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+            echo "SERVICE_ID=${{ secrets.RAILWAY_STAGING_SERVICE_ID }}" >> $GITHUB_ENV
+          fi
       
       - name: Install Railway CLI
         run: |
@@ -22,8 +32,8 @@ jobs:
         run: |
           railway login --token $RAILWAY_TOKEN
           
-      - name: Deploy to Railway
+      - name: Deploy to Railway (${{ env.ENVIRONMENT }})
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
+          railway up --service ${{ env.SERVICE_ID }} --detach
