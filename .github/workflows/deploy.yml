@@ -2,7 +2,7 @@ name: Deploy to Railway
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
 
 jobs:
   deploy:
@@ -22,8 +22,16 @@ jobs:
         run: |
           railway login --token $RAILWAY_TOKEN
           
-      - name: Deploy to Railway
+      - name: Deploy to Production (main branch)
+        if: github.ref == 'refs/heads/main'
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --detach
+          
+      - name: Deploy to Staging (staging branch)
+        if: github.ref == 'refs/heads/staging'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --service ${{ secrets.RAILWAY_STAGING_SERVICE_ID }} --detach
