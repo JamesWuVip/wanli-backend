@@ -26,4 +26,4 @@ ENV SPRING_PROFILES_ACTIVE=staging
 ENV DB_SCHEMA=staging
 
 # 运行应用
-CMD ["java", "-jar", "target/wanli-backend-1.0.0.jar"]
+CMD ["java", "-jar", "target/wanli-backend-0.0.1-SNAPSHOT.jar"]

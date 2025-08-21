@@ -62,11 +62,11 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Spring Boot Actuator -->
-        <dependency>
+        <!-- Spring Boot Actuator - 暂时移除以解决容器环境兼容性问题 -->
+        <!-- <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>

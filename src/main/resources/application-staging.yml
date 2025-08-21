@@ -1,9 +1,10 @@
 # Staging环境配置
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:${DATABASE_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   
   jpa:
     hibernate:
