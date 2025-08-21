@@ -1,0 +1,22 @@
+name: Test Workflow
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Simple Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: List files
+        run: ls -la
+        
+      - name: Check Java
+        run: java -version || echo "Java not found"
+        
+      - name: Check Maven wrapper
+        run: ls -la mvnw || echo "Maven wrapper not found"
