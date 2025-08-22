@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +18,16 @@ import com.wanli.backend.util.JwtUtil;
 @Transactional
 public class AuthService {
 
-  @Autowired private UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtUtil jwtUtil;
 
-  @Autowired private PasswordEncoder passwordEncoder;
-
-  @Autowired private JwtUtil jwtUtil;
+  public AuthService(
+      UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtUtil = jwtUtil;
+  }
 
   /**
    * 用户注册

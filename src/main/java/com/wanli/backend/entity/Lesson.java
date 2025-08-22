@@ -139,6 +139,19 @@ public class Lesson {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Lesson lesson = (Lesson) obj;
+    return id != null && id.equals(lesson.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
+  @Override
   public String toString() {
     return "Lesson{"
         + "id="

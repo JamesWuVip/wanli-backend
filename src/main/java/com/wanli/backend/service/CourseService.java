@@ -2,7 +2,6 @@ package com.wanli.backend.service;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +14,13 @@ import com.wanli.backend.repository.UserRepository;
 @Service
 public class CourseService {
 
-  @Autowired private CourseRepository courseRepository;
+  private final CourseRepository courseRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private UserRepository userRepository;
+  public CourseService(CourseRepository courseRepository, UserRepository userRepository) {
+    this.courseRepository = courseRepository;
+    this.userRepository = userRepository;
+  }
 
   /**
    * 创建课程

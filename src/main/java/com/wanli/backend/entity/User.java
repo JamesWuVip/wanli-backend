@@ -129,19 +129,34 @@ public class User {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    User user = (User) obj;
+    return id != null && id.equals(user.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
+  @Override
   public String toString() {
     return "User{"
         + "id="
         + id
+        + ", franchiseId="
+        + franchiseId
         + ", username='"
         + username
-        + '\''
+        + "'"
         + ", email='"
         + email
-        + '\''
+        + "'"
         + ", role='"
         + role
-        + '\''
+        + "'"
         + ", createdAt="
         + createdAt
         + '}';

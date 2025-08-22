@@ -22,9 +22,25 @@ import jakarta.validation.constraints.Size;
 @CrossOrigin(origins = "*")
 public class CourseController {
 
-  @Autowired private CourseService courseService;
+  // 常量定义
+  private static final String SUCCESS_KEY = "success";
+  private static final String MESSAGE_KEY = "message";
+  private static final String COURSE_KEY = "course";
+  private static final String COURSES_KEY = "courses";
+  private static final String BEARER_PREFIX = "Bearer ";
+  private static final String AUTH_FAILED_MESSAGE = "认证失败";
+  private static final String INVALID_COURSE_ID_MESSAGE = "无效的课程ID格式";
+  private static final String PERMISSION_DENIED_MESSAGE = "权限不足";
+  private static final String NOT_FOUND_MESSAGE = "不存在";
 
-  @Autowired private JwtUtil jwtUtil;
+  private final CourseService courseService;
+  private final JwtUtil jwtUtil;
+
+  @Autowired
+  public CourseController(CourseService courseService, JwtUtil jwtUtil) {
+    this.courseService = courseService;
+    this.jwtUtil = jwtUtil;
+  }
 
   /** 创建课程 POST /api/courses */
   @PostMapping
@@ -33,72 +49,44 @@ public class CourseController {
       @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
     try {
-      // 检查是否提供了Authorization头部
-      if (authHeader == null || authHeader.isEmpty()) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "缺少认证令牌");
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+      UUID creatorId = validateTokenAndGetUserId(authHeader);
+      if (creatorId == null) {
+        return createUnauthorizedResponse(AUTH_FAILED_MESSAGE);
       }
-
-      // 验证和解析JWT令牌
-      String token = extractTokenFromHeader(authHeader);
-      if (token == null || !jwtUtil.validateToken(token)) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "无效的认证令牌");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-      }
-
-      UUID creatorId;
-      try {
-        creatorId = jwtUtil.getUserIdFromToken(token);
-      } catch (Exception e) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "无效的认证令牌");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-      }
-      // 调用服务层创建课程
       Map<String, Object> result =
           courseService.createCourse(
               creatorId, request.getTitle(), request.getDescription(), request.getStatus());
 
-      if ((Boolean) result.get("success")) {
-        // 直接返回课程对象，符合测试期望的响应格式
+      Boolean success = (Boolean) result.get(SUCCESS_KEY);
+      if (Boolean.TRUE.equals(success)) {
         @SuppressWarnings("unchecked")
-        Map<String, Object> courseData = (Map<String, Object>) result.get("course");
+        Map<String, Object> courseData = (Map<String, Object>) result.get(COURSE_KEY);
         return ResponseEntity.status(HttpStatus.CREATED).body(courseData);
       } else {
         return ResponseEntity.badRequest().body(result);
       }
 
     } catch (Exception e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "创建课程失败：" + e.getMessage());
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+      return createErrorResponse("创建课程失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /** 获取所有课程列表 GET /api/courses */
   @GetMapping
-  public ResponseEntity<?> getAllCourses() {
+  public ResponseEntity<Map<String, Object>> getAllCourses() {
     try {
       Map<String, Object> result = courseService.getAllCourses();
 
-      if ((Boolean) result.get("success")) {
+      Boolean success = (Boolean) result.get(SUCCESS_KEY);
+      if (Boolean.TRUE.equals(success)) {
         // 直接返回课程数组，符合测试期望
-        return ResponseEntity.ok(result.get("courses"));
+        return ResponseEntity.ok(result);
       } else {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
       }
 
     } catch (Exception e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "获取课程列表失败：" + e.getMessage());
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+      return createErrorResponse("获取课程列表失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -109,81 +97,50 @@ public class CourseController {
       UUID id = UUID.fromString(courseId);
       Map<String, Object> result = courseService.getCourseById(id);
 
-      if ((Boolean) result.get("success")) {
+      Boolean success = (Boolean) result.get(SUCCESS_KEY);
+      if (Boolean.TRUE.equals(success)) {
         return ResponseEntity.ok(result);
       } else {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
       }
 
     } catch (IllegalArgumentException e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "无效的课程ID格式");
-      return ResponseEntity.badRequest().body(errorResponse);
+      return createErrorResponse(INVALID_COURSE_ID_MESSAGE, HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "获取课程详情失败：" + e.getMessage());
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+      return createErrorResponse("获取课程详情失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   /** 更新课程 PUT /api/courses/{id} */
   @PutMapping("/{id}")
-  public ResponseEntity<?> updateCourse(
+  public ResponseEntity<Map<String, Object>> updateCourse(
       @PathVariable("id") String courseId,
       @Valid @RequestBody UpdateCourseRequest request,
       @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
     try {
-      // 验证和解析JWT令牌
-      String token = extractTokenFromHeader(authHeader);
-      if (token == null || !jwtUtil.validateToken(token)) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "无效的认证令牌");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+      UUID userId = validateTokenAndGetUserId(authHeader);
+      if (userId == null) {
+        return createUnauthorizedResponse(AUTH_FAILED_MESSAGE);
       }
 
       UUID id = UUID.fromString(courseId);
-      UUID userId;
-      try {
-        userId = jwtUtil.getUserIdFromToken(token);
-      } catch (Exception e) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("message", "无效的认证令牌");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-      }
 
       Map<String, Object> result =
           courseService.updateCourse(
               id, userId, request.getTitle(), request.getDescription(), request.getStatus());
 
-      if ((Boolean) result.get("success")) {
-        // 直接返回课程对象，符合测试期望
-        return ResponseEntity.ok(result.get("course"));
+      Boolean success = (Boolean) result.get(SUCCESS_KEY);
+      if (Boolean.TRUE.equals(success)) {
+        return ResponseEntity.ok(result);
       } else {
-        String message = (String) result.get("message");
-        if (message.contains("权限不足")) {
-          return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
-        } else if (message.contains("不存在")) {
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-        } else {
-          return ResponseEntity.badRequest().body(result);
-        }
+        return handleServiceError(result);
       }
 
     } catch (IllegalArgumentException e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "无效的课程ID格式");
-      return ResponseEntity.badRequest().body(errorResponse);
+      return createErrorResponse(INVALID_COURSE_ID_MESSAGE, HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
-      Map<String, Object> errorResponse = new HashMap<>();
-      errorResponse.put("success", false);
-      errorResponse.put("message", "更新课程失败：" + e.getMessage());
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+      return createErrorResponse("更新课程失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -194,10 +151,75 @@ public class CourseController {
    * @return JWT令牌
    */
   private String extractTokenFromHeader(String authHeader) {
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+    if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
       return authHeader.substring(7);
     }
     return null;
+  }
+
+  /**
+   * 验证JWT令牌并获取用户ID
+   *
+   * @param authHeader Authorization头
+   * @return 用户ID，验证失败返回null
+   */
+  private UUID validateTokenAndGetUserId(String authHeader) {
+    if (authHeader == null || authHeader.isEmpty()) {
+      return null;
+    }
+
+    String token = extractTokenFromHeader(authHeader);
+    if (token == null || !jwtUtil.validateToken(token)) {
+      return null;
+    }
+
+    try {
+      return jwtUtil.getUserIdFromToken(token);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * 创建错误响应
+   *
+   * @param message 错误消息
+   * @param status HTTP状态码
+   * @return 错误响应
+   */
+  private ResponseEntity<Map<String, Object>> createErrorResponse(
+      String message, HttpStatus status) {
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put(SUCCESS_KEY, false);
+    errorResponse.put(MESSAGE_KEY, message);
+    return ResponseEntity.status(status).body(errorResponse);
+  }
+
+  /**
+   * 创建未授权响应
+   *
+   * @param message 错误消息
+   * @return 未授权响应
+   */
+  private ResponseEntity<Map<String, Object>> createUnauthorizedResponse(String message) {
+    return createErrorResponse(message, HttpStatus.UNAUTHORIZED);
+  }
+
+  /**
+   * 处理服务层错误
+   *
+   * @param result 服务层返回结果
+   * @return 相应的HTTP响应
+   */
+  private ResponseEntity<Map<String, Object>> handleServiceError(Map<String, Object> result) {
+    String message = (String) result.get(MESSAGE_KEY);
+    if (message.contains(PERMISSION_DENIED_MESSAGE)) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
+    } else if (message.contains(NOT_FOUND_MESSAGE)) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+    } else {
+      return ResponseEntity.badRequest().body(result);
+    }
   }
 
   /** 创建课程请求体 */

@@ -146,6 +146,19 @@ public class Course {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    Course course = (Course) obj;
+    return id != null && id.equals(course.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
+  @Override
   public String toString() {
     return "Course{"
         + "id="
@@ -154,12 +167,16 @@ public class Course {
         + creatorId
         + ", title='"
         + title
-        + '\''
+        + "'"
         + ", status='"
         + status
-        + '\''
+        + "'"
         + ", createdAt="
         + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", deletedAt="
+        + deletedAt
         + '}';
   }
 }

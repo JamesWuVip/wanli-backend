@@ -3,7 +3,6 @@ package com.wanli.backend.service;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +17,18 @@ import com.wanli.backend.repository.UserRepository;
 @Service
 public class LessonService {
 
-  @Autowired private LessonRepository lessonRepository;
+  private final LessonRepository lessonRepository;
+  private final CourseRepository courseRepository;
+  private final UserRepository userRepository;
 
-  @Autowired private CourseRepository courseRepository;
-
-  @Autowired private UserRepository userRepository;
+  public LessonService(
+      LessonRepository lessonRepository,
+      CourseRepository courseRepository,
+      UserRepository userRepository) {
+    this.lessonRepository = lessonRepository;
+    this.courseRepository = courseRepository;
+    this.userRepository = userRepository;
+  }
 
   /**
    * 创建课时
