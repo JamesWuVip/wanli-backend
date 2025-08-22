@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP1 自动化验收测试报告</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; }
+        .content { padding: 30px; }
+        .status-passed { color: #28a745; font-weight: bold; }
+        .status-failed { color: #dc3545; font-weight: bold; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-criteria { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #007bff; }
+        .timestamp { color: #6c757d; font-size: 0.9em; }
+        .summary { display: flex; justify-content: space-around; margin: 20px 0; }
+        .summary-item { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 5px; }
+        .log-link { color: #007bff; text-decoration: none; }
+        .log-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SP1 自动化验收测试报告</h1>
+            <p class="timestamp">测试时间: 2025年 8月22日 星期五 16时09分39秒 CST</p>
+            <p>项目: 万里书院 - Sprint 1 验收测试</p>
+        </div>
+        
+        <div class="content">
+            <div class="summary">
+                <div class="summary-item">
+                    <h3>后端API测试</h3>
+                    <p class="status-failed">FAILED</p>
+                </div>
+            </div>
+            
+            <div class="test-section">
+                <h2>🔧 后端API验收测试</h2>
+                <p><strong>状态:</strong> <span class="status-failed">FAILED</span></p>
+                <p><strong>测试文件:</strong> src/test/java/com/wanli/SP1AcceptanceTest.java</p>
+                <p><strong>日志文件:</strong> <a href="backend_test_20250822_160933.log" class="log-link">backend_test_20250822_160933.log</a></p>
+                
+                <h3>验收标准覆盖:</h3>
+                <div class="test-criteria">
+                    <strong>AC-BE-1.1:</strong> 用户注册功能 - 调用 POST /api/auth/register 成功创建用户
+                </div>
+                <div class="test-criteria">
+                    <strong>AC-BE-1.2:</strong> 用户登录功能 - 调用 POST /api/auth/login 返回有效JWT
+                </div>
+                <div class="test-criteria">
+                    <strong>AC-BE-1.3:</strong> 无权限访问保护 - 未授权访问返回403错误
+                </div>
+                <div class="test-criteria">
+                    <strong>AC-BE-1.4:</strong> 有权限访问验证 - ROLE_HQ_TEACHER可访问所有API
+                </div>
+                <div class="test-criteria">
+                    <strong>AC-BE-1.5:</strong> 数据关联验证 - 课时正确关联到课程
+                </div>
+            </div>
+            
+
+            
+            <div class="test-section">
+                <h2>📋 测试环境信息</h2>
+                <p><strong>操作系统:</strong> Darwin</p>
+                <p><strong>Java版本:</strong> openjdk version "24.0.1" 2025-04-15</p>
+                <p><strong>Node.js版本:</strong> v22.18.0</p>
+                <p><strong>Maven版本:</strong> Apache Maven 3.9.9 (8e8579a9e76f7d015ee5ec7bfcdc97d260186937)</p>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
