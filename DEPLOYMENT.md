@@ -1,4 +1,58 @@
-# 部署配置说明
+# 万里在线教育平台 - 部署指南
+
+## 项目概述
+
+万里在线教育平台后端是基于Spring Boot 3.x开发的RESTful API服务，提供用户认证、课程管理和课时管理功能。
+
+## 技术栈
+
+- **Java**: 17+
+- **Spring Boot**: 3.3.2
+- **Spring Security**: JWT认证
+- **Spring Data JPA**: 数据持久化
+- **H2 Database**: 开发环境数据库
+- **PostgreSQL**: 生产环境数据库（推荐）
+- **Maven**: 构建工具
+- **JUnit 5**: 单元测试
+
+## 环境要求
+
+### 开发环境
+- Java 17 或更高版本
+- Maven 3.6+
+- IDE（推荐IntelliJ IDEA或Eclipse）
+
+### 生产环境
+- Java 17 或更高版本
+- PostgreSQL 12+ 或 MySQL 8+
+- 至少2GB内存
+- 至少10GB磁盘空间
+
+## 快速开始
+
+### 1. 克隆项目
+```bash
+git clone <repository-url>
+cd wanli-backend
+```
+
+### 2. 安装依赖
+```bash
+./mvnw clean install
+```
+
+### 3. 运行开发服务器
+```bash
+./mvnw spring-boot:run
+```
+
+服务将在 `http://localhost:8080` 启动。
+
+### 4. 访问H2控制台（开发环境）
+- URL: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:mem:testdb`
+- 用户名: `sa`
+- 密码: （空）
 
 ## 环境隔离架构
 
@@ -23,6 +77,7 @@
   DB_USERNAME=<生产数据库用户名>
   DB_PASSWORD=<生产数据库密码>
   CORS_ALLOWED_ORIGINS=https://wanli.ai
+  JWT_SECRET=<生产环境JWT密钥>
   ```
 
 **测试环境服务:**
@@ -36,6 +91,7 @@
   DB_PASSWORD=<测试数据库密码>
   DB_SCHEMA=staging
   CORS_ALLOWED_ORIGINS=http://localhost:3000,https://staging.wanli.ai
+  JWT_SECRET=<测试环境JWT密钥>
   ```
 
 #### 2. GitHub Secrets配置
