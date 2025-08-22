@@ -43,7 +43,7 @@
 
 **在GitHub中添加：**
 - **Name**: `SONAR_ORGANIZATION`
-- **Secret**: 您的SonarCloud组织key
+- **Secret**: `jameswuvip`
 
 #### 3. SONAR_PROJECT_KEY
 
@@ -76,7 +76,7 @@
 
 ```properties
 # 取消注释并替换为您的实际组织key
-sonar.organization=your-actual-organization-key
+sonar.organization=jameswuvip
 ```
 
 ### 第五步：测试配置
