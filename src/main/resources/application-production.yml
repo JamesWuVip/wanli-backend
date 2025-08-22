@@ -29,10 +29,3 @@ logging:
     root: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
-# Google API配置
-google:
-  docs:
-    enabled: ${GOOGLE_DOCS_ENABLED:true}
-  credentials:
-    file-path: ${GOOGLE_CREDENTIALS_FILE_PATH:}
