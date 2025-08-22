@@ -6,165 +6,209 @@
 
 ## 项目简介
 
-万里后端系统是一个基于 Java Spring Boot 框架开发的现代化后端应用程序。该项目采用了最新的技术栈和最佳实践，为前端应用提供稳定、高效的 API 服务。
+万里在线教育平台后端系统是一个基于Spring Boot框架开发的现代化教育管理平台。该系统为在线教育提供完整的后端服务支持，包括用户管理、课程管理、作业系统等核心功能。
 
-## 技术栈
+## 🏗️ 技术架构
 
-- **Java 17** - 编程语言
-- **Spring Boot 3.2.0** - 应用框架
-- **Spring Data JPA** - 数据访问层
-- **MySQL 8.0** - 数据库
-- **Maven** - 项目构建工具
-- **Lombok** - 代码简化工具
-- **JUnit 5** - 单元测试框架
+### 核心技术栈
+- **框架**: Spring Boot 3.x
+- **数据库**: MySQL 8.0
+- **缓存**: Redis
+- **构建工具**: Maven
+- **Java版本**: JDK 17
 
-## 项目结构
+### 架构特点
+- 采用分层架构设计，清晰分离业务逻辑
+- RESTful API设计，支持前后端分离
+- 统一异常处理和响应格式
+- 完善的参数验证和安全控制
 
-```
-wanli-backend/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── wanli/
-│   │   │           └── backend/
-│   │   │               ├── WanliBackendApplication.java
-│   │   │               └── controller/
-│   │   │                   └── HealthController.java
-│   │   └── resources/
-│   │       └── application.yml
-│   └── test/
-│       └── java/
-│           └── com/
-│               └── wanli/
-│                   └── backend/
-│                       └── WanliBackendApplicationTests.java
-├── pom.xml
-└── README.md
-```
+## 📋 功能模块
 
-## 快速开始
+### 1. 用户管理模块
+- 用户注册、登录、认证
+- 角色权限管理（学生、教师、管理员）
+- 用户信息管理和维护
+
+### 2. 课程管理模块
+- 课程创建、编辑、发布
+- 课程分类和标签管理
+- 课程资源上传和管理
+
+### 3. 作业系统模块
+- 作业创建和发布
+- 学生作业提交
+- 作业批改和评分
+- 作业统计和分析
+
+## 🚀 快速开始
 
 ### 环境要求
+- JDK 17+
+- Maven 3.6+
+- MySQL 8.0+
+- Redis 6.0+
 
-- Java 17 或更高版本
-- Maven 3.6 或更高版本
-- MySQL 8.0 或更高版本
-
-### 安装步骤
+### 本地开发
 
 1. **克隆项目**
-   ```bash
-   git clone https://github.com/JamesWuVip/wanli-backend.git
-   cd wanli-backend
-   ```
+```bash
+git clone https://github.com/JamesWuVip/wanli-backend.git
+cd wanli-backend
+```
 
 2. **配置数据库**
-   - 创建数据库：`CREATE DATABASE wanli_db;`
-   - 修改 `src/main/resources/application.yml` 中的数据库连接信息
+```bash
+# 创建数据库
+mysql -u root -p
+CREATE DATABASE wanli_education;
 
-3. **编译项目**
-   ```bash
-   mvn clean compile
-   ```
-
-4. **运行测试**
-   ```bash
-   mvn test
-   ```
-
-5. **启动应用**
-   ```bash
-   mvn spring-boot:run
-   ```
-
-### 访问应用
-
-应用启动后，可以通过以下地址访问：
-
-- **健康检查**: http://localhost:8080/api/health
-- **欢迎页面**: http://localhost:8080/api/welcome
-
-## API 文档
-
-### 健康检查接口
-
-**GET** `/api/health`
-
-返回应用的健康状态信息。
-
-**响应示例：**
-```json
-{
-  "status": "UP",
-  "timestamp": "2024-01-01T12:00:00",
-  "service": "wanli-backend",
-  "version": "1.0.0"
-}
+# 导入初始化脚本
+mysql -u root -p wanli_education < init-db.sql
 ```
 
-### 欢迎接口
-
-**GET** `/api/welcome`
-
-返回欢迎信息。
-
-**响应示例：**
-```json
-{
-  "message": "欢迎使用万里后端系统！",
-  "description": "这是一个基于Spring Boot的Java后端项目"
-}
+3. **配置应用**
+```bash
+# 复制配置文件
+cp src/main/resources/application-example.yml src/main/resources/application-dev.yml
+# 编辑配置文件，设置数据库连接等信息
 ```
 
-## 开发指南
+4. **启动应用**
+```bash
+# 使用Maven启动
+./mvnw spring-boot:run
+
+# 或者使用IDE直接运行WanliBackendApplication类
+```
+
+5. **验证启动**
+```bash
+# 访问健康检查接口
+curl http://localhost:8080/actuator/health
+```
+
+## 📖 API文档
+
+启动应用后，可以通过以下方式查看API文档：
+
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **API Docs**: http://localhost:8080/v3/api-docs
+
+详细的API文档请参考：[API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+
+## 🧪 测试
+
+### 运行单元测试
+```bash
+./mvnw test
+```
+
+### 运行集成测试
+```bash
+./mvnw verify
+```
+
+### 测试覆盖率
+```bash
+./mvnw jacoco:report
+# 查看覆盖率报告：target/site/jacoco/index.html
+```
+
+## 🚀 部署
+
+### Docker部署
+```bash
+# 构建镜像
+docker build -t wanli-backend .
+
+# 运行容器
+docker-compose up -d
+```
+
+### 生产环境部署
+详细的部署指南请参考：[DEPLOYMENT.md](DEPLOYMENT.md)
+
+## 📁 项目结构
+
+```
+src/
+├── main/
+│   ├── java/
+│   │   └── com/wanli/
+│   │       ├── WanliBackendApplication.java    # 应用入口
+│   │       ├── config/                         # 配置类
+│   │       ├── controller/                     # 控制器层
+│   │       ├── service/                        # 服务层
+│   │       ├── repository/                     # 数据访问层
+│   │       ├── entity/                         # 实体类
+│   │       ├── dto/                           # 数据传输对象
+│   │       ├── exception/                      # 异常处理
+│   │       └── util/                          # 工具类
+│   └── resources/
+│       ├── application.yml                     # 应用配置
+│       ├── application-dev.yml                 # 开发环境配置
+│       ├── application-prod.yml                # 生产环境配置
+│       └── db/migration/                       # 数据库迁移脚本
+└── test/
+    ├── java/                                   # 测试代码
+    └── resources/                              # 测试资源
+```
+
+## 🔧 开发规范
 
 ### 代码规范
+- 遵循阿里巴巴Java开发手册
+- 使用统一的代码格式化配置
+- 必须编写单元测试，覆盖率不低于80%
+- 所有公共方法必须添加JavaDoc注释
 
-- 使用 Java 17 语法特性
-- 遵循 Spring Boot 最佳实践
-- 使用 Lombok 简化代码
-- 编写单元测试
-- 添加适当的注释和文档
+### Git规范
+- 使用语义化提交信息（Conventional Commits）
+- 功能开发使用feature分支
+- 代码合并前必须通过Code Review
 
-### 分支管理
+详细的开发规范请参考：[ENGINEERING_STANDARDS.md](ENGINEERING_STANDARDS.md)
 
-- `main` - 主分支，用于生产环境
-- `develop` - 开发分支
-- `feature/*` - 功能分支
-- `hotfix/*` - 热修复分支
+## 🔍 代码质量
 
-## 部署
+项目集成了多种代码质量检查工具：
 
-### 构建 JAR 包
+- **SonarCloud**: 代码质量和安全性分析
+- **SpotBugs**: 静态代码分析
+- **Checkstyle**: 代码风格检查
+- **JaCoCo**: 测试覆盖率统计
 
-```bash
-mvn clean package
-```
+## 📊 监控和日志
 
-### 运行 JAR 包
+### 应用监控
+- Spring Boot Actuator健康检查
+- Micrometer指标收集
+- 自定义业务指标监控
 
-```bash
-java -jar target/wanli-backend-1.0.0.jar
-```
+### 日志管理
+- 使用Logback作为日志框架
+- 结构化日志输出
+- 不同环境的日志级别配置
 
-## 贡献指南
+## 🤝 贡献指南
 
-1. Fork 本项目
+1. Fork本项目
 2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
 3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
+5. 创建Pull Request
 
-## 许可证
+## 📄 许可证
 
-本项目采用 MIT 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
+本项目采用MIT许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
 
-## 联系方式
+## 📞 联系我们
 
-- 项目维护者：wanli-team
+- 项目维护者：James Wu
+- 邮箱：james@wanli.edu
 - 项目地址：https://github.com/JamesWuVip/wanli-backend
 
----
+## 🙏 致谢
 
-**万里后端系统** - 让后端开发更简单！
+感谢所有为本项目做出贡献的开发者！

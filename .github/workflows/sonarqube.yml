@@ -7,11 +7,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# 环境变量
-env:
-  JAVA_VERSION: '17'
-  MAVEN_OPTS: '-Xmx3072m'
-
 jobs:
   build:
     name: Build and analyze
@@ -37,8 +32,15 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+<<<<<<< HEAD
       
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=JamesWuVip_wanli-backend
+=======
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=JamesWuVip_wanli-backend
+>>>>>>> 5719a76c9fe60886f0006f3946c8ffbf531d8624
