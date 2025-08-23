@@ -120,6 +120,26 @@ public class JwtUtil {
   }
 
   /**
+   * 从Authorization头中提取用户ID
+   *
+   * @param authHeader Authorization头
+   * @return 用户ID
+   * @throws IllegalArgumentException 当令牌无效时
+   */
+  public UUID extractUserId(String authHeader) {
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      throw new IllegalArgumentException("无效的Authorization头格式");
+    }
+
+    String token = authHeader.substring(7); // 移除"Bearer "前缀
+    if (!validateToken(token)) {
+      throw new IllegalArgumentException("无效的JWT令牌");
+    }
+
+    return getUserIdFromToken(token);
+  }
+
+  /**
    * 从JWT令牌中解析Claims
    *
    * @param token JWT令牌

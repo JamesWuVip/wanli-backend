@@ -1,0 +1,334 @@
+
+úcom.wanli.backend.controller.AuthController#register(Lcom/wanli/backend/controller/AuthController$RegisterRequest;)Lorg/springframework/http/ResponseEntity;o
+e/Users/wujames/Documents/wanli-backend/src/main/java/com/wanli/backend/controller/AuthController.java- (5"startingBlock*Â
+13# #(a
+_
+#% #(7)
+%7#org.springframework.http.HttpStatus"__id*"
+
+__unknown_file (
+""Î
+Ë
+# #(89
+%83org.springframework.http.ResponseEntity$BodyBuilder"éorg.springframework.http.ResponseEntity#status(Lorg/springframework/http/HttpStatusCode;)Lorg/springframework/http/ResponseEntity$BodyBuilder;*G
+
+__unknown_file (+")
+'org.springframework.http.ResponseEntity*G
+
+__unknown_file (+
+)
+%7#org.springframework.http.HttpStatus*
+12*ä
+15  (c^
+\
+  (c
+resultjava.util.Map"__id*1
+
+__unknown_file (
+
+%5java.util.Mapè
+å
+" "()
+%6java.lang.Object"__mapGet*5
+
+__unknown_file (
+
+resultjava.util.Map*'
+
+__unknown_file (	
+success*
+13
+10*∫
+16
+  (b£†
+
+  (b
+%5java.util.Map"ácom.wanli.backend.service.AuthService#register(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/Map;*I
+
+__unknown_file (-
++
+%0%com.wanli.backend.service.AuthService*4
+
+__unknown_file (
+
+%1java.lang.String*4
+
+__unknown_file (
+
+%2java.lang.String*4
+
+__unknown_file (
+
+%3java.lang.String*4
+
+__unknown_file (
+
+%4java.lang.String2Rregister(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)*
+15*Ü
+17 P  (WÔÏ
+ P  (a
+%4java.lang.String"Wcom.wanli.backend.controller.AuthController$RegisterRequest#getRole()Ljava/lang/String;*d
+
+__unknown_file (H
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest2	getRole()*
+16*à
+18 <  (CÒÓ
+ <  (N
+%3java.lang.String"Xcom.wanli.backend.controller.AuthController$RegisterRequest#getEmail()Ljava/lang/String;*d
+
+__unknown_file (H
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest2
+getEmail()*
+17*é
+19 %  (,˜Ù
+ %  (:
+%2java.lang.String"[com.wanli.backend.controller.AuthController$RegisterRequest#getPassword()Ljava/lang/String;*d
+
+__unknown_file (H
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest2getPassword()*
+18*Å
+startingBlock5 (bõ
+ò
+
+__unknown_file (
+%21"__id*o
+
+__unknown_file (S*Q
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+emailû
+õ
+
+__unknown_file (
+%22"__id*r
+
+__unknown_file (V*T
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+
+passwordö
+ó
+
+__unknown_file (
+%23"__id*n
+
+__unknown_file (R*P
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+roleû
+õ
+
+__unknown_file (
+%24"__id*r
+
+__unknown_file (V*T
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+
+username~
+|
+6 (<
+%25"
+__annotate*8
+
+__unknown_file (
+jakarta.validation.Valid*#
+
+__unknown_file (
+
+%21ö
+ó
+= (I
+%26"
+__annotate*S
+
+__unknown_file (75
+3org.springframework.web.bind.annotation.RequestBody*#
+
+__unknown_file (
+
+%21∏
+µ
+Z (aQ
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+email"__annotation*#
+
+__unknown_file (
+
+%25*#
+
+__unknown_file (
+
+%26~
+|
+6 (<
+%27"
+__annotate*8
+
+__unknown_file (
+jakarta.validation.Valid*#
+
+__unknown_file (
+
+%23ö
+ó
+= (I
+%28"
+__annotate*S
+
+__unknown_file (75
+3org.springframework.web.bind.annotation.RequestBody*#
+
+__unknown_file (
+
+%23∑
+¥
+Z (aP
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+role"__annotation*#
+
+__unknown_file (
+
+%27*#
+
+__unknown_file (
+
+%28~
+|
+6 (<
+%29"
+__annotate*8
+
+__unknown_file (
+jakarta.validation.Valid*#
+
+__unknown_file (
+
+%24ö
+ó
+= (I
+%30"
+__annotate*S
+
+__unknown_file (75
+3org.springframework.web.bind.annotation.RequestBody*#
+
+__unknown_file (
+
+%24ª
+∏
+Z (aT
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+
+username"__annotation*#
+
+__unknown_file (
+
+%29*#
+
+__unknown_file (
+
+%30~
+|
+6 (<
+%31"
+__annotate*8
+
+__unknown_file (
+jakarta.validation.Valid*#
+
+__unknown_file (
+
+%22ö
+ó
+= (I
+%32"
+__annotate*S
+
+__unknown_file (75
+3org.springframework.web.bind.annotation.RequestBody*#
+
+__unknown_file (
+
+%22ª
+∏
+Z (aT
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest"
+
+password"__annotation*#
+
+__unknown_file (
+
+%31*#
+
+__unknown_file (
+
+%32*
+20*K
+8% %(8"<
+% %(80
+.
+%11'org.springframework.http.ResponseEntity*Ù
+9%0 %(6ﬂ‹
+% %(7.
+%11'org.springframework.http.ResponseEntity"uorg.springframework.http.ResponseEntity$BodyBuilder#body(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;*X
+
+__unknown_file (<
+:
+%103org.springframework.http.ResponseEntity$BodyBuilder*5
+
+__unknown_file (
+
+resultjava.util.Map2body(Ljava/lang/Object;)*
+8*Ø
+20
+ (û
+õ
+
+ (+
+%0%com.wanli.backend.service.AuthService"__id*\
+
+__unknown_file (@*>-
++com.wanli.backend.controller.AuthController"
+authService˜Ù
+   (#
+%1java.lang.String"[com.wanli.backend.controller.AuthController$RegisterRequest#getUsername()Ljava/lang/String;*d
+
+__unknown_file (H
+F
+request;com.wanli.backend.controller.AuthController$RegisterRequest2getUsername()*
+19*ì
+10% %(˝
+˙
+% %(*:
+%103org.springframework.http.ResponseEntity$BodyBuilder"iorg.springframework.http.ResponseEntity#badRequest()Lorg/springframework/http/ResponseEntity$BodyBuilder;*G
+
+__unknown_file (+")
+'org.springframework.http.ResponseEntity*
+9*K
+11# #(F";
+# #(F/
+-
+%9'org.springframework.http.ResponseEntity*Ù
+12#> #(D›⁄
+# #(E-
+%9'org.springframework.http.ResponseEntity"uorg.springframework.http.ResponseEntity$BodyBuilder#body(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;*W
+
+__unknown_file (;
+9
+%83org.springframework.http.ResponseEntity$BodyBuilder*5
+
+__unknown_file (
+
+resultjava.util.Map2body(Ljava/lang/Object;)*
+11:R
+6 (aF
+request;com.wanli.backend.controller.AuthController$RegisterRequestB/-
++com.wanli.backend.controller.AuthControllerH

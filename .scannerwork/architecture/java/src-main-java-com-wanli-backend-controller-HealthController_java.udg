@@ -1,0 +1,177 @@
+
+1.0wanli-education-backendJavaFrontend"1755875203132*java2.BÁ
+E
+@src/main/java/com/wanli/backend/controller/HealthController.java2
+	
+type3
+	
+MAIN4
+
+package6
+!
+com.wanli.backend.controller7
+2
+-com.wanli.backend.controller.HealthController9
+
+class10
+
+access11
+
+public12
+
+simple-name13
+
+HealthController14
+<
+6org.springframework.web.bind.annotation.RestController16
+
+unknown17
+
+annotated by18
+
+
+uses19
+<
+6org.springframework.web.bind.annotation.RequestMapping21
+e
+_com.wanli.backend.controller.HealthController#health()Lorg/springframework/http/ResponseEntity;23
+
+method24
+
+health25
+-
+'org.springframework.http.ResponseEntity27
+
+returns28
+8
+2org.springframework.web.bind.annotation.GetMapping30
+
+
+references31
+m
+gorg.springframework.http.ResponseEntity#ok(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;33
+
+calls34
+f
+`com.wanli.backend.controller.HealthController#welcome()Lorg/springframework/http/ResponseEntity;36
+
+welcome37J
+
+1
+12
+
+
+3
+4Z
+
+5	
+576j§
+
+32
+323317
+A
+35;
+353624 *
+1' '(28:5B
+
+
+11
+12
+
+
+13
+37
+;
+86
+8910 *
+1 (:5B
+
+
+11
+12
+
+
+13
+14
+A
+22;
+222324 *
+1 (28:5B
+
+
+11
+12
+
+
+13
+25
+
+20
+202117
+
+29
+293017
+
+26
+262717
+
+15
+151617râ
+
+81518*
+1 (
+
+81519*
+1 (
+
+82018*
+1 (
+
+82019*
+1 (
+
+222628*
+1
+ (
+
+222918*
+1 (
+
+222919*
+1 (
+
+222619*
+1
+ (
+
+222628*
+1 (
+
+222631*
+1 (
+
+223234*
+1 (
+
+352628*
+1(
+ ((
+
+352918*
+1' '(
+
+352919*
+1' '(
+
+352619*
+1(
+ ((
+
+352628*
+1- -(
+
+352631*
+1- -(
+
+353234*
+1- -(

@@ -1,0 +1,248 @@
+
+1.0wanli-education-backendJavaFrontend"1755875202410*java2.B¼
+
+E
+@src/main/java/com/wanli/backend/repository/CourseRepository.java2
+	
+type3
+	
+MAIN4
+
+package6
+!
+com.wanli.backend.repository7
+2
+-com.wanli.backend.repository.CourseRepository9
+
+	interface10
+
+access11
+
+public12
+
+simple-name13
+
+CourseRepository14
+;
+5org.springframework.data.jpa.repository.JpaRepository16
+
+unknown17
+
+
+implements18
+/
+)org.springframework.stereotype.Repository20
+
+annotated by21
+
+
+uses22
+%
+com.wanli.backend.entity.Course24
+W
+Qcom.wanli.backend.repository.CourseRepository#findAllNotDeleted()Ljava/util/List;26
+
+method27
+
+findAllNotDeleted28
+3
+-org.springframework.data.jpa.repository.Query30
+o
+icom.wanli.backend.repository.CourseRepository#findByIdAndNotDeleted(Ljava/util/UUID;)Ljava/util/Optional;32
+
+findByIdAndNotDeleted33
+5
+/org.springframework.data.repository.query.Param35
+r
+lcom.wanli.backend.repository.CourseRepository#findByCreatorIdAndNotDeleted(Ljava/util/UUID;)Ljava/util/List;37
+"
+findByCreatorIdAndNotDeleted38
+q
+kcom.wanli.backend.repository.CourseRepository#findByStatusAndNotDeleted(Ljava/lang/String;)Ljava/util/List;40
+
+findByStatusAndNotDeleted41
+z
+tcom.wanli.backend.repository.CourseRepository#findByTitleContainingAndNotDeleted(Ljava/lang/String;)Ljava/util/List;43
+(
+"findByTitleContainingAndNotDeleted44J
+
+1
+12
+
+
+3
+4Z
+
+5	
+576jð
+;
+86
+8910 *
+1 (":5B
+
+
+11
+12
+
+
+13
+14
+
+29
+293017
+
+34
+343517
+A
+25;
+252627 *
+1 (28:5B
+
+
+11
+12
+
+
+13
+28
+
+23
+232417
+A
+39;
+394027 *
+13 3(28:5B
+
+
+11
+12
+
+
+13
+41
+A
+36;
+363727 *
+1) )(28:5B
+
+
+11
+12
+
+
+13
+38
+A
+42;
+424327 *
+1= =(28:5B
+
+
+11
+12
+
+
+13
+44
+
+19
+192017
+A
+31;
+313227 *
+1   (28:5B
+
+
+11
+12
+
+
+13
+33
+
+15
+151617rï
+
+81518*
+1+ (8
+
+81921*
+1 (
+
+81922*
+1 (
+
+81522*
+1+ (8
+
+82322*
+19 (?
+
+252921*
+1 (
+
+252922*
+1 (	
+
+252322*
+1 (
+
+312921*
+1   (
+
+312922*
+1   (	
+
+312322*
+1! !(
+
+313421*
+1!* !(+
+
+313422*
+1!+ !(0
+
+362921*
+1) )(
+
+362922*
+1) )(	
+
+362322*
+1+ +(
+
+363421*
+1+- +(.
+
+363422*
+1+. +(3
+
+392921*
+13 3(
+
+392922*
+13 3(	
+
+392322*
+15 5(
+
+393421*
+15* 5(+
+
+393422*
+15+ 5(0
+
+422921*
+1= =(
+
+422922*
+1= =(	
+
+422322*
+1? ?(
+
+423421*
+1?3 ?(4
+
+423422*
+1?4 ?(9

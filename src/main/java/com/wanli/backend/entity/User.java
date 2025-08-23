@@ -128,6 +128,11 @@ public class User {
     this.deletedAt = deletedAt;
   }
 
+  // 便利方法：检查是否已删除
+  public boolean isDeleted() {
+    return deletedAt != null;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;

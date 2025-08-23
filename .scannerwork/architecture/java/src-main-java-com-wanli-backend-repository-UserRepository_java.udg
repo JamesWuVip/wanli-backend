@@ -1,0 +1,300 @@
+
+1.0wanli-education-backendJavaFrontend"1755875202233*java2.B
+C
+>src/main/java/com/wanli/backend/repository/UserRepository.java2
+	
+type3
+	
+MAIN4
+
+package6
+!
+com.wanli.backend.repository7
+0
++com.wanli.backend.repository.UserRepository9
+
+	interface10
+
+access11
+
+public12
+
+simple-name13
+
+UserRepository14
+;
+5org.springframework.data.jpa.repository.JpaRepository16
+
+unknown17
+
+
+implements18
+/
+)org.springframework.stereotype.Repository20
+
+annotated by21
+
+
+uses22
+#
+com.wanli.backend.entity.User24
+h
+bcom.wanli.backend.repository.UserRepository#findByUsername(Ljava/lang/String;)Ljava/util/Optional;26
+
+method27
+
+findByUsername28
+3
+-org.springframework.data.jpa.repository.Query30
+5
+/org.springframework.data.repository.query.Param32
+e
+_com.wanli.backend.repository.UserRepository#findByEmail(Ljava/lang/String;)Ljava/util/Optional;34
+
+findByEmail35
+W
+Qcom.wanli.backend.repository.UserRepository#existsByUsername(Ljava/lang/String;)Z37
+
+existsByUsername38
+T
+Ncom.wanli.backend.repository.UserRepository#existsByEmail(Ljava/lang/String;)Z40
+
+existsByEmail41
+m
+gcom.wanli.backend.repository.UserRepository#findByIdAndNotDeleted(Ljava/util/UUID;)Ljava/util/Optional;43
+
+findByIdAndNotDeleted44
+‚
+|com.wanli.backend.repository.UserRepository#existsByUsernameOrEmailAndDeletedAtIsNull(Ljava/lang/String;Ljava/lang/String;)Z46
+/
+)existsByUsernameOrEmailAndDeletedAtIsNull47
+r
+lcom.wanli.backend.repository.UserRepository#findByIdAndDeletedAtIsNull(Ljava/util/UUID;)Ljava/util/Optional;49
+ 
+findByIdAndDeletedAtIsNull50J
+
+1
+12
+
+
+3
+4Z
+
+5	
+576jö
+
+29
+293017
+
+31
+313217
+A
+33;
+333427 *
+1   (28:5B
+
+
+11
+12
+
+
+13
+35
+;
+86
+8910 *
+1 ( :5B
+
+
+11
+12
+
+
+13
+14
+A
+25;
+252627 *
+1 (28:5B
+
+
+11
+12
+
+
+13
+28
+A
+36;
+363727 *
+1) )(28:5B
+
+
+11
+12
+
+
+13
+38
+A
+48;
+484927 *
+1P P(28:5B
+
+
+11
+12
+
+
+13
+50
+
+23
+232417
+A
+39;
+394027 *
+12 2(28:5B
+
+
+11
+12
+
+
+13
+41
+A
+45;
+454627 *
+1E E(28:5B
+
+
+11
+12
+
+
+13
+47
+
+19
+192017
+
+15
+151617
+A
+42;
+424327 *
+1; ;(28:5B
+
+
+11
+12
+
+
+13
+44r¬
+
+81518*
+1) (6
+
+81921*
+1 (
+
+81922*
+1 (
+
+81522*
+1) (6
+
+82322*
+17 (;
+
+252921*
+1 (
+
+252922*
+1 (	
+
+252322*
+1 (
+
+253121*
+1! ("
+
+253122*
+1" ('
+
+332921*
+1   (
+
+332922*
+1   (	
+
+332322*
+1! !(
+
+333121*
+1! !(
+
+333122*
+1! !($
+
+362921*
+1) )(
+
+362922*
+1) )(	
+
+363121*
+1* *(
+
+363122*
+1* *("
+
+392921*
+12 2(
+
+392922*
+12 2(	
+
+393121*
+13 3(
+
+393122*
+13 3(
+
+422921*
+1; ;(
+
+422922*
+1; ;(	
+
+422322*
+1< <(
+
+423121*
+1<( <()
+
+423122*
+1<) <(.
+
+452921*
+1E E(
+
+452922*
+1E E(	
+
+453121*
+1H H(
+
+453122*
+1H H(
+
+453121*
+1H+ H(,
+
+453122*
+1H, H(1
+
+482322*
+1P P(

@@ -1,0 +1,8 @@
+organization=jameswuvip
+projectKey=wanli-education-backend
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.66444
+branch=
+dashboardUrl=https://sonarcloud.io/dashboard?id=wanli-education-backend
+ceTaskId=AZjSUXMJgR4UQyUJDVKj
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZjSUXMJgR4UQyUJDVKj

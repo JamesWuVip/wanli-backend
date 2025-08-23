@@ -1,0 +1,55 @@
+
+Wcom.wanli.backend.service.AuthService#getUserById(Ljava/util/UUID;)Ljava/util/Optional;k
+_/Users/wujames/Documents/wanli-backend/src/main/java/com/wanli/backend/service/AuthService.java† †(#"startingBlock*²
+startingBlock
+†# †(0³
+°
+
+… …(!
+%2"
+__annotate*X
+
+__unknown_file (<:
+8org.springframework.transaction.annotation.Transactional*6
+
+__unknown_file (
+
+userIdjava.util.UUIDZ
+X
+
+†) †(/
+userIdjava.util.UUID"__annotation*"
+
+__unknown_file (
+
+%2*
+1*¦
+1
+‡ ‡(£
+ 
+
+‡ ‡(1
+%0+com.wanli.backend.repository.UserRepository"__id*Y
+
+__unknown_file (=*;'
+%com.wanli.backend.service.AuthService"
+userRepositoryÄÁ
+
+‡ ‡(7
+%1java.util.Optional"gcom.wanli.backend.repository.UserRepository#findByIdAndNotDeleted(Ljava/util/UUID;)Ljava/util/Optional;*O
+
+__unknown_file (3
+1
+%0+com.wanli.backend.repository.UserRepository*6
+
+__unknown_file (
+
+userIdjava.util.UUID2'findByIdAndNotDeleted(Ljava/util/UUID;)"(
+
+‡ ‡(8
+
+%1java.util.Optional:&
+
+†$ †(/
+userIdjava.util.UUIDB)'
+%com.wanli.backend.service.AuthServiceH

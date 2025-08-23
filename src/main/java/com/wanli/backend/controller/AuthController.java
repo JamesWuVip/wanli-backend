@@ -1,70 +1,85 @@
 package com.wanli.backend.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.wanli.backend.service.AuthService;
+import com.wanli.backend.util.ControllerLogUtil;
+import com.wanli.backend.util.ControllerResponseUtil;
+import com.wanli.backend.util.LogUtil;
+import com.wanli.backend.util.ServiceValidationUtil;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** 认证控制器 处理用户注册和登录相关的HTTP请求 */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-  // 常量定义
   private static final String SUCCESS_KEY = "success";
   private static final String MESSAGE_KEY = "message";
 
-  private final AuthService authService;
+  @Autowired private AuthService authService;
 
-  public AuthController(AuthService authService) {
-    this.authService = authService;
-  }
-
-  /** 用户注册 POST /api/auth/register */
   @PostMapping("/register")
   public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
+    LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("AuthController.register");
+
     try {
+      // 输入验证
+      ServiceValidationUtil.validateNotBlank(request.getEmail(), "邮箱");
+      ServiceValidationUtil.validateNotBlank(request.getPassword(), "密码");
+      ServiceValidationUtil.validateNotBlank(request.getUsername(), "用户名");
+
+      // 调用服务层进行注册
       Map<String, Object> result =
           authService.register(
-              request.getUsername(), request.getPassword(), request.getEmail(), request.getRole());
+              request.getEmail(), request.getPassword(), request.getUsername(), request.getRole());
 
-      Boolean success = (Boolean) result.get(SUCCESS_KEY);
-      if (Boolean.TRUE.equals(success)) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
-      } else {
-        return ResponseEntity.badRequest().body(result);
-      }
+      // 记录用户注册日志
+      ControllerLogUtil.logUserRegistration(
+          request.getEmail(), request.getUsername(), request.getRole());
 
+      return ControllerResponseUtil.fromServiceResult(result);
+    } catch (IllegalArgumentException e) {
+      return ControllerResponseUtil.createBadRequestResponse(e.getMessage());
     } catch (Exception e) {
-      return createErrorResponse("注册失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      ControllerLogUtil.logOperationError("用户注册失败", e, "email", request.getEmail());
+      return ControllerResponseUtil.createInternalServerErrorResponse("注册失败，请稍后重试");
+    } finally {
+      monitor.end();
     }
   }
 
-  /** 用户登录 POST /api/auth/login */
   @PostMapping("/login")
   public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
+    LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("AuthController.login");
+
     try {
-      Map<String, Object> result = authService.login(request.getUsername(), request.getPassword());
+      // 输入验证
+      ServiceValidationUtil.validateNotBlank(request.getEmail(), "邮箱");
+      ServiceValidationUtil.validateNotBlank(request.getPassword(), "密码");
 
-      Boolean success = (Boolean) result.get(SUCCESS_KEY);
-      if (Boolean.TRUE.equals(success)) {
-        return ResponseEntity.ok(result);
-      } else {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
-      }
+      // 调用服务层进行登录
+      Map<String, Object> result = authService.login(request.getEmail(), request.getPassword());
 
+      // 记录用户登录日志
+      ControllerLogUtil.logUserLogin(request.getEmail(), "password");
+
+      return ControllerResponseUtil.fromServiceResult(result);
+    } catch (IllegalArgumentException e) {
+      return ControllerResponseUtil.createBadRequestResponse(e.getMessage());
     } catch (Exception e) {
-      return createErrorResponse("登录失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      ControllerLogUtil.logOperationError("用户登录失败", e, "email", request.getEmail());
+      return ControllerResponseUtil.createInternalServerErrorResponse("登录失败，请稍后重试");
+    } finally {
+      monitor.end();
     }
   }
 
@@ -120,19 +135,20 @@ public class AuthController {
 
   /** 用户登录请求体 */
   public static class LoginRequest {
-    @NotBlank(message = "用户名不能为空")
-    private String username;
+    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
+    private String email;
 
     @NotBlank(message = "密码不能为空")
     private String password;
 
     // Getters and Setters
-    public String getUsername() {
-      return username;
+    public String getEmail() {
+      return email;
     }
 
-    public void setUsername(String username) {
-      this.username = username;
+    public void setEmail(String email) {
+      this.email = email;
     }
 
     public String getPassword() {
@@ -142,20 +158,5 @@ public class AuthController {
     public void setPassword(String password) {
       this.password = password;
     }
-  }
-
-  /**
-   * 创建错误响应
-   *
-   * @param message 错误消息
-   * @param status HTTP状态码
-   * @return 错误响应
-   */
-  private ResponseEntity<Map<String, Object>> createErrorResponse(
-      String message, HttpStatus status) {
-    Map<String, Object> errorResponse = new HashMap<>();
-    errorResponse.put(SUCCESS_KEY, false);
-    errorResponse.put(MESSAGE_KEY, message);
-    return ResponseEntity.status(status).body(errorResponse);
   }
 }

@@ -4,253 +4,229 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wanli.backend.service.LessonService;
-import com.wanli.backend.util.JwtUtil;
+import com.wanli.backend.util.AuthUtil;
+import com.wanli.backend.util.ControllerLogUtil;
+import com.wanli.backend.util.ControllerMonitorUtil;
+import com.wanli.backend.util.ControllerResponseUtil;
+import com.wanli.backend.util.LogUtil;
+import com.wanli.backend.util.ResponseUtil;
+import com.wanli.backend.util.ServiceValidationUtil;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** 课时管理控制器 处理课时相关的HTTP请求 */
 @RestController
-@RequestMapping("/api/courses/{courseId}/lessons")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/lessons")
 public class LessonController {
 
-  // 常量定义
-  private static final String SUCCESS_KEY = "success";
-  private static final String MESSAGE_KEY = "message";
-  private static final String INVALID_TOKEN_MESSAGE = "无效的认证令牌";
-  private static final String MISSING_TOKEN_MESSAGE = "缺少或无效的认证令牌";
-  private static final String BEARER_PREFIX = "Bearer ";
-  private static final int BEARER_PREFIX_LENGTH = 7;
-  private static final String INVALID_COURSE_ID_MESSAGE = "无效的课程ID格式";
-  private static final String INVALID_LESSON_ID_MESSAGE = "无效的课时ID格式";
-  private static final String INVALID_ID_MESSAGE = "无效的ID格式";
-  private static final String LESSON_KEY = "lesson";
-  private static final String LESSONS_KEY = "lessons";
+  @Autowired private LessonService lessonService;
+  @Autowired private AuthUtil authUtil;
 
-  private final LessonService lessonService;
-  private final JwtUtil jwtUtil;
-
-  public LessonController(LessonService lessonService, JwtUtil jwtUtil) {
-    this.lessonService = lessonService;
-    this.jwtUtil = jwtUtil;
+  // 辅助方法
+  private void validateCreateLessonRequest(CreateLessonRequest request) {
+    ServiceValidationUtil.validateNotBlank(request.getTitle(), "课时标题");
+    ServiceValidationUtil.validateNotBlank(request.getContent(), "课时内容");
+    ServiceValidationUtil.validateNotNull(request.getCourseId(), "课程ID");
+    ServiceValidationUtil.validatePositiveInteger(request.getOrderIndex(), "课时顺序");
   }
 
-  /** 创建课时 POST /api/courses/{courseId}/lessons */
+  private void validateUpdateLessonRequest(UpdateLessonRequest request) {
+    if (request.getTitle() != null) {
+      ServiceValidationUtil.validateNotBlank(request.getTitle(), "课时标题");
+    }
+    if (request.getContent() != null) {
+      ServiceValidationUtil.validateNotBlank(request.getContent(), "课时内容");
+    }
+    if (request.getOrderIndex() != null) {
+      ServiceValidationUtil.validatePositiveInteger(request.getOrderIndex(), "课时顺序");
+    }
+  }
+
+  private void logLessonOperation(
+      String operation, String description, UUID userId, String lessonTitle, UUID courseId) {
+    Map<String, Object> logContext = new HashMap<>();
+    logContext.put("userId", userId);
+    logContext.put("lessonTitle", lessonTitle);
+    logContext.put("courseId", courseId);
+    LogUtil.logBusinessOperation(operation, description, logContext);
+  }
+
+  private void logLessonUpdateOperation(
+      String operation, String description, UUID userId, UUID lessonId, String lessonTitle) {
+    Map<String, Object> logContext = new HashMap<>();
+    logContext.put("userId", userId);
+    logContext.put("lessonId", lessonId);
+    logContext.put("lessonTitle", lessonTitle);
+    LogUtil.logBusinessOperation(operation, description, logContext);
+  }
+
+  private Map<String, Object> createLogContext(String key, Object value) {
+    Map<String, Object> context = new HashMap<>();
+    context.put(key, value);
+    return context;
+  }
+
+  private Map<String, Object> createUpdateLogContext(UUID lessonId, UpdateLessonRequest request) {
+    Map<String, Object> context = new HashMap<>();
+    context.put("lessonId", lessonId);
+    context.put("request", request);
+    return context;
+  }
+
   @PostMapping
   public ResponseEntity<Map<String, Object>> createLesson(
-      @PathVariable("courseId") String courseId,
-      @Valid @RequestBody CreateLessonRequest request,
-      @RequestHeader(value = "Authorization", required = false) String authHeader) {
+      @RequestBody CreateLessonRequest request, @RequestHeader("Authorization") String authHeader) {
 
+    return ControllerMonitorUtil.executeWithMonitoringAndErrorHandling(
+        "createLesson",
+        () -> {
+          // 验证请求
+          validateCreateLessonRequest(request);
+
+          // 验证并获取用户ID
+          UUID userId = authUtil.validateTokenAndGetUserId(authHeader);
+
+          // 记录业务操作日志
+          UUID courseUuid = UUID.fromString(request.getCourseId());
+          ControllerLogUtil.logLessonOperation(
+              "LESSON_CREATE", "创建课时", userId, request.getTitle(), courseUuid);
+
+          // 调用服务层
+          Map<String, Object> result =
+              lessonService.createLesson(
+                  request.getCourseId(),
+                  userId,
+                  request.getTitle(),
+                  request.getDescription(),
+                  request.getContent(),
+                  request.getVideoUrl(),
+                  request.getDuration(),
+                  request.getStatus(),
+                  request.getOrderIndex());
+
+          // 处理结果
+          return ControllerResponseUtil.fromServiceResult(result);
+        },
+        ControllerLogUtil.createLogContext("request", request));
+  }
+
+  @GetMapping("/course/{courseId}")
+  public ResponseEntity<Map<String, Object>> getLessonsByCourse(@PathVariable String courseId) {
     try {
-      UUID userId = validateTokenAndGetUserId(authHeader);
-      if (userId == null) {
-        return createUnauthorizedResponse(MISSING_TOKEN_MESSAGE);
+      // 输入验证
+      try {
+        UUID.fromString(courseId);
+      } catch (IllegalArgumentException e) {
+        return ControllerResponseUtil.createBadRequestResponse("无效的课程ID格式");
       }
 
-      UUID courseUuid = UUID.fromString(courseId);
-      Map<String, Object> result =
-          lessonService.createLesson(
-              userId, courseUuid, request.getTitle(), request.getOrderIndex());
+      // 获取当前用户ID（这里需要从认证上下文获取，暂时使用null）
+      UUID userId = null; // TODO: 从认证上下文获取用户ID
+      Map<String, Object> result = lessonService.getLessonsByCourseId(courseId, userId);
+      return ControllerResponseUtil.fromServiceResult(result);
+    } catch (Exception e) {
+      return ControllerResponseUtil.createInternalServerErrorResponse("获取课时列表失败：" + e.getMessage());
+    }
+  }
 
-      Boolean success = (Boolean) result.get(SUCCESS_KEY);
-      if (Boolean.TRUE.equals(success)) {
-        Map<String, Object> response = new HashMap<>();
-        response.put(SUCCESS_KEY, true);
-        response.put(LESSON_KEY, result.get(LESSON_KEY));
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-      } else {
-        return handleServiceError(result);
+  @GetMapping("/{id}")
+  public ResponseEntity<Map<String, Object>> getLessonById(@PathVariable String id) {
+    try {
+      // 输入验证
+      try {
+        UUID.fromString(id);
+      } catch (IllegalArgumentException e) {
+        return ControllerResponseUtil.createBadRequestResponse("无效的课时ID格式");
       }
 
-    } catch (IllegalArgumentException e) {
-      return createErrorResponse(INVALID_COURSE_ID_MESSAGE, HttpStatus.BAD_REQUEST);
+      // 获取当前用户ID（这里需要从认证上下文获取，暂时使用null）
+      UUID userId = null; // TODO: 从认证上下文获取用户ID
+      Map<String, Object> result = lessonService.getLessonById(id, userId);
+      return ControllerResponseUtil.fromServiceResult(result);
     } catch (Exception e) {
-      return createErrorResponse("创建课时失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+      return ControllerResponseUtil.createInternalServerErrorResponse("获取课时详情失败：" + e.getMessage());
     }
   }
 
-  /** 获取指定课程的课时列表 GET /api/courses/{courseId}/lessons */
-  @GetMapping
-  public ResponseEntity<Map<String, Object>> getLessonsByCourseId(
-      @PathVariable("courseId") String courseId) {
-
-    try {
-      UUID courseUuid = UUID.fromString(courseId);
-      Map<String, Object> result = lessonService.getLessonsByCourseId(courseUuid);
-
-      Boolean success = (Boolean) result.get(SUCCESS_KEY);
-      if (Boolean.TRUE.equals(success)) {
-        Map<String, Object> response = new HashMap<>();
-        response.put(SUCCESS_KEY, true);
-        response.put(LESSONS_KEY, result.get(LESSONS_KEY));
-        return ResponseEntity.ok(response);
-      } else {
-        return handleServiceError(result);
-      }
-
-    } catch (IllegalArgumentException e) {
-      return createErrorResponse(INVALID_COURSE_ID_MESSAGE, HttpStatus.BAD_REQUEST);
-    } catch (Exception e) {
-      return createErrorResponse("获取课时列表失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  /** 根据ID获取课时详情 GET /api/courses/{courseId}/lessons/{lessonId} */
-  @GetMapping("/{lessonId}")
-  public ResponseEntity<Map<String, Object>> getLessonById(
-      @PathVariable("courseId") String courseId, @PathVariable("lessonId") String lessonId) {
-
-    try {
-      return getLessonByIdInternal(lessonId);
-    } catch (IllegalArgumentException e) {
-      return createErrorResponse(INVALID_LESSON_ID_MESSAGE, HttpStatus.BAD_REQUEST);
-    } catch (Exception e) {
-      return createErrorResponse("获取课时详情失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  private ResponseEntity<Map<String, Object>> getLessonByIdInternal(String lessonId) {
-    UUID lessonUuid = UUID.fromString(lessonId);
-    Map<String, Object> result = lessonService.getLessonById(lessonUuid);
-
-    Boolean success = (Boolean) result.get(SUCCESS_KEY);
-    if (Boolean.TRUE.equals(success)) {
-      return ResponseEntity.ok(result);
-    } else {
-      return handleServiceError(result);
-    }
-  }
-
-  /** 更新课时 PUT /api/courses/{courseId}/lessons/{lessonId} */
-  @PutMapping("/{lessonId}")
+  @PutMapping("/{id}")
   public ResponseEntity<Map<String, Object>> updateLesson(
-      @PathVariable("courseId") String courseId,
-      @PathVariable("lessonId") String lessonId,
-      @Valid @RequestBody UpdateLessonRequest request,
-      @RequestHeader(value = "Authorization", required = false) String authHeader) {
+      @PathVariable String id,
+      @RequestHeader("Authorization") String authHeader,
+      @Valid @RequestBody UpdateLessonRequest request) {
 
-    try {
-      UUID userId = validateTokenAndGetUserId(authHeader);
-      if (userId == null) {
-        return createUnauthorizedResponse(MISSING_TOKEN_MESSAGE);
-      }
+    return ControllerMonitorUtil.executeWithMonitoringAndErrorHandling(
+        "updateLesson",
+        () -> {
+          // 输入验证
+          try {
+            UUID.fromString(id);
+          } catch (IllegalArgumentException e) {
+            return ResponseUtil.badRequest("无效的课时ID格式");
+          }
 
-      UUID lessonUuid = UUID.fromString(lessonId);
-      Map<String, Object> result =
-          lessonService.updateLesson(
-              lessonUuid, userId, request.getTitle(), request.getOrderIndex());
+          UUID lessonId = UUID.fromString(id);
 
-      Boolean success = (Boolean) result.get(SUCCESS_KEY);
-      if (Boolean.TRUE.equals(success)) {
-        return ResponseEntity.ok(result);
-      } else {
-        return handleServiceError(result);
-      }
+          // 验证请求
+          validateUpdateLessonRequest(request);
 
-    } catch (IllegalArgumentException e) {
-      return createErrorResponse(INVALID_ID_MESSAGE, HttpStatus.BAD_REQUEST);
-    } catch (Exception e) {
-      return createErrorResponse("更新课时失败：" + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+          // 验证并获取用户ID
+          UUID userId = authUtil.validateTokenAndGetUserId(authHeader);
 
-  /**
-   * 从Authorization头中提取JWT令牌
-   *
-   * @param authHeader Authorization头
-   * @return JWT令牌
-   */
-  private String extractTokenFromHeader(String authHeader) {
-    if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
-      return authHeader.substring(BEARER_PREFIX_LENGTH);
-    }
-    return null;
-  }
+          // 记录业务操作日志
+          logLessonUpdateOperation("LESSON_UPDATE", "更新课时", userId, lessonId, request.getTitle());
 
-  /**
-   * 验证JWT令牌并获取用户ID
-   *
-   * @param authHeader Authorization头
-   * @return 用户ID，验证失败返回null
-   */
-  private UUID validateTokenAndGetUserId(String authHeader) {
-    if (authHeader == null || authHeader.isEmpty()) {
-      return null;
-    }
+          // 调用服务层
+          Map<String, Object> result =
+              lessonService.updateLesson(
+                  lessonId.toString(),
+                  userId,
+                  request.getTitle(),
+                  request.getDescription(),
+                  request.getContent(),
+                  request.getVideoUrl(),
+                  request.getDuration(),
+                  request.getStatus(),
+                  request.getOrderIndex());
 
-    String token = extractTokenFromHeader(authHeader);
-    if (token == null || !jwtUtil.validateToken(token)) {
-      return null;
-    }
-
-    try {
-      return jwtUtil.getUserIdFromToken(token);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  /**
-   * 创建错误响应
-   *
-   * @param message 错误消息
-   * @param status HTTP状态码
-   * @return 错误响应
-   */
-  private ResponseEntity<Map<String, Object>> createErrorResponse(
-      String message, HttpStatus status) {
-    Map<String, Object> errorResponse = new HashMap<>();
-    errorResponse.put(SUCCESS_KEY, false);
-    errorResponse.put(MESSAGE_KEY, message);
-    return ResponseEntity.status(status).body(errorResponse);
-  }
-
-  /**
-   * 创建未授权响应
-   *
-   * @param message 错误消息
-   * @return 未授权响应
-   */
-  private ResponseEntity<Map<String, Object>> createUnauthorizedResponse(String message) {
-    return createErrorResponse(message, HttpStatus.UNAUTHORIZED);
-  }
-
-  /**
-   * 处理服务层错误
-   *
-   * @param result 服务层返回结果
-   * @return 相应的HTTP响应
-   */
-  private ResponseEntity<Map<String, Object>> handleServiceError(Map<String, Object> result) {
-    String message = (String) result.get(MESSAGE_KEY);
-    if (message.contains("权限不足")) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
-    } else if (message.contains("不存在")) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
-    } else {
-      return ResponseEntity.badRequest().body(result);
-    }
+          // 处理结果
+          return ControllerResponseUtil.fromServiceResult(result);
+        },
+        ControllerLogUtil.createLessonUpdateLogContext(UUID.fromString(id), request));
   }
 
   /** 创建课时请求体 */
   public static class CreateLessonRequest {
     @NotBlank(message = "课时标题不能为空")
     @Size(max = 200, message = "课时标题长度不能超过200个字符")
-    private String title;
+    public String title;
+
+    @Size(max = 1000, message = "课时描述长度不能超过1000个字符")
+    public String description;
+
+    @JsonProperty("course_id")
+    public String courseId;
+
+    public String content;
+
+    @JsonProperty("video_url")
+    public String videoUrl;
+
+    @Min(value = 0, message = "课时时长不能为负数")
+    public Integer duration;
+
+    public String status;
 
     @Min(value = 1, message = "排序索引必须大于0")
     @JsonProperty("order_index")
-    private Integer orderIndex;
+    public Integer orderIndex;
 
     // Getters and Setters
     public String getTitle() {
@@ -259,6 +235,54 @@ public class LessonController {
 
     public void setTitle(String title) {
       this.title = title;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
+
+    public String getCourseId() {
+      return courseId;
+    }
+
+    public void setCourseId(String courseId) {
+      this.courseId = courseId;
+    }
+
+    public String getContent() {
+      return content;
+    }
+
+    public void setContent(String content) {
+      this.content = content;
+    }
+
+    public String getVideoUrl() {
+      return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+      this.videoUrl = videoUrl;
+    }
+
+    public Integer getDuration() {
+      return duration;
+    }
+
+    public void setDuration(Integer duration) {
+      this.duration = duration;
+    }
+
+    public String getStatus() {
+      return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
     }
 
     public Integer getOrderIndex() {
@@ -273,11 +297,24 @@ public class LessonController {
   /** 更新课时请求体 */
   public static class UpdateLessonRequest {
     @Size(max = 200, message = "课时标题长度不能超过200个字符")
-    private String title;
+    public String title;
+
+    @Size(max = 1000, message = "课时描述长度不能超过1000个字符")
+    public String description;
+
+    public String content;
+
+    @JsonProperty("video_url")
+    public String videoUrl;
+
+    @Min(value = 0, message = "课时时长不能为负数")
+    public Integer duration;
+
+    public String status;
 
     @Min(value = 1, message = "排序索引必须大于0")
     @JsonProperty("order_index")
-    private Integer orderIndex;
+    public Integer orderIndex;
 
     // Getters and Setters
     public String getTitle() {
@@ -286,6 +323,46 @@ public class LessonController {
 
     public void setTitle(String title) {
       this.title = title;
+    }
+
+    public String getDescription() {
+      return description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
+
+    public String getContent() {
+      return content;
+    }
+
+    public void setContent(String content) {
+      this.content = content;
+    }
+
+    public String getVideoUrl() {
+      return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+      this.videoUrl = videoUrl;
+    }
+
+    public Integer getDuration() {
+      return duration;
+    }
+
+    public void setDuration(Integer duration) {
+      this.duration = duration;
+    }
+
+    public String getStatus() {
+      return status;
+    }
+
+    public void setStatus(String status) {
+      this.status = status;
     }
 
     public Integer getOrderIndex() {

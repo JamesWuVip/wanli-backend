@@ -1,0 +1,101 @@
+
+fcom.wanli.backend.controller.CourseController#getAllCourses()Lorg/springframework/http/ResponseEntity;q
+g/Users/wujames/Documents/wanli-backend/src/main/java/com/wanli/backend/controller/CourseController.javaV V(("16*¶
+13\ \(è
+å
+\! \(6
+%3java.lang.Object"__mapGet*5
+
+__unknown_file (
+
+resultjava.util.Map*'
+
+__unknown_file (	
+courses*
+12*ä
+15X X(A^
+\
+X X(A
+resultjava.util.Map"__id*1
+
+__unknown_file (
+
+%1java.util.Mapè
+å
+Z Z()
+%2java.lang.Object"__mapGet*5
+
+__unknown_file (
+
+resultjava.util.Map*'
+
+__unknown_file (	
+success*
+13
+10*Ü
+16X# X(0§
+°
+X# X(0-
+%0'com.wanli.backend.service.CourseService"__id*`
+
+__unknown_file (D*B/
+-com.wanli.backend.controller.CourseController"
+courseService»≈
+X# X(@
+%1java.util.Map"Fcom.wanli.backend.service.CourseService#getAllCourses()Ljava/util/Map;*K
+
+__unknown_file (/
+-
+%0'com.wanli.backend.service.CourseService2getAllCourses()*
+15*J
+8^ ^(T";
+^ ^(T/
+-
+%7'org.springframework.http.ResponseEntity*Ú
+9^L ^(R›⁄
+^ ^(S-
+%7'org.springframework.http.ResponseEntity"uorg.springframework.http.ResponseEntity$BodyBuilder#body(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;*W
+
+__unknown_file (;
+9
+%63org.springframework.http.ResponseEntity$BodyBuilder*5
+
+__unknown_file (
+
+resultjava.util.Map2body(Ljava/lang/Object;)*
+8*‰
+10^ ^(a
+_
+^% ^(E)
+%5#org.springframework.http.HttpStatus"__id*"
+
+__unknown_file (
+""Î
+Ë
+^ ^(F9
+%63org.springframework.http.ResponseEntity$BodyBuilder"éorg.springframework.http.ResponseEntity#status(Lorg/springframework/http/HttpStatusCode;)Lorg/springframework/http/ResponseEntity$BodyBuilder;*G
+
+__unknown_file (+")
+'org.springframework.http.ResponseEntity*G
+
+__unknown_file (+
+)
+%5#org.springframework.http.HttpStatus*
+9*K
+11\ \(8";
+\ \(8/
+-
+%4'org.springframework.http.ResponseEntity*ª
+12\ \(7§
+°
+\ \(7-
+%4'org.springframework.http.ResponseEntity"gorg.springframework.http.ResponseEntity#ok(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;*G
+
+__unknown_file (+")
+'org.springframework.http.ResponseEntity*4
+
+__unknown_file (
+
+%3java.lang.Object*
+11B1/
+-com.wanli.backend.controller.CourseControllerH

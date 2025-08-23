@@ -12,7 +12,28 @@ import jakarta.persistence.*;
 
 /** 课程实体类 对应数据库设计文档中的courses表 */
 @Entity
-@Table(name = "courses")
+@Table(
+    name = "courses",
+    indexes = {
+      // 创建者ID索引 - 用于按创建者查询课程
+      @Index(name = "idx_courses_creator_id", columnList = "creator_id"),
+      // 状态索引 - 用于按状态查询课程
+      @Index(name = "idx_courses_status", columnList = "status"),
+      // 创建时间索引 - 用于按时间排序
+      @Index(name = "idx_courses_created_at", columnList = "created_at"),
+      // 软删除索引 - 用于过滤已删除记录
+      @Index(name = "idx_courses_deleted_at", columnList = "deleted_at"),
+      // 复合索引：创建者+状态+删除状态 - 用于高频查询组合
+      @Index(
+          name = "idx_courses_creator_status_deleted",
+          columnList = "creator_id, status, deleted_at"),
+      // 复合索引：状态+创建时间+删除状态 - 用于分页查询
+      @Index(
+          name = "idx_courses_status_created_deleted",
+          columnList = "status, created_at, deleted_at"),
+      // 标题索引 - 用于模糊查询（部分匹配）
+      @Index(name = "idx_courses_title", columnList = "title")
+    })
 public class Course {
 
   @Id
@@ -143,6 +164,11 @@ public class Course {
   public void removeLesson(Lesson lesson) {
     lessons.remove(lesson);
     lesson.setCourse(null);
+  }
+
+  // 便利方法：检查是否已删除
+  public boolean isDeleted() {
+    return deletedAt != null;
   }
 
   @Override

@@ -34,6 +34,12 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
   
+# 缓存配置
+cache:
+  enabled: false  # 缓存开关，测试禁用状态
+  default-expire-minutes: 30  # 默认过期时间（分钟）
+  max-size: 1000  # 最大缓存大小
+
 # 日志配置
 logging:
   level:

@@ -1,0 +1,60 @@
+
+`com.wanli.backend.controller.HealthController#welcome()Lorg/springframework/http/ResponseEntity;q
+g/Users/wujames/Documents/wanli-backend/src/main/java/com/wanli/backend/controller/HealthController.java(- ((4"1*�
+1)# )(286
+)' )(0
+%0java.util.HashMap"java.util.HashMapf
+d
+)# )(2
+%1"java.util.HashMap#<init>()V*5
+
+__unknown_file (
+
+%0java.util.HashMapd
+b
+) )(3
+responsejava.util.Map"__id*5
+
+__unknown_file (
+
+%0java.util.HashMap�
+�
+* *(*
+%2java.lang.String"__mapSet*7
+
+__unknown_file (
+
+responsejava.util.Map*'
+
+__unknown_file (	
+message*A
+
+__unknown_file (%#
+!欢迎使用万里后端系统！�
+�
++ +(=
+%3java.lang.String"__mapSet*7
+
+__unknown_file (
+
+responsejava.util.Map*+
+
+__unknown_file (
+description*P
+
+__unknown_file (42
+0这是一个基于Spring Boot的Java后端项目�
+�
+- -(&-
+%4'org.springframework.http.ResponseEntity"gorg.springframework.http.ResponseEntity#ok(Ljava/lang/Object;)Lorg/springframework/http/ResponseEntity;*G
+
+__unknown_file (+")
+'org.springframework.http.ResponseEntity*7
+
+__unknown_file (
+
+responsejava.util.Map";
+- -('/
+-
+%4'org.springframework.http.ResponseEntityB1/
+-com.wanli.backend.controller.HealthControllerH
