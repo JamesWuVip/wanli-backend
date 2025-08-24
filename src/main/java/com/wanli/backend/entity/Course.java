@@ -14,6 +14,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(
     name = "courses",
+    schema = "${DB_SCHEMA:public}",
     indexes = {
       // 创建者ID索引 - 用于按创建者查询课程
       @Index(name = "idx_courses_creator_id", columnList = "creator_id"),
