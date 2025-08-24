@@ -8,11 +8,16 @@ spring:
   application:
     name: wanli-backend
   
+  # Redis配置 - 测试环境禁用
+  data:
+    redis:
+      enabled: false
+  
   # 数据库配置 - 测试环境
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
