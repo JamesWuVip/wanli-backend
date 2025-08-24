@@ -3,5 +3,6 @@
   "type": "backend",
   "scope": "codebase",
   "localEndpoint": "http://localhost:8080",
-  "backendAuthType": "public"
+  "backendAuthType": "public",
+  "serverPort": 63025
 }

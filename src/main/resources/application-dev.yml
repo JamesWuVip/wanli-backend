@@ -2,7 +2,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/wanli_db
-    username: postgres
+    username: wujames
     password: 123456
     driver-class-name: org.postgresql.Driver
     hikari:
