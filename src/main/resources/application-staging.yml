@@ -1,12 +1,14 @@
 # Spring Boot 配置文件 - 测试环境
+# 服务器配置
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+
 spring:
   # 应用配置
   application:
     name: wanli-backend
-  
-  # 服务器配置
-  server:
-    port: ${PORT:9009}
   
   # 数据库配置 - 测试环境 (连接到Railway代理地址)
   datasource:
