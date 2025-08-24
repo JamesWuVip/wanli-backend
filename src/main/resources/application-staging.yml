@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
+    url: ${DATABASE_URL:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10

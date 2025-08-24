@@ -357,7 +357,7 @@ public class ApplicationConfigManager {
     }
 
     public String getUsername() {
-      return System.getProperty("spring.datasource.username", "postgres");
+      return System.getProperty("spring.datasource.username", "wujames");
     }
 
     public String getPassword() {
