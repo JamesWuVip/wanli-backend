@@ -19,7 +19,7 @@
   # 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
   SPRING_DATASOURCE_URL = 'jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway'
   SPRING_DATASOURCE_USERNAME = 'postgres'
-  SPRING_DATASOURCE_PASSWORD = '${SPRING_DATASOURCE_PASSWORD}'
+  SPRING_DATASOURCE_PASSWORD = 'UNKAKICITPygEMvfAvzRVYKesMbGoYBz'
   # JWT配置
   JWT_SECRET = '${JWT_SECRET}'
   # Redis配置 (如果需要)
