@@ -51,7 +51,12 @@ public class SecurityConfig {
             authz ->
                 authz
                     .requestMatchers(
-                        "/api/health", "/api/welcome", "/api/auth/register", "/api/auth/login")
+                        "/api/health",
+                        "/api/welcome",
+                        "/api/auth/register",
+                        "/api/auth/login",
+                        "/actuator/health",
+                        "/actuator/info")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
