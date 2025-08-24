@@ -5,7 +5,7 @@ nixPkgs = ['...', 'openjdk17']
 cmds = ['./mvnw clean package -DskipTests']
 
 [start]
-cmd = 'java -jar target/wanli-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=staging --server.port=$PORT'
+cmd = 'java -jar target/wanli-backend-0.0.1-SNAPSHOT.jar --server.port=$PORT'
 
 [variables]
 SPRING_PROFILES_ACTIVE = 'staging'
