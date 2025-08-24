@@ -11,14 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set environment variables
+      - name: Set environment variables and switch config
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "ENVIRONMENT=production" >> $GITHUB_ENV
             echo "SERVICE_ID=${{ secrets.RAILWAY_PRODUCTION_SERVICE_ID }}" >> $GITHUB_ENV
+            cp nixpacks-prod.toml nixpacks.toml
+            echo "使用生产环境配置"
           elif [ "${{ github.ref }}" = "refs/heads/staging" ]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_ENV
             echo "SERVICE_ID=${{ secrets.RAILWAY_STAGING_SERVICE_ID }}" >> $GITHUB_ENV
+            cp nixpacks-staging.toml nixpacks.toml
+            echo "使用测试环境配置"
+          elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            echo "ENVIRONMENT=development" >> $GITHUB_ENV
+            cp nixpacks-dev.toml nixpacks.toml
+            echo "使用开发环境配置"
           fi
       
       - name: Install Railway CLI
