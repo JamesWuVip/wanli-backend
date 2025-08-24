@@ -13,23 +13,16 @@ spring:
     redis:
       enabled: false
   
-  # 数据库配置
+  # 数据库配置 - 由各环境配置文件覆盖
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:123456}
     driver-class-name: org.postgresql.Driver
   
-  # JPA配置
+  # JPA配置 - 由各环境配置文件覆盖
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        default_schema: ${DB_SCHEMA:public}
   
   # CORS配置
   web:
