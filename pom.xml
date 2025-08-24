@@ -34,7 +34,7 @@
 		<spotless.maven.plugin.version>2.43.0</spotless.maven.plugin.version>
 		<dependency.check.maven.version>8.4.3</dependency.check.maven.version>
 		<!-- SonarQube 配置 -->
-		<sonar.projectKey>wanli-education-backend</sonar.projectKey>
+        <sonar.projectKey>JamesWuVip_wanli-backend</sonar.projectKey>
 		<sonar.projectName>万里在线教育平台后端</sonar.projectName>
 		<sonar.language>java</sonar.language>
 		<sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
