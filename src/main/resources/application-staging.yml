@@ -12,7 +12,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    password: ${SPRING_DATASOURCE_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
     driver-class-name: org.postgresql.Driver
     
     # Hikari 连接池配置
