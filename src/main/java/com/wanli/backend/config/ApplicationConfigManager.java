@@ -352,11 +352,12 @@ public class ApplicationConfigManager {
 
     // 数据库连接配置
     public String getUrl() {
-      return System.getProperty("spring.datasource.url", "jdbc:mysql://localhost:3306/wanli");
+      return System.getProperty(
+          "spring.datasource.url", "jdbc:postgresql://localhost:5432/wanli_db");
     }
 
     public String getUsername() {
-      return System.getProperty("spring.datasource.username", "root");
+      return System.getProperty("spring.datasource.username", "postgres");
     }
 
     public String getPassword() {
@@ -364,7 +365,7 @@ public class ApplicationConfigManager {
     }
 
     public String getDriverClassName() {
-      return System.getProperty("spring.datasource.driver-class-name", "com.mysql.cj.jdbc.Driver");
+      return System.getProperty("spring.datasource.driver-class-name", "org.postgresql.Driver");
     }
 
     public int getMaxPoolSize() {

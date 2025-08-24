@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ import com.wanli.backend.util.LogUtil;
 
 /** 缓存性能优化器 分析缓存使用模式并提供优化建议 */
 @Component
+@ConditionalOnBean(RedisTemplate.class)
 public class CacheOptimizer {
 
   private final ApplicationConfigManager configManager;

@@ -19,8 +19,8 @@ import com.wanli.backend.util.LogUtil;
 import jakarta.annotation.PostConstruct;
 
 /** 高级事务管理器 提供事务模板、嵌套事务、分布式事务等高级功能 */
-@Component
-public class TransactionManager {
+@Component("customTransactionManager")
+public class CustomTransactionManager {
 
   @Autowired private PlatformTransactionManager platformTransactionManager;
 

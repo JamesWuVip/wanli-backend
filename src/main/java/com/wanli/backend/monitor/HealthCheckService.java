@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -20,6 +21,7 @@ import com.wanli.backend.util.LogUtil;
 
 /** 健康检查服务 监控系统各个组件的健康状态 */
 @Service
+@ConditionalOnBean(RedisTemplate.class)
 public class HealthCheckService {
 
   private final ApplicationConfigManager configManager;
