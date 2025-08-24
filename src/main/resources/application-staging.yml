@@ -48,42 +48,31 @@ spring:
           max-idle: 8
           min-idle: 0
   
-  # CORS 配置 - 测试环境
-  web:
-    cors:
-      allowed-origins: 
-        - "http://localhost:3000"
-        - "https://wanli-frontend-staging.up.railway.app"
-      allowed-methods: "*"
-      allowed-headers: "*"
-      allow-credentials: true
-
-  # 缓存配置 - 测试环境
-  cache:
-    type: none  # 测试环境禁用缓存
-  
-  # 邮件配置 - 测试环境
+  # 邮件配置 - 测试环境 (使用Railway环境变量)
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
 
-# JWT 配置 - 测试环境
+# JWT 配置
 jwt:
-  secret: ${JWT_SECRET:staging-secret-key-for-testing-environment-only}
-  expiration: 86400000  # 24小时
+  secret: ${JWT_SECRET:staging-secret-key-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24小时
 
-# 日志配置 - 测试环境
+# 日志配置
 logging:
   level:
-    com.wanli.backend: DEBUG
+    com.wanli: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
@@ -92,3 +81,24 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/wanli-backend-staging.log
+    max-size: 10MB
+    max-history: 30
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# CORS 配置 - 测试环境
+cors:
+  allowed-origins: 
+    - ${FRONTEND_URL:http://localhost:3000}
+    - https://wanli-frontend-staging.up.railway.app
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
