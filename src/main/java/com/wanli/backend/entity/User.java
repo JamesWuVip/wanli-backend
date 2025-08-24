@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 
 /** 用户实体类 对应数据库设计文档中的users表 */
 @Entity
-@Table(name = "users", schema = "staging")
+@Table(name = "users")
 public class User {
 
   @Id
@@ -55,7 +55,7 @@ public class User {
     this.role = role;
   }
 
-  // Getters and Setters
+  // Getter和Setter方法
   public UUID getId() {
     return id;
   }
@@ -128,7 +128,7 @@ public class User {
     this.deletedAt = deletedAt;
   }
 
-  // 便利方法：检查是否已删除
+  // 业务方法
   public boolean isDeleted() {
     return deletedAt != null;
   }
@@ -143,7 +143,7 @@ public class User {
 
   @Override
   public int hashCode() {
-    return getClass().hashCode();
+    return id != null ? id.hashCode() : 0;
   }
 
   @Override
@@ -155,15 +155,19 @@ public class User {
         + franchiseId
         + ", username='"
         + username
-        + "'"
+        + '\'
         + ", email='"
         + email
-        + "'"
+        + '\'
         + ", role='"
         + role
-        + "'"
+        + '\'
         + ", createdAt="
         + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", deletedAt="
+        + deletedAt
         + '}';
   }
 }
