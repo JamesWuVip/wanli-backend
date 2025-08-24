@@ -28,15 +28,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+      show-sql: false
     properties:
       hibernate:
-        default_schema: staging
-
-# JWT配置
-jwt:
-  secret: ${JWT_SECRET:wanli-staging-secret-key-for-jwt-token-generation-and-validation}
-  expiration: 86400000  # 24小时
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
 
 # CORS配置
 cors:
@@ -45,17 +43,25 @@ cors:
   allowed-headers: "*"
   allow-credentials: true
 
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:wanli-staging-secret-key-for-jwt-token-generation-and-validation}
+  expiration: 86400000
+
+# 缓存配置
+cache:
+  type: simple
+
 # 日志配置
 logging:
   level:
-    com.wanli: DEBUG
+    com.wanli.backend: INFO
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 # 应用信息
-info:
-  app:
-    name: Wanli Backend API
-    version: 1.0.0
-    environment: staging
+app:
+  name: 万里书院后端服务
+  version: 1.0.0
+  environment: staging
