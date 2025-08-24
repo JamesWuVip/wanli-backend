@@ -1,4 +1,14 @@
+# 服务器配置
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+
 spring:
+  application:
+    name: wanli-backend
+  
+  # 数据库配置 - 测试环境
   datasource:
     url: ${DATABASE_URL:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
     username: ${DB_USERNAME:postgres}
