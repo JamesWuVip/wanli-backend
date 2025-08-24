@@ -17,7 +17,7 @@
   SPRING_PROFILES_ACTIVE = 'staging'
   DATABASE_URL = ''
   # 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
-  SPRING_DATASOURCE_URL = 'jdbc:postgresql://postgres-walt-staging.up.railway.app:5432/railway'
+  SPRING_DATASOURCE_URL = 'jdbc:postgresql://postgres-walt.railway.internal:5432/railway'
   SPRING_DATASOURCE_USERNAME = 'postgres'
   SPRING_DATASOURCE_PASSWORD = '${POSTGRES_PASSWORD}'
   # JWT配置
