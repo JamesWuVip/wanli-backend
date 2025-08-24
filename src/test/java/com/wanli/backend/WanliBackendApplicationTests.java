@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * 万里后端应用测试类
- * 
+ *
  * @author wanli-team
  * @version 1.0.0
  */
@@ -14,12 +14,9 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class WanliBackendApplicationTests {
 
-    /**
-     * 测试应用上下文加载
-     */
-    @Test
-    void contextLoads() {
-        // 测试Spring Boot应用上下文是否能正常加载
-    }
-
+  /** 测试应用上下文加载 */
+  @Test
+  void contextLoads() {
+    // 测试Spring Boot应用上下文是否能正常加载
+  }
 }

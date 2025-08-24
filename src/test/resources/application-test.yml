@@ -1,0 +1,45 @@
+# SP1 自动化验收测试配置
+# 使用本地PostgreSQL数据库进行测试
+
+spring:
+  # 数据源配置 - 使用H2内存数据库进行测试
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: create  # 测试时自动创建表结构，但不删除数据
+    show-sql: true  # 显示SQL语句，便于调试
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  
+  # H2控制台配置（可选，用于调试）
+  h2:
+    console:
+      enabled: true
+
+# JWT配置
+jwt:
+  secret: test-secret-key-for-sp1-acceptance-testing-wanli-academy-2024
+  expiration: 86400000  # 24小时（毫秒）
+
+# 日志配置
+logging:
+  level:
+    com.wanli: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# 测试环境标识
+test:
+  environment: sp1-acceptance
+  description: "SP1 Sprint自动化验收测试环境"
