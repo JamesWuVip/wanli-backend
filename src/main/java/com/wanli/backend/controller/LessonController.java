@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,7 +120,8 @@ public class LessonController {
   }
 
   @GetMapping("/course/{courseId}")
-  public ResponseEntity<Map<String, Object>> getLessonsByCourse(@PathVariable String courseId) {
+  public ResponseEntity<Map<String, Object>> getLessonsByCourse(
+      @PathVariable String courseId, @RequestHeader("Authorization") String authHeader) {
     try {
       // 输入验证
       try {
@@ -128,8 +130,8 @@ public class LessonController {
         return ControllerResponseUtil.createBadRequestResponse("无效的课程ID格式");
       }
 
-      // 获取当前用户ID（这里需要从认证上下文获取，暂时使用null）
-      UUID userId = null; // TODO: 从认证上下文获取用户ID
+      // 验证并获取用户ID
+      UUID userId = authUtil.validateTokenAndGetUserId(authHeader);
       Map<String, Object> result = lessonService.getLessonsByCourseId(courseId, userId);
       return ControllerResponseUtil.fromServiceResult(result);
     } catch (Exception e) {
@@ -138,7 +140,8 @@ public class LessonController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Map<String, Object>> getLessonById(@PathVariable String id) {
+  public ResponseEntity<Map<String, Object>> getLessonById(
+      @PathVariable String id, @RequestHeader("Authorization") String authHeader) {
     try {
       // 输入验证
       try {
@@ -147,8 +150,8 @@ public class LessonController {
         return ControllerResponseUtil.createBadRequestResponse("无效的课时ID格式");
       }
 
-      // 获取当前用户ID（这里需要从认证上下文获取，暂时使用null）
-      UUID userId = null; // TODO: 从认证上下文获取用户ID
+      // 验证并获取用户ID
+      UUID userId = authUtil.validateTokenAndGetUserId(authHeader);
       Map<String, Object> result = lessonService.getLessonById(id, userId);
       return ControllerResponseUtil.fromServiceResult(result);
     } catch (Exception e) {
@@ -200,6 +203,29 @@ public class LessonController {
           return ControllerResponseUtil.fromServiceResult(result);
         },
         ControllerLogUtil.createLessonUpdateLogContext(UUID.fromString(id), request));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Map<String, Object>> deleteLesson(
+      @PathVariable String id, @RequestHeader("Authorization") String authHeader) {
+
+    try {
+      return ControllerMonitorUtil.executeWithMonitoring(
+          "deleteLesson",
+          () -> {
+            UUID userId = authUtil.validateTokenAndGetUserId(authHeader);
+
+            var result = lessonService.deleteLesson(id, userId);
+            ControllerLogUtil.logLessonOperation(
+                "DELETE_LESSON", "课时删除", userId, UUID.fromString(id), "课时");
+
+            return ControllerResponseUtil.fromServiceResult(result);
+          });
+    } catch (Exception e) {
+      ControllerLogUtil.logOperationError("删除课时失败", e, "lessonId", id);
+      return ControllerResponseUtil.createErrorResponse(
+          e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /** 创建课时请求体 */

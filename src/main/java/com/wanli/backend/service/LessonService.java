@@ -614,6 +614,49 @@ public class LessonService {
    * @return 批量删除结果
    */
   @Transactional(rollbackFor = Exception.class)
+  public Map<String, Object> deleteLesson(String lessonId, UUID userId) {
+    try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("deleteLesson")) {
+      // 输入验证
+      if (!ValidationUtil.isValidUUID(lessonId)) {
+        throw new BusinessException("无效的课时ID格式: " + lessonId, "INVALID_LESSON_ID");
+      }
+
+      // 验证用户
+      User user = findUserById(userId);
+
+      UUID lessonUuid = UUID.fromString(lessonId);
+
+      // 查询课时
+      Lesson lesson = findLessonById(lessonUuid);
+      Course course = lesson.getCourse();
+
+      // 验证权限
+      if (!PermissionUtil.canDeleteLesson(user, course.getCreatorId())) {
+        throw new PermissionDeniedException("无权限删除课时: " + lesson.getTitle());
+      }
+
+      // 软删除
+      LocalDateTime now = LocalDateTime.now();
+      lesson.setDeletedAt(now);
+      lesson.setUpdatedAt(now);
+      lessonRepository.save(lesson);
+
+      // 清除相关缓存
+      clearLessonDetailCache(lessonUuid);
+      clearLessonListCache(course.getId());
+
+      // 记录操作日志
+      LogUtil.logBusinessOperation(
+          "删除课时",
+          userId.toString(),
+          Map.of(
+              "lessonId", lessonId, "lessonTitle", lesson.getTitle(), "courseId", course.getId()));
+
+      return ServiceResponseUtil.success("删除课时成功");
+    }
+  }
+
+  @Transactional(rollbackFor = Exception.class)
   public Map<String, Object> batchDeleteLessons(List<String> lessonIds, UUID userId) {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("batchDeleteLessons")) {
       // 输入验证
