@@ -8,6 +8,11 @@ spring:
   application:
     name: wanli-backend
   
+  # Redis配置 - 测试环境禁用
+  data:
+    redis:
+      enabled: false
+  
   # 数据库配置 - 测试环境
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
