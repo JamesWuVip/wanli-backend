@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 
 /** 用户实体类 对应数据库设计文档中的users表 */
 @Entity
-@Table(name = "users", schema = "staging")
+@Table(name = "users")
 public class User {
 
   @Id

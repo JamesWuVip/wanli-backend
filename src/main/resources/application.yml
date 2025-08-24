@@ -15,6 +15,9 @@ spring:
   
   # 数据库配置 - 由各环境配置文件覆盖
   datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wanli_backend}
+    username: ${SPRING_DATASOURCE_USERNAME:wujames}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   
   # JPA配置 - 由各环境配置文件覆盖

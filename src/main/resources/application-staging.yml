@@ -8,9 +8,9 @@ spring:
   server:
     port: ${PORT:9009}
   
-  # 数据库配置 - 测试环境 (连接到Postgres-WALT服务)
+  # 数据库配置 - 测试环境 (连接到Railway代理地址)
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres-walt-staging.up.railway.app:5432/railway}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
@@ -32,11 +32,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        default_schema: ${DB_SCHEMA:staging}
   
-  # Redis 配置 - 测试环境
+  # Redis 配置 - 测试环境 (禁用Redis或使用Railway Redis服务)
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
+      enabled: false  # 暂时禁用Redis，避免连接localhost错误
+      host: ${REDIS_HOST:redis-staging.up.railway.app}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000ms
@@ -60,6 +62,13 @@ spring:
 jwt:
   secret: ${JWT_SECRET:staging-secret-key-for-testing-environment-only}
   expiration: 86400000  # 24小时
+
+# 缓存配置 - 测试环境
+cache:
+  enabled: false  # 禁用缓存，避免Redis连接问题
+  type: simple  # 使用简单缓存替代Redis
+  default-expire-minutes: 30
+  max-size: 1000
 
 # 日志配置 - 测试环境
 logging:
