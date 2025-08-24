@@ -13,11 +13,11 @@ spring:
     redis:
       enabled: false
   
-  # 数据库配置 - 测试环境
+  # 数据库配置 - 测试环境 (连接到Postgres-WALT服务)
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/railway}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
