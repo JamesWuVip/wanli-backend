@@ -1,21 +1,28 @@
+# Nixpacks 配置文件 - 测试环境
+# 用于 Railway 部署的 Spring Boot 应用配置
+
 [phases.setup]
-nixPkgs = ['...', 'openjdk17']
+  nixPkgs = ['openjdk17']
 
 [phases.build]
-cmds = ['./mvnw clean package -DskipTests']
+  cmds = ['./mvnw clean package -DskipTests']
 
 [start]
-cmd = 'java -jar target/wanli-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=staging --server.port=$PORT'
+  cmd = 'java -jar target/wanli-backend-0.0.1-SNAPSHOT.jar --spring.profiles.active=staging --server.port=$PORT'
 
 [variables]
-SPRING_PROFILES_ACTIVE = 'staging'
-DB_SCHEMA = 'staging'
-PORT = '9009'
-# 禁用Railway自动DATABASE_URL设置
-DATABASE_URL = ''
-# 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
-SPRING_DATASOURCE_URL = 'jdbc:postgresql://${{Postgres-WALT.PGHOST}}:${{Postgres-WALT.PGPORT}}/${{Postgres-WALT.PGDATABASE}}'
-SPRING_DATASOURCE_USERNAME = '${{Postgres-WALT.PGUSER}}'
-SPRING_DATASOURCE_PASSWORD = '${{Postgres-WALT.PGPASSWORD}}'
-CORS_ALLOWED_ORIGINS = 'http://localhost:3000,https://staging.wanli.ai'
-JWT_SECRET = 'wanli-staging-secret-key-for-jwt-token-generation-and-validation'
+  # 端口配置
+  PORT = '9009'
+  # 环境变量
+  SPRING_PROFILES_ACTIVE = 'staging'
+  DATABASE_URL = ''
+  # 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
+  SPRING_DATASOURCE_URL = 'jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway'
+  SPRING_DATASOURCE_USERNAME = '${{Postgres-WALT.PGUSER}}'
+  SPRING_DATASOURCE_PASSWORD = '${{Postgres-WALT.PGPASSWORD}}'
+  # JWT配置
+  JWT_SECRET = '${{JWT_SECRET}}'
+  # Redis配置 (如果需要)
+  REDIS_HOST = '${REDIS_HOST}'
+  REDIS_PORT = '${REDIS_PORT}'
+  REDIS_PASSWORD = '${REDIS_PASSWORD}'
