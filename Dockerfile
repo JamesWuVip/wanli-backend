@@ -22,5 +22,8 @@ RUN ./mvnw clean package -DskipTests
 # 暴露端口
 EXPOSE 8080
 
+# 设置环境变量
+ENV SPRING_PROFILES_ACTIVE=staging
+
 # 运行应用
 CMD ["java", "-jar", "target/wanli-backend-0.0.1-SNAPSHOT.jar"]
