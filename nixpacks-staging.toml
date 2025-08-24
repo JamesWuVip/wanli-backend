@@ -14,7 +14,7 @@ PORT = '9009'
 # 禁用Railway自动DATABASE_URL设置
 DATABASE_URL = ''
 # 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
-SPRING_DATASOURCE_URL = 'jdbc:postgresql://${{Postgres-WALT.PGHOST}}:${{Postgres-WALT.PGPORT}}/${{Postgres-WALT.PGDATABASE}}'
+SPRING_DATASOURCE_URL = 'jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway'
 SPRING_DATASOURCE_USERNAME = '${{Postgres-WALT.PGUSER}}'
 SPRING_DATASOURCE_PASSWORD = '${{Postgres-WALT.PGPASSWORD}}'
 CORS_ALLOWED_ORIGINS = 'http://localhost:3000,https://staging.wanli.ai'
