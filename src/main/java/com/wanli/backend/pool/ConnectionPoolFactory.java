@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.wanli.backend.config.ApplicationConfigManager;
 import com.wanli.backend.util.LogUtil;
@@ -18,7 +17,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 /** 数据库连接池工厂 统一管理不同类型的数据库连接池 */
-@Component
+// @Component  // 临时禁用自定义连接池，使用Spring Boot标准数据源
 public class ConnectionPoolFactory {
 
   @Autowired private ApplicationConfigManager configManager;

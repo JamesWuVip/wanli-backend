@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -19,7 +18,7 @@ import com.wanli.backend.util.LogUtil;
 import jakarta.annotation.PostConstruct;
 
 /** 高级事务管理器 提供事务模板、嵌套事务、分布式事务等高级功能 */
-@Component("customTransactionManager")
+// @Component("customTransactionManager")  // 临时禁用自定义事务管理器
 public class CustomTransactionManager {
 
   @Autowired private PlatformTransactionManager platformTransactionManager;

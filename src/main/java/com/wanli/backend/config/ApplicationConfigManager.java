@@ -352,20 +352,21 @@ public class ApplicationConfigManager {
 
     // 数据库连接配置
     public String getUrl() {
-      return System.getProperty(
-          "spring.datasource.url", "jdbc:postgresql://localhost:5432/wanli_db");
+      // 这些方法应该由Spring的DataSource配置处理，不应该在这里硬编码
+      // 返回null表示使用Spring Boot的默认数据源配置
+      return null;
     }
 
     public String getUsername() {
-      return System.getProperty("spring.datasource.username", "wujames");
+      return null;
     }
 
     public String getPassword() {
-      return System.getProperty("spring.datasource.password", "");
+      return null;
     }
 
     public String getDriverClassName() {
-      return System.getProperty("spring.datasource.driver-class-name", "org.postgresql.Driver");
+      return null;
     }
 
     public int getMaxPoolSize() {
