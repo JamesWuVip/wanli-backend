@@ -3,6 +3,7 @@
 ## 🚀 最新更新
 - ✅ SonarCloud代码质量检查已集成
 - ✅ Railway自动部署已配置
+- ✅ 修复staging环境数据库schema配置问题
 
 ## 项目简介
 

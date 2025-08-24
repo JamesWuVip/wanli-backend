@@ -52,12 +52,7 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-
-
-# 应用信息
-info:
-  app:
-    name: 万里后端系统
-    description: 基于Spring Boot的Java后端项目
-    version: 1.0.0
-    author: wanli-team
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:default-secret-key-for-development-only-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}  # 24小时，单位毫秒

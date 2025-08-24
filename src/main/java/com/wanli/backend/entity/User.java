@@ -55,7 +55,7 @@ public class User {
     this.role = role;
   }
 
-  // Getters and Setters
+  // Getter和Setter方法
   public UUID getId() {
     return id;
   }
@@ -128,7 +128,7 @@ public class User {
     this.deletedAt = deletedAt;
   }
 
-  // 便利方法：检查是否已删除
+  // 业务方法
   public boolean isDeleted() {
     return deletedAt != null;
   }
@@ -143,7 +143,7 @@ public class User {
 
   @Override
   public int hashCode() {
-    return getClass().hashCode();
+    return id != null ? id.hashCode() : 0;
   }
 
   @Override
@@ -155,15 +155,19 @@ public class User {
         + franchiseId
         + ", username='"
         + username
-        + "'"
+        + '\'
         + ", email='"
         + email
-        + "'"
+        + '\'
         + ", role='"
         + role
-        + "'"
+        + '\'
         + ", createdAt="
         + createdAt
+        + ", updatedAt="
+        + updatedAt
+        + ", deletedAt="
+        + deletedAt
         + '}';
   }
 }

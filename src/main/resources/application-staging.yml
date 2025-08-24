@@ -58,22 +58,37 @@ spring:
       allowed-headers: "*"
       allow-credentials: true
 
+  # 缓存配置 - 测试环境
+  cache:
+    type: none  # 测试环境禁用缓存
+  
+  # 邮件配置 - 测试环境
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 # JWT 配置 - 测试环境
 jwt:
   secret: ${JWT_SECRET:staging-secret-key-for-testing-environment-only}
   expiration: 86400000  # 24小时
 
-# 缓存配置 - 测试环境
-cache:
-  enabled: false  # 禁用缓存，避免Redis连接问题
-  type: simple  # 使用简单缓存替代Redis
-  default-expire-minutes: 30
-  max-size: 1000
-
 # 日志配置 - 测试环境
 logging:
   level:
-    com.wanli: DEBUG
+    com.wanli.backend: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/wanli-backend-staging.log
