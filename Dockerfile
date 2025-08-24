@@ -26,4 +26,4 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=staging
 
 # 运行应用
-CMD ["java", "-jar", "target/wanli-backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dspring.profiles.active=staging", "target/wanli-backend-0.0.1-SNAPSHOT.jar"]
