@@ -1,18 +1,17 @@
-# 万里在线教育平台后端 - 代码所有者配置
+# =============================================================================
+# 万里书院后端项目 - 代码所有者配置文件
+# =============================================================================
 # 
-# 此文件定义了代码库中不同部分的代码所有者和审查者
-# 当创建Pull Request时，相关的代码所有者会自动被请求进行代码审查
-#
-# 语法说明：
-# - 每行定义一个规则：<文件模式> <所有者1> <所有者2> ...
-# - 使用 @username 指定GitHub用户
-# - 使用 @org/team-name 指定GitHub团队
+# 此文件定义了项目中不同文件和目录的代码审查责任人。
+# 当创建Pull Request时，GitHub会自动请求相应的代码所有者进行审查。
+# 
+# 格式说明：
+# - 每行定义一个路径模式和对应的所有者
+# - 使用 @username 或 @team-name 指定所有者
+# - 路径支持通配符，如 * 和 **
 # - 后面的规则会覆盖前面的规则
-# - 支持glob模式匹配
-
-# =============================================================================
-# 全局默认所有者
-# =============================================================================
+# - 空行和以 # 开头的行会被忽略
+# 
 
 # 所有文件的默认所有者（项目负责人）
 * @JamesWuVip
@@ -78,7 +77,7 @@
 /src/test/resources/ @JamesWuVip @test-lead @qa-team
 
 # =============================================================================
-# 构建和部署
+# 构建和部署配置
 # =============================================================================
 
 # Maven配置 - 需要构建工程师审查
@@ -94,7 +93,7 @@ docker-compose*.yml @JamesWuVip @devops-team @container-expert
 *.yml @JamesWuVip @devops-team
 
 # =============================================================================
-# CI/CD 和自动化
+# CI/CD和工具配置
 # =============================================================================
 
 # GitHub Actions工作流 - 需要CI/CD专家审查
@@ -158,7 +157,7 @@ CODE_OF_CONDUCT.md @JamesWuVip @hr-team @community-manager
 CONTRIBUTING.md @JamesWuVip @opensource-lead @community-manager
 
 # =============================================================================
-# 敏感配置（需要最高级别审查）
+# 敏感配置（需要额外审查）
 # =============================================================================
 
 # 生产环境配置 - 需要多重审查
@@ -173,35 +172,16 @@ CONTRIBUTING.md @JamesWuVip @opensource-lead @community-manager
 *.jks @JamesWuVip @security-team @security-expert
 
 # =============================================================================
-# 团队说明
+# 注意事项
 # =============================================================================
-#
-# 以下是建议的GitHub团队配置：
-#
-# @backend-lead        - 后端技术负责人
-# @business-architect  - 业务架构师
-# @system-architect    - 系统架构师
-# @database-expert     - 数据库专家
-# @api-designer        - API设计师
-# @security-team       - 安全团队
-# @security-expert     - 安全专家
-# @devops-team         - DevOps团队
-# @devops-lead         - DevOps负责人
-# @ops-team            - 运维团队
-# @ops-manager         - 运维经理
-# @dba-team            - 数据库管理团队
-# @test-lead           - 测试负责人
-# @qa-team             - QA团队
-# @build-engineer      - 构建工程师
-# @container-expert    - 容器化专家
-# @k8s-expert          - Kubernetes专家
-# @cicd-expert         - CI/CD专家
-# @quality-engineer    - 质量工程师
-# @tech-writer         - 技术写作
-# @documentation-team  - 文档团队
-# @legal-team          - 法务团队
-# @hr-team             - 人力资源团队
-# @community-manager   - 社区管理员
-# @opensource-lead     - 开源负责人
-#
-# 注意：实际使用时需要将这些团队名称替换为真实的GitHub用户名或团队名称
+# 
+# 1. 团队名称需要在GitHub组织中预先创建
+# 2. 用户名必须是有效的GitHub用户名
+# 3. 路径匹配是大小写敏感的
+# 4. 建议定期审查和更新此文件
+# 5. 对于关键文件，建议设置多个审查者
+# 
+# 更多信息请参考：
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# 
+# =============================================================================

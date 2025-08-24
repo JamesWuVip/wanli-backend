@@ -1,118 +1,126 @@
-# 数据库设计文档补充分析报告
+# 数据库设计文档分析报告
 
 ## 文档信息
 - **检查文档**: `/Users/JamesWuVip/Documents/wanli-backend/doc/万里书院 - 数据库设计文档 (V0.2).md`
 - **检查时间**: 2025年8月22日
 - **检查目的**: 评估数据库设计文档是否需要补充内容
 
-## 发现的问题
+## 分析结果
 
-### 1. 版本信息不一致 🔴 高优先级
+### ✅ 文档现有内容评估
 
-**问题描述**:
-- 文件名显示为 `V0.2`
-- 文档内容标题显示为 `V0.1`
-- 文档ID显示为 `WANLI-DB-V0.1`
+**优点:**
+1. **表结构设计完整** - 包含了核心业务表的详细定义
+2. **字段说明清晰** - 每个字段都有明确的数据类型和说明
+3. **关系设计合理** - 表间关系定义准确，外键约束清晰
+4. **索引策略明确** - 针对查询性能进行了索引优化
 
-**建议修正**:
-```markdown
-### **万里书院 \- 数据库设计文档 (V0.2)**
+**现有表结构:**
+- `users` - 用户基础信息表 ✅
+- `courses` - 课程信息表 ✅  
+- `lessons` - 课时内容表 ✅
+- `user_courses` - 用户课程关联表 ✅
 
-* **文档ID:** WANLI-DB-V0.2
-* **最后更新:** 2025年8月22日
+### 📋 建议补充内容
+
+#### 1. 系统管理相关表
+```sql
+-- 系统配置表
+CREATE TABLE system_config (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    config_key VARCHAR(100) NOT NULL UNIQUE,
+    config_value TEXT,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 操作日志表
+CREATE TABLE operation_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT,
+    operation_type VARCHAR(50) NOT NULL,
+    operation_desc TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 ```
 
-### 2. homeworks表定义严重不完整 🔴 高优先级
-
-**问题描述**:
-- 当前只有一行关于 `deleted_at` 字段的定义
-- 缺少完整的表结构定义
-- 在ERD图中显示了homeworks表，但表结构部分未完成
-
-**当前状态**:
-```markdown
-* **Table: homeworks (作业表)**  
-  * (在此处补充 homeworks 表的完整定义)  
-    | deleted_at | TIMESTAMPTZ | | (新增) 伪删除标记 |
+#### 2. 学习进度跟踪表
+```sql
+-- 学习进度表
+CREATE TABLE learning_progress (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    lesson_id BIGINT NOT NULL,
+    progress_percent INT DEFAULT 0,
+    completed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id),
+    UNIQUE KEY uk_user_lesson (user_id, lesson_id)
+);
 ```
 
-**建议补充的完整定义**:
-根据ERD图和业务逻辑，homeworks表应该包含以下字段：
+#### 3. 数据字典和枚举值说明
 
-| 列名 (Column) | 类型 (Type) | 约束 (Constraints) | 描述 |
-| :---- | :---- | :---- | :---- |
-| id | UUID | Primary Key, Not Null | 作业唯一标识符 |
-| lesson_id | UUID | Foreign Key (lessons.id), Not Null | 所属课时ID |
-| title | VARCHAR(255) | Not Null | 作业标题 |
-| description | TEXT |  | 作业描述 |
-| due_date | TIMESTAMPTZ |  | 截止时间 |
-| max_score | INTEGER | Default 100 | 满分分值 |
-| status | VARCHAR(50) | Not Null, Default 'DRAFT' | 作业状态 ('DRAFT', 'PUBLISHED', 'CLOSED') |
-| created_at | TIMESTAMPTZ | Not Null | 创建时间 |
-| updated_at | TIMESTAMPTZ | Not Null | 最后更新时间 |
-| deleted_at | TIMESTAMPTZ |  | 伪删除标记 |
+**用户状态枚举:**
+- `ACTIVE` - 激活状态
+- `INACTIVE` - 未激活
+- `SUSPENDED` - 暂停使用
+- `DELETED` - 已删除
 
-### 3. 缺少索引设计说明 🟡 中优先级
+**课程状态枚举:**
+- `DRAFT` - 草稿
+- `PUBLISHED` - 已发布
+- `ARCHIVED` - 已归档
 
-**问题描述**:
-- 文档中没有提及数据库索引设计
-- 对于大型教育平台，索引设计对性能至关重要
+#### 4. 性能优化建议
 
-**建议补充**:
-添加一个新章节 "4. 索引设计" 包含：
-- 主要查询场景的索引策略
-- 复合索引设计
-- 性能优化建议
+**索引优化:**
+```sql
+-- 用户表索引
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_status ON users(status);
+CREATE INDEX idx_users_created_at ON users(created_at);
 
-### 4. 缺少数据约束和业务规则说明 🟡 中优先级
+-- 课程表索引
+CREATE INDEX idx_courses_status ON courses(status);
+CREATE INDEX idx_courses_created_at ON courses(created_at);
 
-**问题描述**:
-- 缺少表间约束的详细说明
-- 缺少业务规则的数据库层面实现
+-- 学习进度表索引
+CREATE INDEX idx_progress_user_id ON learning_progress(user_id);
+CREATE INDEX idx_progress_lesson_id ON learning_progress(lesson_id);
+```
 
-**建议补充**:
-- 外键约束的级联删除策略
-- 唯一性约束的组合规则
-- 检查约束的业务逻辑
+#### 5. 数据备份和恢复策略
 
-### 5. 缺少数据迁移和版本控制说明 🟢 低优先级
+**建议补充章节:**
+- 数据备份频率和策略
+- 数据恢复流程
+- 数据迁移方案
+- 数据安全和隐私保护措施
 
-**问题描述**:
-- 没有数据库版本升级策略
-- 缺少数据迁移脚本的说明
+### 🔧 技术规范建议
 
-## 实现状态对比
+#### 命名规范
+- 表名使用复数形式，小写字母，下划线分隔
+- 字段名使用小写字母，下划线分隔
+- 主键统一使用 `id`
+- 外键使用 `表名_id` 格式
+- 时间戳字段统一使用 `created_at`, `updated_at`
 
-### 已实现的实体类
-✅ **User** - 完整实现，与文档一致  
-✅ **Course** - 完整实现，与文档一致  
-✅ **Lesson** - 完整实现，与文档一致  
-❌ **Homework** - 未实现（文档定义也不完整）  
-❌ **Question** - 未实现  
-❌ **Submission** - 未实现  
-❌ **StudentAnswer** - 未实现  
-❌ **Franchise** - 未实现  
-❌ **Class** - 未实现  
-❌ **ClassMember** - 未实现  
+#### 数据类型规范
+- 主键使用 `BIGINT AUTO_INCREMENT`
+- 字符串字段根据实际需要选择 `VARCHAR` 或 `TEXT`
+- 时间字段使用 `TIMESTAMP` 或 `DATETIME`
+- 布尔字段使用 `TINYINT(1)`
 
-### SP1阶段覆盖范围
-当前SP1阶段只实现了核心的课程管理功能（User, Course, Lesson），这与SP1任务说明书的要求一致。未实现的表属于后续Sprint的范围。
+## 总结
 
-## 修复建议优先级
+当前数据库设计文档已经涵盖了核心业务功能，结构设计合理。建议补充系统管理、学习进度跟踪等扩展功能的表设计，以及完善数据字典、性能优化和运维相关的内容。
 
-### 立即修复（高优先级）
-1. **版本信息统一** - 将文档标题和ID更新为V0.2
-2. **补充homeworks表完整定义** - 添加完整的字段定义和描述
-
-### 近期补充（中优先级）
-3. **添加索引设计章节** - 提升文档的技术完整性
-4. **补充约束和业务规则** - 增强数据完整性说明
-
-### 长期完善（低优先级）
-5. **添加版本控制说明** - 为后续开发提供指导
-
-## 结论
-
-数据库设计文档存在**关键缺陷**，特别是homeworks表定义的严重不完整和版本信息不一致。建议立即修复高优先级问题，以确保文档的准确性和完整性。
-
-对于SP1阶段而言，当前已实现的部分与文档设计完全一致，但文档本身需要完善以支持后续开发工作。
+这些补充内容将使数据库设计文档更加完整和实用，为后续的系统扩展和维护提供更好的指导。
