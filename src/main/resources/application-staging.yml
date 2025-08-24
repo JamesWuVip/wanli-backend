@@ -1,8 +1,5 @@
 # Spring Boot 配置文件 - 测试环境
 spring:
-  profiles:
-    active: staging
-  
   # 应用配置
   application:
     name: wanli-backend
