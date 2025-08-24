@@ -15,7 +15,7 @@ spring:
   
   # 数据库配置 - 测试环境
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:UNKAKICITPygEMvfAvzRVYKesMbGoYBz@switchback.proxy.rlwy.net:43164/railway}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://switchback.proxy.rlwy.net:43164/railway}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:UNKAKICITPygEMvfAvzRVYKesMbGoYBz}
     driver-class-name: org.postgresql.Driver
