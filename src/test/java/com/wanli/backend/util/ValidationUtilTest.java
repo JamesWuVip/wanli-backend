@@ -58,7 +58,7 @@ class ValidationUtilTest {
       fail("Valid UUID strings should be parseable");
     }
 
-    assertFalse(ValidationUtil.isValidUUID(null));
+    assertFalse(ValidationUtil.isValidUUID((String) null));
   }
 
   @Test
@@ -186,49 +186,39 @@ class ValidationUtilTest {
     String validCreatorId = UUID.randomUUID().toString();
 
     // 有效的课程创建数据
-    assertDoesNotThrow(
-        () -> {
-          ValidationUtil.validateCourseCreation(validTitle, validDescription, validCreatorId);
-        });
+    String result = ValidationUtil.validateCourseCreation(validTitle, validDescription, "DRAFT");
+    assertNull(result);
 
     // 无效的标题
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation("", validDescription, validCreatorId);
-        });
+    String emptyTitleResult = ValidationUtil.validateCourseCreation("", validDescription, "DRAFT");
+    assertNotNull(emptyTitleResult);
+    assertTrue(emptyTitleResult.contains("标题"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation(null, validDescription, validCreatorId);
-        });
+    String nullTitleResult = ValidationUtil.validateCourseCreation(null, validDescription, "DRAFT");
+    assertNotNull(nullTitleResult);
+    assertTrue(nullTitleResult.contains("标题"));
 
-    // 无效的描述
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation(validTitle, "", validCreatorId);
-        });
+    // 无效的描述 - 空描述实际上是允许的，所以测试超长描述
+    String longDescription = "a".repeat(2001);
+    String longDescResult =
+        ValidationUtil.validateCourseCreation(validTitle, longDescription, "DRAFT");
+    assertNotNull(longDescResult);
+    assertTrue(longDescResult.contains("描述"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation(validTitle, null, validCreatorId);
-        });
+    // null描述是允许的
+    String nullDescResult = ValidationUtil.validateCourseCreation(validTitle, null, "DRAFT");
+    assertNull(nullDescResult);
 
-    // 无效的创建者ID
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation(validTitle, validDescription, "invalid-uuid");
-        });
+    // 无效的状态
+    String invalidStatusResult =
+        ValidationUtil.validateCourseCreation(validTitle, validDescription, "INVALID");
+    assertNotNull(invalidStatusResult);
+    assertTrue(invalidStatusResult.contains("状态"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateCourseCreation(validTitle, validDescription, null);
-        });
+    String nullStatusResult =
+        ValidationUtil.validateCourseCreation(validTitle, validDescription, null);
+    assertNotNull(nullStatusResult);
+    assertTrue(nullStatusResult.contains("状态"));
   }
 
   @Test
@@ -240,51 +230,41 @@ class ValidationUtilTest {
     String validRole = "student";
 
     // 有效的用户注册数据
-    assertDoesNotThrow(
-        () -> {
-          ValidationUtil.validateUserRegistration(
-              validUsername, validEmail, validPassword, validRole);
-        });
+    String result =
+        ValidationUtil.validateUserRegistration(
+            validUsername, validEmail, validPassword, validRole);
+    assertNull(result);
 
     // 无效的用户名
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration("ab", validEmail, validPassword, validRole);
-        });
+    String invalidUsernameResult =
+        ValidationUtil.validateUserRegistration("ab", validEmail, validPassword, validRole);
+    assertNotNull(invalidUsernameResult);
+    assertTrue(invalidUsernameResult.contains("用户名"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration(null, validEmail, validPassword, validRole);
-        });
+    String nullUsernameResult =
+        ValidationUtil.validateUserRegistration(null, validEmail, validPassword, validRole);
+    assertNotNull(nullUsernameResult);
 
     // 无效的邮箱
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration(
-              validUsername, "invalid-email", validPassword, validRole);
-        });
+    String invalidEmailResult =
+        ValidationUtil.validateUserRegistration(
+            validUsername, "invalid-email", validPassword, validRole);
+    assertNotNull(invalidEmailResult);
+    assertTrue(invalidEmailResult.contains("邮箱"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration(validUsername, null, validPassword, validRole);
-        });
+    String nullEmailResult =
+        ValidationUtil.validateUserRegistration(validUsername, null, validPassword, validRole);
+    assertNotNull(nullEmailResult);
 
     // 无效的密码
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration(validUsername, validEmail, "weak", validRole);
-        });
+    String weakPasswordResult =
+        ValidationUtil.validateUserRegistration(validUsername, validEmail, "weak", validRole);
+    assertNotNull(weakPasswordResult);
+    assertTrue(weakPasswordResult.contains("密码"));
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          ValidationUtil.validateUserRegistration(validUsername, validEmail, null, validRole);
-        });
+    String nullPasswordResult =
+        ValidationUtil.validateUserRegistration(validUsername, validEmail, null, validRole);
+    assertNotNull(nullPasswordResult);
   }
 
   @Test

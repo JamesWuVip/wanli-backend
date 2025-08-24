@@ -752,7 +752,7 @@ public class AsyncTaskProcessor {
     private volatile LocalDateTime submitTime;
     private volatile LocalDateTime startTime;
     private volatile LocalDateTime endTime;
-    private volatile long executionTime;
+    private final AtomicLong executionTime = new AtomicLong(0);
     private volatile Exception exception;
     private CompletableFuture<T> future;
 
@@ -810,11 +810,11 @@ public class AsyncTaskProcessor {
     }
 
     public long getExecutionTime() {
-      return executionTime;
+      return executionTime.get();
     }
 
     public void setExecutionTime(long executionTime) {
-      this.executionTime = executionTime;
+      this.executionTime.set(executionTime);
     }
 
     public Exception getException() {

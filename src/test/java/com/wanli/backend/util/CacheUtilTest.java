@@ -2,7 +2,6 @@ package com.wanli.backend.util;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -214,7 +213,7 @@ class CacheUtilTest {
             "key2", "value2",
             "key3", "value3");
 
-    cacheUtil.multiPut(data);
+    cacheUtil.multiPut(data, 30);
 
     assertEquals("value1", cacheUtil.get("key1", String.class));
     assertEquals("value2", cacheUtil.get("key2", String.class));
@@ -247,7 +246,7 @@ class CacheUtilTest {
     String value = "expire-test-value";
 
     cacheUtil.put(key, value);
-    cacheUtil.expire(key, Duration.ofMillis(100));
+    cacheUtil.expire(key, 100);
 
     // 立即获取应该成功
     assertEquals(value, cacheUtil.get(key, String.class));
@@ -265,7 +264,7 @@ class CacheUtilTest {
     String key = "expire-time-key";
     String value = "expire-time-value";
 
-    cacheUtil.put(key, value, Duration.ofMillis(1000));
+    cacheUtil.put(key, value, 1000);
 
     long expireTime = cacheUtil.getExpire(key);
 
@@ -276,15 +275,17 @@ class CacheUtilTest {
   @Test
   void testCleanExpiredEntries() throws InterruptedException {
     // 测试清理过期条目
-    cacheUtil.put("key1", "value1", Duration.ofMillis(50));
-    cacheUtil.put("key2", "value2", Duration.ofMillis(200));
+    cacheUtil.put("key1", "value1", 50);
+    cacheUtil.put("key2", "value2", 200);
 
     assertEquals(2, cacheUtil.size());
 
     // 等待第一个key过期
     Thread.sleep(100);
 
-    cacheUtil.cleanExpiredEntries();
+    // 由于cleanExpiredEntries是私有方法，我们通过触发其他操作来间接测试过期清理
+    // 通过调用size()方法来触发内部清理
+    cacheUtil.size();
 
     assertEquals(1, cacheUtil.size());
     assertNull(cacheUtil.get("key1", String.class));

@@ -265,28 +265,32 @@ public class ConnectionPoolManager {
       double utilizationRate) {
 
     PoolHealthStatus previousStatus = healthStatus;
+    PoolHealthStatus newStatus;
 
     // 评估健康状态
     if (threadsAwaitingConnection > 10) {
-      healthStatus = PoolHealthStatus.CRITICAL;
+      newStatus = PoolHealthStatus.CRITICAL;
     } else if (utilizationRate > 0.9) {
-      healthStatus = PoolHealthStatus.WARNING;
+      newStatus = PoolHealthStatus.WARNING;
     } else if (utilizationRate > 0.7) {
-      healthStatus = PoolHealthStatus.CAUTION;
+      newStatus = PoolHealthStatus.CAUTION;
     } else {
-      healthStatus = PoolHealthStatus.HEALTHY;
+      newStatus = PoolHealthStatus.HEALTHY;
     }
 
+    // 原子性地更新健康状态
+    healthStatus = newStatus;
+
     // 状态变化时记录日志
-    if (previousStatus != healthStatus) {
+    if (previousStatus != newStatus) {
       LogUtil.logInfo(
           "CONNECTION_POOL_HEALTH_CHANGE",
           "",
-          String.format("连接池健康状态变化: %s -> %s", previousStatus, healthStatus));
+          String.format("连接池健康状态变化: %s -> %s", previousStatus, newStatus));
 
       metricsCollector.recordBusinessEvent(
           "connection_pool_health_change",
-          String.format("previous=%s,current=%s", previousStatus.name(), healthStatus.name()));
+          String.format("previous=%s,current=%s", previousStatus.name(), newStatus.name()));
     }
   }
 
@@ -709,12 +713,12 @@ public class ConnectionPoolManager {
 
   public static class QueryPerformance {
     private final String sql;
-    private volatile long executionCount = 0;
-    private volatile long totalExecutionTime = 0;
-    private volatile long minExecutionTime = Long.MAX_VALUE;
-    private volatile long maxExecutionTime = 0;
-    private volatile long successCount = 0;
-    private volatile long failureCount = 0;
+    private final AtomicLong executionCount = new AtomicLong(0);
+    private final AtomicLong totalExecutionTime = new AtomicLong(0);
+    private final AtomicLong minExecutionTime = new AtomicLong(Long.MAX_VALUE);
+    private final AtomicLong maxExecutionTime = new AtomicLong(0);
+    private final AtomicLong successCount = new AtomicLong(0);
+    private final AtomicLong failureCount = new AtomicLong(0);
     private volatile LocalDateTime lastExecutionTime;
 
     public QueryPerformance(String sql) {
@@ -723,16 +727,16 @@ public class ConnectionPoolManager {
     }
 
     public synchronized void recordExecution(long executionTime, boolean success) {
-      this.executionCount++;
-      this.totalExecutionTime += executionTime;
-      this.minExecutionTime = Math.min(this.minExecutionTime, executionTime);
-      this.maxExecutionTime = Math.max(this.maxExecutionTime, executionTime);
+      this.executionCount.incrementAndGet();
+      this.totalExecutionTime.addAndGet(executionTime);
+      this.minExecutionTime.updateAndGet(current -> Math.min(current, executionTime));
+      this.maxExecutionTime.updateAndGet(current -> Math.max(current, executionTime));
       this.lastExecutionTime = LocalDateTime.now();
 
       if (success) {
-        this.successCount++;
+        this.successCount.incrementAndGet();
       } else {
-        this.failureCount++;
+        this.failureCount.incrementAndGet();
       }
     }
 
@@ -742,23 +746,26 @@ public class ConnectionPoolManager {
     }
 
     public long getExecutionCount() {
-      return executionCount;
+      return executionCount.get();
     }
 
     public long getAverageExecutionTime() {
-      return executionCount > 0 ? totalExecutionTime / executionCount : 0;
+      long count = executionCount.get();
+      return count > 0 ? totalExecutionTime.get() / count : 0;
     }
 
     public long getMinExecutionTime() {
-      return minExecutionTime == Long.MAX_VALUE ? 0 : minExecutionTime;
+      long min = minExecutionTime.get();
+      return min == Long.MAX_VALUE ? 0 : min;
     }
 
     public long getMaxExecutionTime() {
-      return maxExecutionTime;
+      return maxExecutionTime.get();
     }
 
     public double getSuccessRate() {
-      return executionCount > 0 ? (double) successCount / executionCount : 0;
+      long count = executionCount.get();
+      return count > 0 ? (double) successCount.get() / count : 0;
     }
 
     public LocalDateTime getLastExecutionTime() {

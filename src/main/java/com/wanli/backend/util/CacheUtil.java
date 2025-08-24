@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -38,13 +39,13 @@ public class CacheUtil {
     private final Object value;
     private final long expireTime;
     private volatile long lastAccessTime;
-    private volatile int accessCount;
+    private final AtomicInteger accessCount;
 
     public CacheEntry(Object value, long expireTime) {
       this.value = value;
       this.expireTime = expireTime;
       this.lastAccessTime = System.currentTimeMillis();
-      this.accessCount = 0;
+      this.accessCount = new AtomicInteger(0);
     }
 
     public boolean isExpired() {
@@ -53,7 +54,7 @@ public class CacheUtil {
 
     public Object getValue() {
       this.lastAccessTime = System.currentTimeMillis();
-      this.accessCount++;
+      this.accessCount.incrementAndGet();
       return value;
     }
 
@@ -62,12 +63,12 @@ public class CacheUtil {
     }
 
     public int getAccessCount() {
-      return accessCount;
+      return accessCount.get();
     }
 
     public void updateAccess() {
       this.lastAccessTime = System.currentTimeMillis();
-      this.accessCount++;
+      this.accessCount.incrementAndGet();
     }
   }
 
@@ -332,10 +333,12 @@ public class CacheUtil {
   /** 清理过期缓存条目 */
   private void cleanExpiredEntries() {
     int cleanedCount = 0;
-    for (String key : cache.keySet()) {
-      CacheEntry entry = cache.get(key);
-      if (entry != null && entry.isExpired()) {
-        cache.remove(key);
+    // 使用迭代器安全地遍历和删除
+    var iterator = cache.entrySet().iterator();
+    while (iterator.hasNext()) {
+      var entry = iterator.next();
+      if (entry.getValue().isExpired()) {
+        iterator.remove();
         cleanedCount++;
       }
     }
@@ -351,10 +354,13 @@ public class CacheUtil {
     long oneHourAgo = System.currentTimeMillis() - Duration.ofHours(1).toMillis();
     int cleanedCount = 0;
 
-    for (String key : cache.keySet()) {
-      CacheEntry entry = cache.get(key);
-      if (entry != null && entry.getLastAccessTime() < oneHourAgo && entry.getAccessCount() == 0) {
-        cache.remove(key);
+    // 使用迭代器安全地遍历和删除
+    var iterator = cache.entrySet().iterator();
+    while (iterator.hasNext()) {
+      var entry = iterator.next();
+      CacheEntry cacheEntry = entry.getValue();
+      if (cacheEntry.getLastAccessTime() < oneHourAgo && cacheEntry.getAccessCount() == 0) {
+        iterator.remove();
         cleanedCount++;
       }
     }

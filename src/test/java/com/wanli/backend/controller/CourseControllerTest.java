@@ -61,7 +61,8 @@ class CourseControllerTest {
     successResponse.put("data", Collections.singletonMap("courseId", UUID.randomUUID()));
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.createCourse(any(), eq(testUserId))).thenReturn(successResponse);
+    when(courseService.createCourse(eq(testUserId), anyString(), anyString(), anyString()))
+        .thenReturn(successResponse);
 
     try (MockedStatic<LogUtil> logUtilMock = mockStatic(LogUtil.class)) {
       // When & Then
@@ -75,8 +76,8 @@ class CourseControllerTest {
           .andExpect(jsonPath("$.success").value(true))
           .andExpect(jsonPath("$.message").value("课程创建成功"));
 
-      verify(courseService).createCourse(any(), eq(testUserId));
-      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), any()));
+      verify(courseService).createCourse(eq(testUserId), anyString(), anyString(), anyString());
+      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), anyString()));
     }
   }
 
@@ -100,7 +101,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("认证失败：无效的token"));
 
-    verify(courseService, never()).createCourse(any(), any());
+    verify(courseService, never()).createCourse(any(), any(), any(), any());
   }
 
   @Test
@@ -120,7 +121,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("认证失败：无效的token格式"));
 
-    verify(courseService, never()).createCourse(any(), any());
+    verify(courseService, never()).createCourse(any(), any(), any(), any());
   }
 
   @Test
@@ -143,7 +144,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("课程标题不能为空"));
 
-    verify(courseService, never()).createCourse(any(), any());
+    verify(courseService, never()).createCourse(any(), any(), any(), any());
   }
 
   @Test
@@ -159,7 +160,7 @@ class CourseControllerTest {
     successResponse.put("data", courses);
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.getAllCourses(testUserId)).thenReturn(successResponse);
+    when(courseService.getAllCourses()).thenReturn(successResponse);
 
     // When & Then
     mockMvc
@@ -168,7 +169,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data").isArray());
 
-    verify(courseService).getAllCourses(testUserId);
+    verify(courseService).getAllCourses();
   }
 
   @Test
@@ -184,7 +185,7 @@ class CourseControllerTest {
     successResponse.put("data", course);
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.getCourseById(courseId, testUserId)).thenReturn(successResponse);
+    when(courseService.getCourseById(courseId)).thenReturn(successResponse);
 
     // When & Then
     mockMvc
@@ -193,7 +194,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.id").value(courseId.toString()));
 
-    verify(courseService).getCourseById(courseId, testUserId);
+    verify(courseService).getCourseById(courseId);
   }
 
   @Test
@@ -205,7 +206,7 @@ class CourseControllerTest {
     errorResponse.put("message", "课程不存在");
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.getCourseById(courseId, testUserId)).thenReturn(errorResponse);
+    when(courseService.getCourseById(courseId)).thenReturn(errorResponse);
 
     // When & Then
     mockMvc
@@ -214,7 +215,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("课程不存在"));
 
-    verify(courseService).getCourseById(courseId, testUserId);
+    verify(courseService).getCourseById(courseId);
   }
 
   @Test
@@ -230,7 +231,12 @@ class CourseControllerTest {
     successResponse.put("message", "课程更新成功");
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.updateCourse(eq(courseId), any(), eq(testUserId)))
+    when(courseService.updateCourse(
+            eq(courseId),
+            eq(testUserId),
+            eq(request.getTitle()),
+            eq(request.getDescription()),
+            eq(request.getStatus())))
         .thenReturn(successResponse);
 
     try (MockedStatic<LogUtil> logUtilMock = mockStatic(LogUtil.class)) {
@@ -245,8 +251,14 @@ class CourseControllerTest {
           .andExpect(jsonPath("$.success").value(true))
           .andExpect(jsonPath("$.message").value("课程更新成功"));
 
-      verify(courseService).updateCourse(eq(courseId), any(), eq(testUserId));
-      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), any()));
+      verify(courseService)
+          .updateCourse(
+              eq(courseId),
+              eq(testUserId),
+              eq(request.getTitle()),
+              eq(request.getDescription()),
+              eq(request.getStatus()));
+      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), anyString()));
     }
   }
 
@@ -271,7 +283,7 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("课程标题不能为空"));
 
-    verify(courseService, never()).updateCourse(any(), any(), any());
+    verify(courseService, never()).updateCourse(any(), any(), any(), any(), any());
   }
 
   @Test
@@ -286,7 +298,13 @@ class CourseControllerTest {
     errorResponse.put("message", "权限不足");
 
     when(jwtUtil.extractUserId(validToken)).thenReturn(testUserId);
-    when(courseService.updateCourse(eq(courseId), any(), eq(testUserId))).thenReturn(errorResponse);
+    when(courseService.updateCourse(
+            eq(courseId),
+            eq(testUserId),
+            eq(request.getTitle()),
+            eq(request.getDescription()),
+            eq(request.getStatus())))
+        .thenReturn(errorResponse);
 
     // When & Then
     mockMvc
@@ -299,6 +317,12 @@ class CourseControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("权限不足"));
 
-    verify(courseService).updateCourse(eq(courseId), any(), eq(testUserId));
+    verify(courseService)
+        .updateCourse(
+            eq(courseId),
+            eq(testUserId),
+            eq(request.getTitle()),
+            eq(request.getDescription()),
+            eq(request.getStatus()));
   }
 }

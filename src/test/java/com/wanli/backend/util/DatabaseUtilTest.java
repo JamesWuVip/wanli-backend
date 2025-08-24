@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -341,48 +340,42 @@ class DatabaseUtilTest {
   }
 
   @Test
-  void testIsHealthy_Healthy() throws SQLException {
+  void testIsHealthy_Healthy() {
     // 准备测试数据
-    when(dataSource.getConnection()).thenReturn(connection);
-    when(connection.isValid(anyInt())).thenReturn(true);
+    when(repository.count()).thenReturn(10L);
 
     // 执行测试
     boolean result = databaseUtil.isHealthy(repository);
 
     // 验证结果
     assertTrue(result);
-    verify(dataSource).getConnection();
-    verify(connection).isValid(5);
-    verify(connection).close();
+    verify(repository).count();
   }
 
   @Test
-  void testIsHealthy_Unhealthy() throws SQLException {
+  void testIsHealthy_Unhealthy() {
     // 准备测试数据
-    when(dataSource.getConnection()).thenReturn(connection);
-    when(connection.isValid(anyInt())).thenReturn(false);
+    when(repository.count()).thenThrow(new RuntimeException("Database connection failed"));
 
     // 执行测试
     boolean result = databaseUtil.isHealthy(repository);
 
     // 验证结果
     assertFalse(result);
-    verify(dataSource).getConnection();
-    verify(connection).isValid(5);
-    verify(connection).close();
+    verify(repository).count();
   }
 
   @Test
-  void testIsHealthy_Exception() throws SQLException {
+  void testIsHealthy_Exception() {
     // 准备测试数据
-    when(dataSource.getConnection()).thenThrow(new SQLException("Connection failed"));
+    when(repository.count()).thenThrow(new RuntimeException("Database error"));
 
     // 执行测试
     boolean result = databaseUtil.isHealthy(repository);
 
     // 验证结果
     assertFalse(result);
-    verify(dataSource).getConnection();
+    verify(repository).count();
   }
 
   @Test

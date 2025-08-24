@@ -85,8 +85,10 @@ public class CourseService {
         // 验证创建者并检查权限
         User creator = validateCreatorAndPermission(creatorId);
 
-        // 创建并保存课程
+        // 构建课程对象
         Course course = buildCourse(creatorId, title, description, status);
+
+        // 保存课程
         Course savedCourse = DatabaseUtil.saveSafely(courseRepository, course, "Course", null);
 
         // 清除课程列表缓存
@@ -111,7 +113,7 @@ public class CourseService {
             "COURSE_CREATE_ERROR",
             "创建课程失败",
             e);
-        throw new BusinessException("COURSE_CREATE_FAILED", "课程创建失败，请稍后重试");
+        throw new BusinessException("课程创建失败，请稍后重试", "COURSE_CREATE_FAILED");
       }
     }
   }
@@ -189,10 +191,13 @@ public class CourseService {
 
         return result;
 
+      } catch (BusinessException e) {
+        // 重新抛出业务异常（如参数验证失败）
+        throw e;
       } catch (Exception e) {
         LogUtil.logError(
             "COURSE_GET_ALL_PAGINATED", "", "GET_ALL_PAGINATED_ERROR", e.getMessage(), e);
-        throw new BusinessException("COURSE_GET_ALL_FAILED", "获取课程列表失败，请稍后重试");
+        throw new BusinessException("获取课程列表失败，请稍后重试", "COURSE_GET_ALL_FAILED");
       }
     }
   }
@@ -274,7 +279,7 @@ public class CourseService {
                 .filter(course -> course.getDeletedAt() == null);
 
         if (!courseOptional.isPresent()) {
-          throw new ResourceNotFoundException("COURSE_NOT_FOUND", "Course", courseId.toString());
+          throw new ResourceNotFoundException("课程不存在: " + courseId, "Course", courseId.toString());
         }
 
         Course course = courseOptional.get();
@@ -287,6 +292,10 @@ public class CourseService {
         return ServiceResponseUtil.success(
             "获取课程详情成功", Map.of("course", createCourseResponse(course)));
 
+      } catch (ResourceNotFoundException e) {
+        throw e;
+      } catch (BusinessException e) {
+        throw e;
       } catch (Exception e) {
         LogUtil.logError(
             "COURSE_GET_BY_ID",
@@ -294,7 +303,7 @@ public class CourseService {
             "COURSE_QUERY_ERROR",
             "查询课程失败",
             e);
-        throw new BusinessException("COURSE_GET_FAILED", "获取课程详情失败，请稍后重试");
+        throw new BusinessException("获取课程详情失败，请稍后重试", "COURSE_GET_FAILED");
       }
     }
   }
@@ -317,11 +326,11 @@ public class CourseService {
         ServiceValidationUtil.validateNotNull(courseDataList, "课程数据列表不能为空");
 
         if (courseDataList.isEmpty()) {
-          throw new BusinessException("EMPTY_COURSE_LIST", "课程数据列表不能为空");
+          throw new BusinessException("课程数据列表不能为空", "EMPTY_COURSE_LIST");
         }
 
         if (courseDataList.size() > 50) {
-          throw new BusinessException("TOO_MANY_COURSES", "单次最多只能创建50门课程");
+          throw new BusinessException("单次最多只能创建50门课程", "TOO_MANY_COURSES");
         }
 
         // 验证创建者并检查权限
@@ -381,7 +390,7 @@ public class CourseService {
             "BATCH_CREATE_ERROR",
             e.getMessage(),
             e);
-        throw new BusinessException("COURSE_BATCH_CREATE_FAILED", "批量创建课程失败，请稍后重试");
+        throw new BusinessException("批量创建课程失败，请稍后重试", "COURSE_BATCH_CREATE_FAILED");
       }
     }
   }
@@ -404,11 +413,11 @@ public class CourseService {
         ServiceValidationUtil.validateNotNull(updateDataList, "更新数据列表不能为空");
 
         if (updateDataList.isEmpty()) {
-          throw new BusinessException("EMPTY_UPDATE_LIST", "更新数据列表不能为空");
+          throw new BusinessException("更新数据列表不能为空", "EMPTY_UPDATE_LIST");
         }
 
         if (updateDataList.size() > 50) {
-          throw new BusinessException("TOO_MANY_UPDATES", "单次最多只能更新50门课程");
+          throw new BusinessException("单次最多只能更新50门课程", "TOO_MANY_UPDATES");
         }
 
         List<Course> coursesToUpdate = new ArrayList<>();
@@ -476,7 +485,7 @@ public class CourseService {
             "BATCH_UPDATE_ERROR",
             e.getMessage(),
             e);
-        throw new BusinessException("COURSE_BATCH_UPDATE_FAILED", "批量更新课程失败，请稍后重试");
+        throw new BusinessException("批量更新课程失败，请稍后重试", "COURSE_BATCH_UPDATE_FAILED");
       }
     }
   }
@@ -498,11 +507,11 @@ public class CourseService {
         ServiceValidationUtil.validateNotNull(courseIds, "课程ID列表不能为空");
 
         if (courseIds.isEmpty()) {
-          throw new BusinessException("EMPTY_COURSE_ID_LIST", "课程ID列表不能为空");
+          throw new BusinessException("课程ID列表不能为空", "EMPTY_COURSE_ID_LIST");
         }
 
         if (courseIds.size() > 50) {
-          throw new BusinessException("TOO_MANY_DELETES", "单次最多只能删除50门课程");
+          throw new BusinessException("单次最多只能删除50门课程", "TOO_MANY_DELETES");
         }
 
         List<Course> coursesToDelete = new ArrayList<>();
@@ -562,7 +571,7 @@ public class CourseService {
             "BATCH_DELETE_ERROR",
             e.getMessage(),
             e);
-        throw new BusinessException("COURSE_BATCH_DELETE_FAILED", "批量删除课程失败，请稍后重试");
+        throw new BusinessException("批量删除课程失败，请稍后重试", "COURSE_BATCH_DELETE_FAILED");
       }
     }
   }
@@ -625,7 +634,7 @@ public class CourseService {
             "COURSE_UPDATE_ERROR",
             "更新课程失败",
             e);
-        throw new BusinessException("COURSE_UPDATE_FAILED", "课程更新失败，请稍后重试");
+        throw new BusinessException("课程更新失败，请稍后重试", "COURSE_UPDATE_FAILED");
       }
     }
   }
@@ -681,7 +690,7 @@ public class CourseService {
             "COURSE_DELETE_ERROR",
             "删除课程失败",
             e);
-        throw new BusinessException("COURSE_DELETE_FAILED", "课程删除失败，请稍后重试");
+        throw new BusinessException("课程删除失败，请稍后重试", "COURSE_DELETE_FAILED");
       }
     }
   }
@@ -697,15 +706,15 @@ public class CourseService {
     ServiceValidationUtil.validateNotBlank(status, "课程状态不能为空");
 
     if (title.length() > 100) {
-      throw new BusinessException("INVALID_TITLE_LENGTH", "课程标题长度不能超过100个字符");
+      throw new BusinessException("课程标题长度不能超过100个字符", "INVALID_TITLE_LENGTH");
     }
 
     if (description.length() > 500) {
-      throw new BusinessException("INVALID_DESCRIPTION_LENGTH", "课程描述长度不能超过500个字符");
+      throw new BusinessException("课程描述长度不能超过500个字符", "INVALID_DESCRIPTION_LENGTH");
     }
 
     if (!Arrays.asList("DRAFT", "PUBLISHED", "ARCHIVED").contains(status)) {
-      throw new BusinessException("INVALID_STATUS", "无效的课程状态");
+      throw new BusinessException("无效的课程状态", "INVALID_STATUS");
     }
   }
 
@@ -716,7 +725,7 @@ public class CourseService {
             .filter(user -> !user.isDeleted());
 
     if (!creatorOptional.isPresent()) {
-      throw new ResourceNotFoundException("USER_NOT_FOUND", "User", creatorId.toString());
+      throw new ResourceNotFoundException("用户不存在: " + creatorId, "User", creatorId.toString());
     }
 
     User creator = creatorOptional.get();
@@ -735,7 +744,7 @@ public class CourseService {
             .filter(course -> !course.isDeleted());
 
     if (!courseOptional.isPresent()) {
-      throw new ResourceNotFoundException("COURSE_NOT_FOUND", "Course", courseId.toString());
+      throw new ResourceNotFoundException("课程不存在: " + courseId, "Course", courseId.toString());
     }
 
     return courseOptional.get();
@@ -748,7 +757,7 @@ public class CourseService {
             .filter(user -> !user.isDeleted());
 
     if (!userOptional.isPresent()) {
-      throw new ResourceNotFoundException("USER_NOT_FOUND", "User", userId.toString());
+      throw new ResourceNotFoundException("用户不存在: " + userId, "User", userId.toString());
     }
 
     User user = userOptional.get();
@@ -864,24 +873,24 @@ public class CourseService {
   private void validateUpdateData(String title, String description, String status) {
     if (title != null) {
       if (title.trim().isEmpty()) {
-        throw new BusinessException("INVALID_TITLE", "课程标题不能为空");
+        throw new BusinessException("课程标题不能为空", "INVALID_TITLE");
       }
       if (title.length() > 100) {
-        throw new BusinessException("INVALID_TITLE_LENGTH", "课程标题长度不能超过100个字符");
+        throw new BusinessException("课程标题长度不能超过100个字符", "INVALID_TITLE_LENGTH");
       }
     }
 
     if (description != null) {
       if (description.trim().isEmpty()) {
-        throw new BusinessException("INVALID_DESCRIPTION", "课程描述不能为空");
+        throw new BusinessException("课程描述不能为空", "INVALID_DESCRIPTION");
       }
       if (description.length() > 500) {
-        throw new BusinessException("INVALID_DESCRIPTION_LENGTH", "课程描述长度不能超过500个字符");
+        throw new BusinessException("课程描述长度不能超过500个字符", "INVALID_DESCRIPTION_LENGTH");
       }
     }
 
     if (status != null && !Arrays.asList("DRAFT", "PUBLISHED", "ARCHIVED").contains(status)) {
-      throw new BusinessException("INVALID_STATUS", "无效的课程状态");
+      throw new BusinessException("无效的课程状态", "INVALID_STATUS");
     }
   }
 
@@ -924,13 +933,13 @@ public class CourseService {
    */
   private void validatePaginationParams(int page, int size) {
     if (page < 0) {
-      throw new BusinessException("INVALID_PAGE", "页码不能小于0");
+      throw new BusinessException("页码不能小于0", "INVALID_PAGE");
     }
     if (size <= 0) {
-      throw new BusinessException("INVALID_SIZE", "每页大小必须大于0");
+      throw new BusinessException("每页大小必须大于0", "INVALID_SIZE");
     }
     if (size > 100) {
-      throw new BusinessException("SIZE_TOO_LARGE", "每页大小不能超过100");
+      throw new BusinessException("每页大小不能超过100", "SIZE_TOO_LARGE");
     }
   }
 

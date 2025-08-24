@@ -92,7 +92,7 @@ public class AuthService {
       throw e;
     } catch (Exception e) {
       LogUtil.logError("USER_REGISTER", "", "REGISTER_ERROR", e.getMessage(), e);
-      throw new BusinessException("REGISTER_FAILED", "注册失败，请稍后重试");
+      throw new BusinessException("注册失败，请稍后重试", "REGISTER_FAILED");
     }
   }
 
@@ -118,7 +118,7 @@ public class AuthService {
       if (!passwordEncoder.matches(password, user.getPassword())) {
         recordFailedLoginAttempt(username);
         LogUtil.logSecurity("LOGIN_FAILED", user.getId().toString(), null, "密码错误: " + username);
-        throw new BusinessException("LOGIN_FAILED", "用户名或密码错误");
+        throw new BusinessException("用户名或密码错误", "LOGIN_FAILED");
       }
 
       // 清除失败尝试记录
@@ -141,7 +141,7 @@ public class AuthService {
       throw e;
     } catch (Exception e) {
       LogUtil.logError("USER_LOGIN", "", "LOGIN_ERROR", e.getMessage(), e);
-      throw new BusinessException("LOGIN_FAILED", "登录失败，请稍后重试");
+      throw new BusinessException("登录失败，请稍后重试", "LOGIN_FAILED");
     }
   }
 
@@ -207,7 +207,7 @@ public class AuthService {
     // 验证密码强度
     int minLength = configUtil.getPasswordMinLength();
     if (password.length() < minLength) {
-      throw new BusinessException("WEAK_PASSWORD", "密码长度不能少于" + minLength + "位");
+      throw new BusinessException("密码长度不能少于" + minLength + "位", "WEAK_PASSWORD");
     }
   }
 
@@ -215,12 +215,12 @@ public class AuthService {
   private void validateUserUniqueness(String username, String email) {
     if (DatabaseUtil.executeQuery(
         "CHECK_USERNAME", "User", null, () -> userRepository.existsByUsername(username))) {
-      throw new BusinessException("USERNAME_EXISTS", "用户名已存在");
+      throw new BusinessException("用户名已存在", "USERNAME_EXISTS");
     }
 
     if (DatabaseUtil.executeQuery(
         "CHECK_EMAIL", "User", null, () -> userRepository.existsByEmail(email))) {
-      throw new BusinessException("EMAIL_EXISTS", "邮箱已被注册");
+      throw new BusinessException("邮箱已被注册", "EMAIL_EXISTS");
     }
   }
 
@@ -248,7 +248,7 @@ public class AuthService {
 
     if (attempts != null && attempts >= configUtil.getMaxLoginAttempts()) {
       LogUtil.logSecurity("LOGIN_BLOCKED", null, null, "登录尝试次数过多，账户被锁定: " + username);
-      throw new BusinessException("ACCOUNT_LOCKED", "登录尝试次数过多，账户已被锁定");
+      throw new BusinessException("登录尝试次数过多，账户已被锁定", "ACCOUNT_LOCKED");
     }
   }
 
@@ -260,7 +260,7 @@ public class AuthService {
 
     if (!userOptional.isPresent()) {
       LogUtil.logSecurity("LOGIN_FAILED", null, null, "用户不存在: " + username);
-      throw new BusinessException("LOGIN_FAILED", "用户名或密码错误");
+      throw new BusinessException("用户名或密码错误", "LOGIN_FAILED");
     }
 
     return userOptional.get();

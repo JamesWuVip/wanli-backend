@@ -154,7 +154,7 @@ public class LessonService {
         PerformanceMonitor.start("getLessonsByCourseIdPaged")) {
       // 输入验证
       if (!ValidationUtil.isValidUUID(courseId)) {
-        throw new BusinessException("INVALID_COURSE_ID", "无效的课程ID格式");
+        throw new BusinessException("无效的课程ID格式", "INVALID_COURSE_ID");
       }
 
       UUID courseUuid = UUID.fromString(courseId);
@@ -184,7 +184,7 @@ public class LessonService {
             "课时列表分页缓存命中",
             userId.toString(),
             Map.of("courseId", courseUuid, "page", page, "size", size));
-        return cachedResult;
+        return ServiceResponseUtil.success("获取课时列表成功", "data", cachedResult);
       }
 
       // 验证用户和课程，检查权限
@@ -246,7 +246,7 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("getLessonsByCourseId")) {
       // 输入验证
       if (!ValidationUtil.isValidUUID(courseId)) {
-        throw new BusinessException("INVALID_COURSE_ID", "无效的课程ID格式");
+        throw new BusinessException("无效的课程ID格式", "INVALID_COURSE_ID");
       }
 
       UUID courseUuid = UUID.fromString(courseId);
@@ -299,7 +299,7 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("getLessonById")) {
       // 输入验证
       if (!ValidationUtil.isValidUUID(lessonId)) {
-        throw new BusinessException("INVALID_LESSON_ID", "无效的课时ID格式");
+        throw new BusinessException("无效的课时ID格式", "INVALID_LESSON_ID");
       }
 
       UUID lessonUuid = UUID.fromString(lessonId);
@@ -366,7 +366,7 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("updateLesson")) {
       // 输入验证
       if (!ValidationUtil.isValidUUID(lessonId)) {
-        throw new BusinessException("INVALID_LESSON_ID", "无效的课时ID格式");
+        throw new BusinessException("无效的课时ID格式", "INVALID_LESSON_ID");
       }
 
       UUID lessonUuid = UUID.fromString(lessonId);
@@ -417,13 +417,13 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("batchCreateLessons")) {
       // 输入验证
       if (!ValidationUtil.isValidUUID(courseId)) {
-        throw new BusinessException("INVALID_COURSE_ID", "无效的课程ID格式");
+        throw new BusinessException("无效的课程ID格式", "INVALID_COURSE_ID");
       }
       if (lessonDataList == null || lessonDataList.isEmpty()) {
-        throw new BusinessException("EMPTY_LESSON_LIST", "课时列表不能为空");
+        throw new BusinessException("课时列表不能为空", "EMPTY_LESSON_LIST");
       }
       if (lessonDataList.size() > 50) { // 限制批量操作数量
-        throw new BusinessException("TOO_MANY_LESSONS", "单次批量创建课时数量不能超过50个");
+        throw new BusinessException("单次批量创建课时数量不能超过50个", "TOO_MANY_LESSONS");
       }
 
       UUID courseUuid = UUID.fromString(courseId);
@@ -451,7 +451,7 @@ public class LessonService {
 
         // 检查重复标题和排序索引
         if (titles.contains(title)) {
-          throw new BusinessException("DUPLICATE_TITLE_IN_BATCH", "批量创建中存在重复的课时标题: " + title);
+          throw new BusinessException("批量创建中存在重复的课时标题: " + title, "DUPLICATE_TITLE_IN_BATCH");
         }
         if (orderIndexes.contains(orderIndex)) {
           throw new BusinessException(
@@ -480,13 +480,13 @@ public class LessonService {
       // 检查数据库中的重复性
       for (String title : titles) {
         if (lessonRepository.findByCourseIdAndTitleAndNotDeleted(courseUuid, title).isPresent()) {
-          throw new BusinessException("DUPLICATE_LESSON_TITLE", "该课程中已存在相同标题的课时: " + title);
+          throw new BusinessException("该课程中已存在相同标题的课时: " + title, "DUPLICATE_LESSON_TITLE");
         }
       }
 
       for (Integer orderIndex : orderIndexes) {
         if (lessonRepository.existsByCourseIdAndOrderIndexAndNotDeleted(courseUuid, orderIndex)) {
-          throw new BusinessException("DUPLICATE_ORDER_INDEX", "该排序索引已被使用: " + orderIndex);
+          throw new BusinessException("该排序索引已被使用: " + orderIndex, "DUPLICATE_ORDER_INDEX");
         }
       }
 
@@ -521,10 +521,10 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("batchUpdateLessons")) {
       // 输入验证
       if (updateDataList == null || updateDataList.isEmpty()) {
-        throw new BusinessException("EMPTY_UPDATE_LIST", "更新列表不能为空");
+        throw new BusinessException("更新列表不能为空", "EMPTY_UPDATE_LIST");
       }
       if (updateDataList.size() > 50) { // 限制批量操作数量
-        throw new BusinessException("TOO_MANY_UPDATES", "单次批量更新课时数量不能超过50个");
+        throw new BusinessException("单次批量更新课时数量不能超过50个", "TOO_MANY_UPDATES");
       }
 
       // 验证用户
@@ -538,7 +538,7 @@ public class LessonService {
       for (Map<String, Object> updateData : updateDataList) {
         String lessonIdStr = (String) updateData.get("lessonId");
         if (!ValidationUtil.isValidUUID(lessonIdStr)) {
-          throw new BusinessException("INVALID_LESSON_ID", "无效的课时ID格式: " + lessonIdStr);
+          throw new BusinessException("无效的课时ID格式: " + lessonIdStr, "INVALID_LESSON_ID");
         }
         UUID lessonId = UUID.fromString(lessonIdStr);
         lessonIds.add(lessonId);
@@ -547,7 +547,7 @@ public class LessonService {
       // 批量查询课时
       List<Lesson> lessons = lessonRepository.findByIdsAndNotDeleted(lessonIds, Pageable.unpaged());
       if (lessons.size() != lessonIds.size()) {
-        throw new BusinessException("LESSON_NOT_FOUND", "部分课时不存在或已被删除");
+        throw new BusinessException("部分课时不存在或已被删除", "LESSON_NOT_FOUND");
       }
 
       // 创建课时ID到课时对象的映射
@@ -618,10 +618,10 @@ public class LessonService {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.start("batchDeleteLessons")) {
       // 输入验证
       if (lessonIds == null || lessonIds.isEmpty()) {
-        throw new BusinessException("EMPTY_LESSON_IDS", "课时ID列表不能为空");
+        throw new BusinessException("课时ID列表不能为空", "EMPTY_LESSON_IDS");
       }
       if (lessonIds.size() > 50) { // 限制批量操作数量
-        throw new BusinessException("TOO_MANY_DELETIONS", "单次批量删除课时数量不能超过50个");
+        throw new BusinessException("单次批量删除课时数量不能超过50个", "TOO_MANY_DELETIONS");
       }
 
       // 验证用户
@@ -630,7 +630,7 @@ public class LessonService {
       List<UUID> lessonUuids = new ArrayList<>();
       for (String lessonIdStr : lessonIds) {
         if (!ValidationUtil.isValidUUID(lessonIdStr)) {
-          throw new BusinessException("INVALID_LESSON_ID", "无效的课时ID格式: " + lessonIdStr);
+          throw new BusinessException("无效的课时ID格式: " + lessonIdStr, "INVALID_LESSON_ID");
         }
         lessonUuids.add(UUID.fromString(lessonIdStr));
       }
@@ -639,7 +639,7 @@ public class LessonService {
       List<Lesson> lessons =
           lessonRepository.findByIdsAndNotDeleted(lessonUuids, Pageable.unpaged());
       if (lessons.size() != lessonUuids.size()) {
-        throw new BusinessException("LESSON_NOT_FOUND", "部分课时不存在或已被删除");
+        throw new BusinessException("部分课时不存在或已被删除", "LESSON_NOT_FOUND");
       }
 
       Set<UUID> courseIds = new HashSet<>();
@@ -716,14 +716,20 @@ public class LessonService {
 
   /** 验证课时创建输入 */
   private void validateLessonCreationInput(String courseId, String title, Integer orderIndex) {
+    if (courseId == null) {
+      throw new BusinessException("课程ID不能为空", "EMPTY_COURSE_ID");
+    }
     if (!ValidationUtil.isValidUUID(courseId)) {
-      throw new BusinessException("INVALID_COURSE_ID", "无效的课程ID格式");
+      throw new BusinessException("无效的课程ID格式", "INVALID_COURSE_ID");
     }
     if (ValidationUtil.isBlank(title)) {
-      throw new BusinessException("EMPTY_TITLE", "课时标题不能为空");
+      throw new BusinessException("课时标题不能为空", "EMPTY_TITLE");
     }
-    if (orderIndex == null || orderIndex < 1) {
-      throw new BusinessException("INVALID_ORDER_INDEX", "课时顺序必须大于0");
+    if (orderIndex == null) {
+      throw new BusinessException("排序索引不能为空", "EMPTY_ORDER_INDEX");
+    }
+    if (orderIndex < 1) {
+      throw new BusinessException("课时顺序必须大于0", "INVALID_ORDER_INDEX");
     }
   }
 
@@ -736,7 +742,7 @@ public class LessonService {
     return userRepository
         .findByIdAndNotDeleted(userId)
         .orElseThrow(
-            () -> new ResourceNotFoundException("USER_NOT_FOUND", "User", userId.toString()));
+            () -> new ResourceNotFoundException("用户不存在: " + userId, "User", userId.toString()));
   }
 
   /** 根据ID查找课程 */
@@ -744,7 +750,8 @@ public class LessonService {
     return courseRepository
         .findByIdAndNotDeleted(courseId)
         .orElseThrow(
-            () -> new ResourceNotFoundException("COURSE_NOT_FOUND", "Course", courseId.toString()));
+            () ->
+                new ResourceNotFoundException("课程不存在: " + courseId, "Course", courseId.toString()));
   }
 
   /** 根据ID查找课时 */
@@ -752,13 +759,14 @@ public class LessonService {
     return lessonRepository
         .findByIdAndNotDeleted(lessonId)
         .orElseThrow(
-            () -> new ResourceNotFoundException("LESSON_NOT_FOUND", "Lesson", lessonId.toString()));
+            () ->
+                new ResourceNotFoundException("课时不存在: " + lessonId, "Lesson", lessonId.toString()));
   }
 
   /** 验证创建者和权限 */
   private void validateCreatorAndPermission(User user, Course course, UUID userId) {
     if (!PermissionUtil.canCreateLesson(user, course.getCreatorId())) {
-      throw new PermissionDeniedException("权限不足，无法创建课时");
+      throw new PermissionDeniedException("无权限创建课时");
     }
   }
 
@@ -768,12 +776,12 @@ public class LessonService {
     Optional<Lesson> existingLesson =
         lessonRepository.findByCourseIdAndTitleAndNotDeleted(courseId, title);
     if (existingLesson.isPresent()) {
-      throw new BusinessException("DUPLICATE_LESSON_TITLE", "该课程中已存在相同标题的课时");
+      throw new BusinessException("该课程中已存在相同标题的课时", "DUPLICATE_LESSON_TITLE");
     }
 
     // 处理排序索引
     if (lessonRepository.existsByCourseIdAndOrderIndexAndNotDeleted(courseId, orderIndex)) {
-      throw new BusinessException("DUPLICATE_ORDER_INDEX", "该排序索引已被使用");
+      throw new BusinessException("该排序索引已被使用", "DUPLICATE_ORDER_INDEX");
     }
   }
 
@@ -862,20 +870,20 @@ public class LessonService {
       throw new BusinessException("EMPTY_TITLE", "课时标题不能为空");
     }
     if (description != null && description.length() > 1000) {
-      throw new BusinessException("DESCRIPTION_TOO_LONG", "课时描述不能超过1000个字符");
+      throw new BusinessException("课时描述不能超过1000个字符", "DESCRIPTION_TOO_LONG");
     }
     if (duration != null && duration < 0) {
-      throw new BusinessException("INVALID_DURATION", "课时时长不能为负数");
+      throw new BusinessException("课时时长不能为负数", "INVALID_DURATION");
     }
     if (status != null) {
       try {
         LessonStatus.fromCode(status);
       } catch (IllegalArgumentException e) {
-        throw new BusinessException("INVALID_STATUS", "无效的课时状态: " + status);
+        throw new BusinessException("无效的课时状态: " + status, "INVALID_STATUS");
       }
     }
     if (orderIndex != null && orderIndex < 1) {
-      throw new BusinessException("INVALID_ORDER_INDEX", "课时顺序必须大于0");
+      throw new BusinessException("课时顺序必须大于0", "INVALID_ORDER_INDEX");
     }
   }
 
@@ -936,10 +944,10 @@ public class LessonService {
    */
   private void validatePaginationParams(Integer page, Integer size) {
     if (page != null && page < 0) {
-      throw new BusinessException("INVALID_PAGE", "页码不能小于0");
+      throw new BusinessException("页码不能小于0", "INVALID_PAGE");
     }
     if (size != null && (size < 1 || size > 100)) {
-      throw new BusinessException("INVALID_PAGE_SIZE", "每页大小必须在1-100之间");
+      throw new BusinessException("每页大小必须在1-100之间", "INVALID_PAGE_SIZE");
     }
   }
 

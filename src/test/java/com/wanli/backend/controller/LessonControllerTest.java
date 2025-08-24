@@ -67,15 +67,15 @@ class LessonControllerTest {
     successResponse.put("data", Collections.singletonMap("lessonId", testLessonId));
 
     when(lessonService.createLesson(
+            eq(request.getCourseId()),
+            any(UUID.class),
             eq(request.getTitle()),
             eq(request.getDescription()),
-            eq(request.getCourseId()),
             eq(request.getContent()),
             eq(request.getVideoUrl()),
             eq(request.getDuration()),
             eq(request.getStatus()),
-            eq(request.getOrderIndex()),
-            any(UUID.class)))
+            eq(request.getOrderIndex())))
         .thenReturn(successResponse);
 
     try (MockedStatic<LogUtil> logUtilMock = mockStatic(LogUtil.class)) {
@@ -92,16 +92,16 @@ class LessonControllerTest {
 
       verify(lessonService)
           .createLesson(
+              eq(request.getCourseId()),
+              any(UUID.class),
               eq(request.getTitle()),
               eq(request.getDescription()),
-              eq(request.getCourseId()),
               eq(request.getContent()),
               eq(request.getVideoUrl()),
               eq(request.getDuration()),
               eq(request.getStatus()),
-              eq(request.getOrderIndex()),
-              any(UUID.class));
-      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), any()));
+              eq(request.getOrderIndex()));
+      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), anyString()));
     }
   }
 
@@ -182,14 +182,15 @@ class LessonControllerTest {
     // Given
     List<Map<String, Object>> lessons =
         Arrays.asList(
-            Collections.singletonMap("id", testLessonId),
-            Collections.singletonMap("id", UUID.randomUUID()));
+            Collections.singletonMap("id", testLessonId.toString()),
+            Collections.singletonMap("id", UUID.randomUUID().toString()));
 
     Map<String, Object> successResponse = new HashMap<>();
     successResponse.put("success", true);
     successResponse.put("data", lessons);
 
-    when(lessonService.getLessonsByCourse(testCourseId)).thenReturn(successResponse);
+    when(lessonService.getLessonsByCourseId(testCourseId.toString(), any(UUID.class)))
+        .thenReturn(successResponse);
 
     // When & Then
     mockMvc
@@ -198,7 +199,7 @@ class LessonControllerTest {
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data").isArray());
 
-    verify(lessonService).getLessonsByCourse(testCourseId);
+    verify(lessonService).getLessonsByCourseId(testCourseId.toString(), any(UUID.class));
   }
 
   @Test
@@ -213,21 +214,22 @@ class LessonControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("无效的课程ID格式"));
 
-    verify(lessonService, never()).getLessonsByCourse(any());
+    verify(lessonService, never()).getLessonsByCourseId(any(), any());
   }
 
   @Test
   void getLessonById_Success() throws Exception {
     // Given
     Map<String, Object> lesson = new HashMap<>();
-    lesson.put("id", testLessonId);
+    lesson.put("id", testLessonId.toString());
     lesson.put("title", "Test Lesson");
 
     Map<String, Object> successResponse = new HashMap<>();
     successResponse.put("success", true);
     successResponse.put("data", lesson);
 
-    when(lessonService.getLessonById(testLessonId)).thenReturn(successResponse);
+    when(lessonService.getLessonById(testLessonId.toString(), any(UUID.class)))
+        .thenReturn(successResponse);
 
     // When & Then
     mockMvc
@@ -236,7 +238,7 @@ class LessonControllerTest {
         .andExpect(jsonPath("$.success").value(true))
         .andExpect(jsonPath("$.data.id").value(testLessonId.toString()));
 
-    verify(lessonService).getLessonById(testLessonId);
+    verify(lessonService).getLessonById(testLessonId.toString(), any(UUID.class));
   }
 
   @Test
@@ -251,7 +253,7 @@ class LessonControllerTest {
         .andExpect(jsonPath("$.success").value(false))
         .andExpect(jsonPath("$.message").value("无效的课时ID格式"));
 
-    verify(lessonService, never()).getLessonById(any());
+    verify(lessonService, never()).getLessonById(any(), any());
   }
 
   @Test
@@ -270,15 +272,15 @@ class LessonControllerTest {
     successResponse.put("message", "课时更新成功");
 
     when(lessonService.updateLesson(
-            eq(testLessonId),
+            eq(testLessonId.toString()),
+            any(UUID.class),
             eq(request.getTitle()),
             eq(request.getDescription()),
             eq(request.getContent()),
             eq(request.getVideoUrl()),
             eq(request.getDuration()),
             eq(request.getStatus()),
-            eq(request.getOrderIndex()),
-            any(UUID.class)))
+            eq(request.getOrderIndex())))
         .thenReturn(successResponse);
 
     try (MockedStatic<LogUtil> logUtilMock = mockStatic(LogUtil.class)) {
@@ -295,16 +297,16 @@ class LessonControllerTest {
 
       verify(lessonService)
           .updateLesson(
-              eq(testLessonId),
+              eq(testLessonId.toString()),
+              any(UUID.class),
               eq(request.getTitle()),
               eq(request.getDescription()),
               eq(request.getContent()),
               eq(request.getVideoUrl()),
               eq(request.getDuration()),
               eq(request.getStatus()),
-              eq(request.getOrderIndex()),
-              any(UUID.class));
-      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), any()));
+              eq(request.getOrderIndex()));
+      logUtilMock.verify(() -> LogUtil.logBusinessOperation(anyString(), anyString(), anyString()));
     }
   }
 
@@ -385,15 +387,15 @@ class LessonControllerTest {
     errorResponse.put("message", "课时不存在");
 
     when(lessonService.updateLesson(
-            eq(testLessonId),
+            eq(testLessonId.toString()),
+            any(UUID.class),
             eq(request.getTitle()),
             eq(request.getDescription()),
             eq(request.getContent()),
             eq(request.getVideoUrl()),
             eq(request.getDuration()),
             eq(request.getStatus()),
-            eq(request.getOrderIndex()),
-            any(UUID.class)))
+            eq(request.getOrderIndex())))
         .thenReturn(errorResponse);
 
     // When & Then
@@ -409,14 +411,14 @@ class LessonControllerTest {
 
     verify(lessonService)
         .updateLesson(
-            eq(testLessonId),
+            eq(testLessonId.toString()),
+            any(UUID.class),
             eq(request.getTitle()),
             eq(request.getDescription()),
             eq(request.getContent()),
             eq(request.getVideoUrl()),
             eq(request.getDuration()),
             eq(request.getStatus()),
-            eq(request.getOrderIndex()),
-            any(UUID.class));
+            eq(request.getOrderIndex()));
   }
 }

@@ -1,5 +1,6 @@
 package com.wanli.backend.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -155,8 +156,8 @@ public class DatabaseUtil {
     }
   }
 
-  /** 数据库连接健康检查 */
-  public static boolean isHealthy(JpaRepository<?, ?> repository) {
+  // 实例方法版本，用于测试
+  public boolean isHealthy(JpaRepository<?, ?> repository) {
     try {
       LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_HEALTH_CHECK");
       long count = repository.count();
@@ -168,9 +169,11 @@ public class DatabaseUtil {
     }
   }
 
-  // 实例方法版本，用于测试
   public <T, ID> Optional<T> findByIdSafely(JpaRepository<T, ID> repository, ID id) {
     try {
+      if (id == null) {
+        return Optional.empty();
+      }
       return repository.findById(id);
     } catch (Exception e) {
       return Optional.empty();
@@ -179,25 +182,45 @@ public class DatabaseUtil {
 
   public <T> Optional<T> saveSafely(JpaRepository<T, ?> repository, T entity) {
     try {
-      return Optional.of(repository.save(entity));
+      if (entity == null) {
+        return Optional.empty();
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_SAVE");
+      T saved = repository.save(entity);
+      monitor.end();
+      return Optional.of(saved);
     } catch (Exception e) {
+      LogUtil.logError("DB_SAVE", "", "DB_SAVE_ERROR", e.getMessage(), e);
       return Optional.empty();
     }
   }
 
   public <T> Optional<T> saveAndFlushSafely(JpaRepository<T, ?> repository, T entity) {
     try {
-      return Optional.of(repository.saveAndFlush(entity));
+      if (entity == null) {
+        return Optional.empty();
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_SAVE_FLUSH");
+      T saved = repository.saveAndFlush(entity);
+      monitor.end();
+      return Optional.of(saved);
     } catch (Exception e) {
+      LogUtil.logError("DB_SAVE_FLUSH", "", "DB_SAVE_FLUSH_ERROR", e.getMessage(), e);
       return Optional.empty();
     }
   }
 
   public <T, ID> boolean deleteByIdSafely(JpaRepository<T, ID> repository, ID id) {
     try {
+      if (id == null) {
+        return false;
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_DELETE");
       repository.deleteById(id);
+      monitor.end();
       return true;
     } catch (Exception e) {
+      LogUtil.logError("DB_DELETE", "", "DB_DELETE_ERROR", e.getMessage(), e);
       return false;
     }
   }
@@ -220,25 +243,45 @@ public class DatabaseUtil {
 
   public <T, ID> boolean existsByIdSafely(JpaRepository<T, ID> repository, ID id) {
     try {
-      return repository.existsById(id);
+      if (id == null) {
+        return false;
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_EXISTS");
+      boolean exists = repository.existsById(id);
+      monitor.end();
+      return exists;
     } catch (Exception e) {
+      LogUtil.logError("DB_EXISTS", "", "DB_EXISTS_ERROR", e.getMessage(), e);
       return false;
     }
   }
 
   public <T> List<T> saveAllSafely(JpaRepository<T, ?> repository, Iterable<T> entities) {
     try {
-      return repository.saveAll(entities);
+      if (entities == null) {
+        return new ArrayList<>();
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_SAVE_ALL");
+      List<T> saved = repository.saveAll(entities);
+      monitor.end();
+      return saved;
     } catch (Exception e) {
-      return List.of();
+      LogUtil.logError("DB_SAVE_ALL", "", "DB_SAVE_ALL_ERROR", e.getMessage(), e);
+      return new ArrayList<>();
     }
   }
 
   public <T> boolean deleteAllSafely(JpaRepository<T, ?> repository, Iterable<T> entities) {
     try {
+      if (entities == null) {
+        return false;
+      }
+      LogUtil.PerformanceMonitor monitor = LogUtil.startPerformanceMonitor("DB_DELETE_ALL");
       repository.deleteAll(entities);
+      monitor.end();
       return true;
     } catch (Exception e) {
+      LogUtil.logError("DB_DELETE_ALL", "", "DB_DELETE_ALL_ERROR", e.getMessage(), e);
       return false;
     }
   }
