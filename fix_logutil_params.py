@@ -97,7 +97,7 @@ def fix_logutil_calls(file_path):
 def main():
     """主函数"""
     # 查找所有Java文件
-    java_files = glob.glob('/Users/wujames/Documents/wanli-backend/src/**/*.java', recursive=True)
+    java_files = glob.glob('/Users/JamesWuVip/Documents/wanli-backend/src/**/*.java', recursive=True)
     
     fixed_files = []
     

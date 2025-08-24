@@ -1,7 +1,7 @@
 # 数据库设计文档补充分析报告
 
 ## 文档信息
-- **检查文档**: `/Users/wujames/Documents/wanli-backend/doc/万里书院 - 数据库设计文档 (V0.2).md`
+- **检查文档**: `/Users/JamesWuVip/Documents/wanli-backend/doc/万里书院 - 数据库设计文档 (V0.2).md`
 - **检查时间**: 2025年8月22日
 - **检查目的**: 评估数据库设计文档是否需要补充内容
 

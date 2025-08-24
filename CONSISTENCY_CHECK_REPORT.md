@@ -2,7 +2,7 @@
 
 ## 检查概述
 
-本报告对比了 `/Users/wujames/Documents/wanli-backend/doc` 目录下的设计文档与当前后端实现的一致性。
+本报告对比了 `/Users/JamesWuVip/Documents/wanli-backend/doc` 目录下的设计文档与当前后端实现的一致性。
 
 **检查日期**: 2024年1月
 **检查范围**: 
