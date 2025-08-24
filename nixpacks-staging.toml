@@ -10,7 +10,7 @@ cmd = 'java -jar target/wanli-backend-0.0.1-SNAPSHOT.jar --spring.profiles.activ
 [variables]
 SPRING_PROFILES_ACTIVE = 'staging'
 DB_SCHEMA = 'staging'
-PORT = '8080'
+PORT = '9009'
 # 禁用Railway自动DATABASE_URL设置
 DATABASE_URL = ''
 # 使用Spring Boot标准数据源配置 - 连接到Postgres-WALT服务
