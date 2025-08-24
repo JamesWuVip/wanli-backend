@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -21,7 +21,6 @@ import com.wanli.backend.util.LogUtil;
 
 /** 健康检查服务 监控系统各个组件的健康状态 */
 @Service
-@ConditionalOnBean(RedisTemplate.class)
 public class HealthCheckService {
 
   private final ApplicationConfigManager configManager;
@@ -39,7 +38,7 @@ public class HealthCheckService {
   public HealthCheckService(
       ApplicationConfigManager configManager,
       MetricsCollector metricsCollector,
-      RedisTemplate<String, Object> redisTemplate,
+      @Autowired(required = false) RedisTemplate<String, Object> redisTemplate,
       JdbcTemplate jdbcTemplate) {
     this.configManager = configManager;
     this.metricsCollector = metricsCollector;
@@ -194,6 +193,11 @@ public class HealthCheckService {
 
   /** 检查Redis健康状态 */
   private HealthStatus checkRedisHealth() {
+    // 如果Redis未配置或不可用，返回UNKNOWN状态
+    if (redisTemplate == null) {
+      return HealthStatus.UNKNOWN;
+    }
+
     try {
       long startTime = System.currentTimeMillis();
 
