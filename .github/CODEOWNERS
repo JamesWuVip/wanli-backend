@@ -1,207 +1,187 @@
-# 万里在线教育平台后端 - 代码所有者配置
+# =============================================================================
+# 万里书院后端项目 - 代码所有者配置文件
+# =============================================================================
 # 
-# 此文件定义了代码库中不同部分的代码所有者和审查者
-# 当创建Pull Request时，相关的代码所有者会自动被请求进行代码审查
-#
-# 语法说明：
-# - 每行定义一个规则：<文件模式> <所有者1> <所有者2> ...
-# - 使用 @username 指定GitHub用户
-# - 使用 @org/team-name 指定GitHub团队
+# 此文件定义了项目中不同文件和目录的代码审查责任人。
+# 当创建Pull Request时，GitHub会自动请求相应的代码所有者进行审查。
+# 
+# 格式说明：
+# - 每行定义一个路径模式和对应的所有者
+# - 使用 @username 或 @team-name 指定所有者
+# - 路径支持通配符，如 * 和 **
 # - 后面的规则会覆盖前面的规则
-# - 支持glob模式匹配
-
-# =============================================================================
-# 全局默认所有者
-# =============================================================================
+# - 空行和以 # 开头的行会被忽略
+# 
 
 # 所有文件的默认所有者（项目负责人）
-* @wujames
+* @JamesWuVip
 
 # =============================================================================
 # 核心业务代码
 # =============================================================================
 
 # 控制器层 - 需要后端负责人审查
-/src/main/java/com/wanli/controller/ @wujames @backend-lead
+/src/main/java/com/wanli/controller/ @JamesWuVip @backend-lead
 
 # 服务层 - 需要业务架构师审查
-/src/main/java/com/wanli/service/ @wujames @backend-lead @business-architect
+/src/main/java/com/wanli/service/ @JamesWuVip @backend-lead @business-architect
 
 # 数据访问层 - 需要数据库专家审查
-/src/main/java/com/wanli/repository/ @wujames @backend-lead @database-expert
+/src/main/java/com/wanli/repository/ @JamesWuVip @backend-lead @database-expert
 
 # 实体模型 - 需要数据建模专家审查
-/src/main/java/com/wanli/entity/ @wujames @backend-lead @database-expert
+/src/main/java/com/wanli/entity/ @JamesWuVip @backend-lead @database-expert
 
 # DTO和请求响应模型 - 需要API设计师审查
-/src/main/java/com/wanli/dto/ @wujames @backend-lead @api-designer
+/src/main/java/com/wanli/dto/ @JamesWuVip @backend-lead @api-designer
 
 # =============================================================================
 # 安全相关代码
 # =============================================================================
 
 # 安全配置 - 需要安全专家审查
-/src/main/java/com/wanli/security/ @wujames @security-team @security-expert
+/src/main/java/com/wanli/security/ @JamesWuVip @security-team @security-expert
 
 # 认证和授权 - 需要安全团队审查
-/src/main/java/com/wanli/config/SecurityConfig.java @wujames @security-team
-/src/main/java/com/wanli/filter/ @wujames @security-team
-/src/main/java/com/wanli/util/JwtUtil.java @wujames @security-team
+/src/main/java/com/wanli/config/SecurityConfig.java @JamesWuVip @security-team
+/src/main/java/com/wanli/filter/ @JamesWuVip @security-team
+/src/main/java/com/wanli/util/JwtUtil.java @JamesWuVip @security-team
 
 # =============================================================================
 # 配置文件
 # =============================================================================
 
 # 应用配置文件 - 需要DevOps团队审查
-/src/main/resources/application*.yml @wujames @devops-team
-/src/main/resources/application*.properties @wujames @devops-team
+/src/main/resources/application*.yml @JamesWuVip @devops-team
+/src/main/resources/application*.properties @JamesWuVip @devops-team
 
 # 数据库配置和迁移脚本 - 需要DBA审查
-/src/main/resources/db/ @wujames @database-expert @dba-team
-/src/main/resources/schema.sql @wujames @database-expert @dba-team
-/src/main/resources/data.sql @wujames @database-expert @dba-team
+/src/main/resources/db/ @JamesWuVip @database-expert @dba-team
+/src/main/resources/schema.sql @JamesWuVip @database-expert @dba-team
+/src/main/resources/data.sql @JamesWuVip @database-expert @dba-team
 
 # 日志配置 - 需要运维团队审查
-/src/main/resources/logback*.xml @wujames @devops-team @ops-team
+/src/main/resources/logback*.xml @JamesWuVip @devops-team @ops-team
 
 # =============================================================================
 # 测试代码
 # =============================================================================
 
 # 单元测试 - 需要测试负责人审查
-/src/test/java/ @wujames @backend-lead @test-lead
+/src/test/java/ @JamesWuVip @backend-lead @test-lead
 
 # 集成测试 - 需要QA团队审查
-/src/test/java/**/*IntegrationTest.java @wujames @qa-team @test-lead
+/src/test/java/**/*IntegrationTest.java @JamesWuVip @qa-team @test-lead
 
 # 测试配置 - 需要测试团队审查
-/src/test/resources/ @wujames @test-lead @qa-team
+/src/test/resources/ @JamesWuVip @test-lead @qa-team
 
 # =============================================================================
-# 构建和部署
+# 构建和部署配置
 # =============================================================================
 
 # Maven配置 - 需要构建工程师审查
-pom.xml @wujames @devops-team @build-engineer
+pom.xml @JamesWuVip @devops-team @build-engineer
 
 # Docker配置 - 需要容器化专家审查
-Dockerfile @wujames @devops-team @container-expert
-docker-compose*.yml @wujames @devops-team @container-expert
+Dockerfile @JamesWuVip @devops-team @container-expert
+docker-compose*.yml @JamesWuVip @devops-team @container-expert
 
 # Kubernetes配置 - 需要K8s专家审查
-/k8s/ @wujames @devops-team @k8s-expert
-*.yaml @wujames @devops-team
-*.yml @wujames @devops-team
+/k8s/ @JamesWuVip @devops-team @k8s-expert
+*.yaml @JamesWuVip @devops-team
+*.yml @JamesWuVip @devops-team
 
 # =============================================================================
-# CI/CD 和自动化
+# CI/CD和工具配置
 # =============================================================================
 
 # GitHub Actions工作流 - 需要CI/CD专家审查
-/.github/workflows/ @wujames @devops-team @cicd-expert
+/.github/workflows/ @JamesWuVip @devops-team @cicd-expert
 
 # GitHub配置 - 需要DevOps负责人审查
-/.github/ @wujames @devops-lead
+/.github/ @JamesWuVip @devops-lead
 
 # 代码质量配置 - 需要质量工程师审查
-sonar-project.properties @wujames @quality-engineer @devops-team
-.editorconfig @wujames @quality-engineer
-.gitignore @wujames @devops-team
+sonar-project.properties @JamesWuVip @quality-engineer @devops-team
+.editorconfig @JamesWuVip @quality-engineer
+.gitignore @JamesWuVip @devops-team
 
 # OWASP安全配置 - 需要安全团队审查
-owasp-suppressions.xml @wujames @security-team @security-expert
+owasp-suppressions.xml @JamesWuVip @security-team @security-expert
 
 # =============================================================================
 # 文档
 # =============================================================================
 
 # 项目文档 - 需要技术写作团队审查
-README.md @wujames @tech-writer @documentation-team
-CONTRIBUTING.md @wujames @tech-writer
-CHANGELOG.md @wujames @tech-writer
+README.md @JamesWuVip @tech-writer @documentation-team
+CONTRIBUTING.md @JamesWuVip @tech-writer
+CHANGELOG.md @JamesWuVip @tech-writer
 
 # API文档 - 需要API文档专家审查
-/doc/API*.md @wujames @api-designer @tech-writer
-/doc/*API*.md @wujames @api-designer @tech-writer
+/doc/API*.md @JamesWuVip @api-designer @tech-writer
+/doc/*API*.md @JamesWuVip @api-designer @tech-writer
 
 # 架构文档 - 需要架构师审查
-/doc/架构*.md @wujames @system-architect @tech-writer
-/doc/设计*.md @wujames @system-architect @tech-writer
+/doc/架构*.md @JamesWuVip @system-architect @tech-writer
+/doc/设计*.md @JamesWuVip @system-architect @tech-writer
 
 # 部署文档 - 需要运维团队审查
-DEPLOYMENT.md @wujames @devops-team @ops-team @tech-writer
-/doc/部署*.md @wujames @devops-team @ops-team @tech-writer
+DEPLOYMENT.md @JamesWuVip @devops-team @ops-team @tech-writer
+/doc/部署*.md @JamesWuVip @devops-team @ops-team @tech-writer
 
 # 工程规范文档 - 需要质量工程师审查
-ENGINEERING_STANDARDS.md @wujames @quality-engineer @tech-writer
-/doc/规范*.md @wujames @quality-engineer @tech-writer
+ENGINEERING_STANDARDS.md @JamesWuVip @quality-engineer @tech-writer
+/doc/规范*.md @JamesWuVip @quality-engineer @tech-writer
 
 # 数据库文档 - 需要数据库专家审查
-/doc/数据库*.md @wujames @database-expert @dba-team @tech-writer
-/doc/*数据库*.md @wujames @database-expert @dba-team @tech-writer
+/doc/数据库*.md @JamesWuVip @database-expert @dba-team @tech-writer
+/doc/*数据库*.md @JamesWuVip @database-expert @dba-team @tech-writer
 
 # =============================================================================
 # 特殊文件
 # =============================================================================
 
 # 许可证文件 - 需要法务团队审查
-LICENSE @wujames @legal-team
-LICENSE.* @wujames @legal-team
+LICENSE @JamesWuVip @legal-team
+LICENSE.* @JamesWuVip @legal-team
 
 # 安全策略 - 需要安全团队审查
-SECURITY.md @wujames @security-team @security-expert
+SECURITY.md @JamesWuVip @security-team @security-expert
 
 # 行为准则 - 需要HR团队审查
-CODE_OF_CONDUCT.md @wujames @hr-team @community-manager
+CODE_OF_CONDUCT.md @JamesWuVip @hr-team @community-manager
 
 # 贡献指南 - 需要开源负责人审查
-CONTRIBUTING.md @wujames @opensource-lead @community-manager
+CONTRIBUTING.md @JamesWuVip @opensource-lead @community-manager
 
 # =============================================================================
-# 敏感配置（需要最高级别审查）
+# 敏感配置（需要额外审查）
 # =============================================================================
 
 # 生产环境配置 - 需要多重审查
-/src/main/resources/application-prod.yml @wujames @devops-lead @security-expert @ops-manager
-/src/main/resources/application-production.yml @wujames @devops-lead @security-expert @ops-manager
+/src/main/resources/application-prod.yml @JamesWuVip @devops-lead @security-expert @ops-manager
+/src/main/resources/application-production.yml @JamesWuVip @devops-lead @security-expert @ops-manager
 
 # 密钥和证书相关 - 需要安全团队审查
-*.key @wujames @security-team @security-expert
-*.crt @wujames @security-team @security-expert
-*.pem @wujames @security-team @security-expert
-*.p12 @wujames @security-team @security-expert
-*.jks @wujames @security-team @security-expert
+*.key @JamesWuVip @security-team @security-expert
+*.crt @JamesWuVip @security-team @security-expert
+*.pem @JamesWuVip @security-team @security-expert
+*.p12 @JamesWuVip @security-team @security-expert
+*.jks @JamesWuVip @security-team @security-expert
 
 # =============================================================================
-# 团队说明
+# 注意事项
 # =============================================================================
-#
-# 以下是建议的GitHub团队配置：
-#
-# @backend-lead        - 后端技术负责人
-# @business-architect  - 业务架构师
-# @system-architect    - 系统架构师
-# @database-expert     - 数据库专家
-# @api-designer        - API设计师
-# @security-team       - 安全团队
-# @security-expert     - 安全专家
-# @devops-team         - DevOps团队
-# @devops-lead         - DevOps负责人
-# @ops-team            - 运维团队
-# @ops-manager         - 运维经理
-# @dba-team            - 数据库管理团队
-# @test-lead           - 测试负责人
-# @qa-team             - QA团队
-# @build-engineer      - 构建工程师
-# @container-expert    - 容器化专家
-# @k8s-expert          - Kubernetes专家
-# @cicd-expert         - CI/CD专家
-# @quality-engineer    - 质量工程师
-# @tech-writer         - 技术写作
-# @documentation-team  - 文档团队
-# @legal-team          - 法务团队
-# @hr-team             - 人力资源团队
-# @community-manager   - 社区管理员
-# @opensource-lead     - 开源负责人
-#
-# 注意：实际使用时需要将这些团队名称替换为真实的GitHub用户名或团队名称
+# 
+# 1. 团队名称需要在GitHub组织中预先创建
+# 2. 用户名必须是有效的GitHub用户名
+# 3. 路径匹配是大小写敏感的
+# 4. 建议定期审查和更新此文件
+# 5. 对于关键文件，建议设置多个审查者
+# 
+# 更多信息请参考：
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# 
+# =============================================================================
