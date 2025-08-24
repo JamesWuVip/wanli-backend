@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${JDBC_DATABASE_URL}?sslmode=require
+    url: ${JDBC_DATABASE_URL}&sslmode=require
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
