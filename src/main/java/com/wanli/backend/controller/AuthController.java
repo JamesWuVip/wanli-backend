@@ -40,7 +40,7 @@ public class AuthController {
       // 调用服务层进行注册
       Map<String, Object> result =
           authService.register(
-              request.getEmail(), request.getPassword(), request.getUsername(), request.getRole());
+              request.getUsername(), request.getPassword(), request.getEmail(), request.getRole());
 
       // 记录用户注册日志
       ControllerLogUtil.logUserRegistration(
