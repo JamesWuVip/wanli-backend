@@ -103,26 +103,26 @@ public class AuthService {
    * @param password 密码
    * @return 登录结果
    */
-  public Map<String, Object> login(String username, String password) {
+  public Map<String, Object> login(String email, String password) {
     try (PerformanceMonitor.Monitor monitor = PerformanceMonitor.monitor("USER_LOGIN")) {
       // 输入验证
-      validateLoginInput(username, password);
+      validateLoginInput(email, password);
 
       // 检查登录尝试次数
-      checkLoginAttempts(username);
+      checkLoginAttempts(email);
 
       // 查找用户（优先从缓存）
-      User user = findUserByUsername(username);
+      User user = findUserByEmail(email);
 
       // 验证密码
       if (!passwordEncoder.matches(password, user.getPassword())) {
-        recordFailedLoginAttempt(username);
-        LogUtil.logSecurity("LOGIN_FAILED", user.getId().toString(), null, "密码错误: " + username);
+        recordFailedLoginAttempt(email);
+        LogUtil.logSecurity("LOGIN_FAILED", user.getId().toString(), null, "密码错误: " + email);
         throw new BusinessException("用户名或密码错误", "LOGIN_FAILED");
       }
 
       // 清除失败尝试记录
-      clearLoginAttempts(username);
+      clearLoginAttempts(email);
 
       // 生成JWT令牌
       String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
@@ -131,8 +131,8 @@ public class AuthService {
       cacheUser(user);
 
       // 记录登录日志
-      LogUtil.logBusinessOperation("USER_LOGIN", user.getId().toString(), "用户登录成功: " + username);
-      LogUtil.logSecurity("USER_LOGIN", user.getId().toString(), null, "用户登录: " + username);
+      LogUtil.logBusinessOperation("USER_LOGIN", user.getId().toString(), "用户登录成功: " + email);
+      LogUtil.logSecurity("USER_LOGIN", user.getId().toString(), null, "用户登录: " + email);
 
       Map<String, Object> responseData = Map.of("token", token, "user", createUserResponse(user));
       return ServiceResponseUtil.success("登录成功", responseData);
@@ -236,8 +236,8 @@ public class AuthService {
   }
 
   /** 验证登录输入 */
-  private void validateLoginInput(String username, String password) {
-    ServiceValidationUtil.validateNotBlank(username, "用户名不能为空");
+  private void validateLoginInput(String email, String password) {
+    ServiceValidationUtil.validateNotBlank(email, "邮箱不能为空");
     ServiceValidationUtil.validateNotBlank(password, "密码不能为空");
   }
 
@@ -260,6 +260,19 @@ public class AuthService {
 
     if (!userOptional.isPresent()) {
       LogUtil.logSecurity("LOGIN_FAILED", null, null, "用户不存在: " + username);
+      throw new BusinessException("用户名或密码错误", "LOGIN_FAILED");
+    }
+
+    return userOptional.get();
+  }
+
+  private User findUserByEmail(String email) {
+    Optional<User> userOptional =
+        DatabaseUtil.executeQuery(
+            "FIND_BY_EMAIL", "User", null, () -> userRepository.findByEmail(email));
+
+    if (!userOptional.isPresent()) {
+      LogUtil.logSecurity("LOGIN_FAILED", null, null, "用户不存在: " + email);
       throw new BusinessException("用户名或密码错误", "LOGIN_FAILED");
     }
 
