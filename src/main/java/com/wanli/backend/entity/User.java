@@ -155,13 +155,13 @@ public class User {
         + franchiseId
         + ", username='"
         + username
-        + '\'
+        + "'"
         + ", email='"
         + email
-        + '\'
+        + "'"
         + ", role='"
         + role
-        + '\'
+        + "'"
         + ", createdAt="
         + createdAt
         + ", updatedAt="
