@@ -6,45 +6,49 @@ import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 /**
  * 监控指标服务
- * 提供业务指标记录和统计功能
- * 
- * @author wanli-backend
- * @version 1.0.0
- * @since 2024-01-01
+ * 提供业务指标记录功能
  */
 @Service
 public class MetricsService {
 
-    private final Counter loginSuccessCounter;
-    private final Counter loginFailureCounter;
-    private final Timer apiRequestTimer;
-
     @Autowired
-    public MetricsService(MeterRegistry meterRegistry) {
-        this.loginSuccessCounter = Counter.builder("user.login.success")
-                .description("Number of successful user logins")
+    private MeterRegistry meterRegistry;
+
+    private Counter loginSuccessCounter;
+    private Counter loginFailureCounter;
+    private Timer apiRequestTimer;
+
+    /**
+     * 初始化监控指标
+     */
+    @PostConstruct
+    public void initMetrics() {
+        loginSuccessCounter = Counter.builder("auth.login.success")
+                .description("Number of successful logins")
                 .register(meterRegistry);
-        
-        this.loginFailureCounter = Counter.builder("user.login.failure")
-                .description("Number of failed user login attempts")
+
+        loginFailureCounter = Counter.builder("auth.login.failure")
+                .description("Number of failed logins")
                 .register(meterRegistry);
-        
-        this.apiRequestTimer = Timer.builder("api.request.duration")
-                .description("API request processing time")
+
+        apiRequestTimer = Timer.builder("api.request.duration")
+                .description("API request duration")
                 .register(meterRegistry);
     }
 
     /**
-     * 记录用户登录成功
+     * 记录登录成功
      */
     public void recordLoginSuccess() {
         loginSuccessCounter.increment();
     }
 
     /**
-     * 记录用户登录失败
+     * 记录登录失败
      */
     public void recordLoginFailure() {
         loginFailureCounter.increment();
@@ -52,7 +56,6 @@ public class MetricsService {
 
     /**
      * 记录API请求时间
-     * 
      * @param duration 请求持续时间（毫秒）
      */
     public void recordApiRequestTime(long duration) {
@@ -60,20 +63,10 @@ public class MetricsService {
     }
 
     /**
-     * 开始API请求计时
-     * 
+     * 开始计时API请求
      * @return Timer.Sample
      */
     public Timer.Sample startApiRequestTimer() {
-        return Timer.start();
-    }
-
-    /**
-     * 停止API请求计时并记录
-     * 
-     * @param sample Timer.Sample
-     */
-    public void stopApiRequestTimer(Timer.Sample sample) {
-        sample.stop(apiRequestTimer);
+        return Timer.start(meterRegistry);
     }
 }
