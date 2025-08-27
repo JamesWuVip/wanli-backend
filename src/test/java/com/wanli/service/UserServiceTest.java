@@ -1,200 +1,106 @@
 package com.wanli.service;
 
-import com.wanli.dto.UserRegistrationDto;
+import com.wanli.dto.UserResponseDto;
 import com.wanli.entity.User;
-import com.wanli.entity.UserRole;
+import com.wanli.exception.ResourceNotFoundException;
 import com.wanli.repository.UserRepository;
-import com.wanli.util.TestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
-/**
- * 用户服务测试
- */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-    
+
     @Mock
     private UserRepository userRepository;
-    
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    
+
     @InjectMocks
     private UserService userService;
-    
-    private TestDataFactory testDataFactory;
-    
+
+    private User testUser;
+
     @BeforeEach
     void setUp() {
-        testDataFactory = new TestDataFactory();
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setUsername("testuser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("encoded-password");
+        testUser.setCreatedAt(LocalDateTime.now());
+        testUser.setUpdatedAt(LocalDateTime.now());
     }
-    
+
     @Test
-    void testRegisterUser_Success() {
-        // Arrange
-        UserRegistrationDto registrationDto = TestDataFactory.createUserRegistrationDto();
-        User savedUser = TestDataFactory.createDefaultUser();
-        
-        when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-        
-        // Act
-        User result = userService.registerUser(registrationDto);
-        
-        // Assert
+    void testGetCurrentUser() {
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
+
+        UserResponseDto result = userService.getCurrentUser("testuser");
+
         assertNotNull(result);
-        assertEquals(savedUser.getUsername(), result.getUsername());
-        assertEquals(savedUser.getEmail(), result.getEmail());
-        verify(userRepository).save(any(User.class));
+        assertEquals("testuser", result.getUsername());
+        assertEquals("test@example.com", result.getEmail());
+        assertEquals(1L, result.getId());
     }
-    
+
     @Test
-    void testRegisterUser_DuplicateUsername() {
-        // Arrange
-        UserRegistrationDto registrationDto = TestDataFactory.createUserRegistrationDto();
-        
-        when(userRepository.existsByUsername(anyString())).thenReturn(true);
-        
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.registerUser(registrationDto);
+    void testGetCurrentUserNotFound() {
+        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            userService.getCurrentUser("nonexistent");
         });
-        
-        assertEquals("用户名已存在", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
     }
-    
+
     @Test
-    void testRegisterUser_DuplicateEmail() {
-        // Arrange
-        UserRegistrationDto registrationDto = TestDataFactory.createUserRegistrationDto();
-        
-        when(userRepository.existsByUsername(anyString())).thenReturn(false);
-        when(userRepository.existsByEmail(anyString())).thenReturn(true);
-        
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            userService.registerUser(registrationDto);
+    void testGetAllUsers() {
+        User user2 = new User();
+        user2.setId(2L);
+        user2.setUsername("user2");
+        user2.setEmail("user2@example.com");
+        user2.setPassword("encoded-password2");
+        user2.setCreatedAt(LocalDateTime.now());
+        user2.setUpdatedAt(LocalDateTime.now());
+
+        List<User> users = Arrays.asList(testUser, user2);
+        when(userRepository.findAll()).thenReturn(users);
+
+        List<UserResponseDto> result = userService.getAllUsers();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals("testuser", result.get(0).getUsername());
+        assertEquals("user2", result.get(1).getUsername());
+    }
+
+    @Test
+    void testGetUserById() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        UserResponseDto result = userService.getUserById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals("testuser", result.getUsername());
+        assertEquals("test@example.com", result.getEmail());
+    }
+
+    @Test
+    void testGetUserByIdNotFound() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            userService.getUserById(999L);
         });
-        
-        assertEquals("邮箱已存在", exception.getMessage());
-        verify(userRepository, never()).save(any(User.class));
-    }
-    
-    @Test
-    void testFindByUsername_Found() {
-        // Arrange
-        String username = "testuser";
-        User user = TestDataFactory.createDefaultUser();
-        
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        
-        // Act
-        Optional<User> result = userService.findByUsername(username);
-        
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(user.getUsername(), result.get().getUsername());
-    }
-    
-    @Test
-    void testFindByUsername_NotFound() {
-        // Arrange
-        String username = "nonexistent";
-        
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-        
-        // Act
-        Optional<User> result = userService.findByUsername(username);
-        
-        // Assert
-        assertFalse(result.isPresent());
-    }
-    
-    @Test
-    void testFindByEmail_Found() {
-        // Arrange
-        String email = "test@example.com";
-        User user = TestDataFactory.createDefaultUser();
-        
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        
-        // Act
-        Optional<User> result = userService.findByEmail(email);
-        
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals(user.getEmail(), result.get().getEmail());
-    }
-    
-    @Test
-    void testExistsByUsername_True() {
-        // Arrange
-        String username = "testuser";
-        
-        when(userRepository.existsByUsername(username)).thenReturn(true);
-        
-        // Act
-        boolean result = userService.existsByUsername(username);
-        
-        // Assert
-        assertTrue(result);
-    }
-    
-    @Test
-    void testExistsByUsername_False() {
-        // Arrange
-        String username = "nonexistent";
-        
-        when(userRepository.existsByUsername(username)).thenReturn(false);
-        
-        // Act
-        boolean result = userService.existsByUsername(username);
-        
-        // Assert
-        assertFalse(result);
-    }
-    
-    @Test
-    void testExistsByEmail_True() {
-        // Arrange
-        String email = "test@example.com";
-        
-        when(userRepository.existsByEmail(email)).thenReturn(true);
-        
-        // Act
-        boolean result = userService.existsByEmail(email);
-        
-        // Assert
-        assertTrue(result);
-    }
-    
-    @Test
-    void testExistsByEmail_False() {
-        // Arrange
-        String email = "nonexistent@example.com";
-        
-        when(userRepository.existsByEmail(email)).thenReturn(false);
-        
-        // Act
-        boolean result = userService.existsByEmail(email);
-        
-        // Assert
-        assertFalse(result);
     }
 }
