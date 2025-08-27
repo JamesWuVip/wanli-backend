@@ -1,15 +1,5 @@
-# 服务器配置
-server:
-  port: 8080
-  servlet:
-    context-path: /api
-
-# Spring配置
+# 本地开发环境配置
 spring:
-  application:
-    name: wanli-backend
-  
-  # 数据源配置
   datasource:
     url: jdbc:postgresql://localhost:5432/wanli_db
     username: wanli_user
@@ -21,8 +11,7 @@ spring:
       max-lifetime: 1800000
       maximum-pool-size: 10
       minimum-idle: 5
-    
-  # JPA配置
+      
   jpa:
     hibernate:
       ddl-auto: update
@@ -33,24 +22,21 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Shanghai
-  
-  # 多环境配置
-  profiles:
-    active: local
-        
-  # Jackson配置
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Shanghai
-    default-property-inclusion: non_null
+
+# JWT配置
+jwt:
+  secret: wanli-local-secret-key-for-development-only-2024
+  expiration: 86400000  # 24小时
+  refresh-expiration: 604800000  # 7天
 
 # 日志配置
 logging:
   level:
     com.wanli: debug
     org.springframework.web: debug
+    org.springframework.security: debug
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    name: logs/wanli-backend.log
+    name: logs/wanli-backend-local.log

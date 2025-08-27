@@ -1,0 +1,32 @@
+# 测试环境配置
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wanli_backend_test
+    username: test_user
+    password: test_password
+    driver-class-name: org.postgresql.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+# JWT配置
+jwt:
+  secret: test-secret-key-for-unit-testing-only
+  access-token-expiration: 3600000  # 1小时
+  refresh-token-expiration: 7200000  # 2小时
+
+# 日志配置
+logging:
+  level:
+    com.wanli: debug
+    org.springframework.web: debug
+    org.springframework.security: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
