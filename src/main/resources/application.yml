@@ -1,59 +1,71 @@
-# 万里后端应用配置文件
+# 服务器配置
 server:
   port: ${PORT:8080}
   servlet:
-    context-path: /
+    context-path: /api
 
+# Spring配置
 spring:
   application:
     name: wanli-backend
   
-  # 数据库配置
+  # 数据源配置 - 开发环境
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_backend_dev}
+    username: ${DATABASE_USERNAME:dev_user}
+    password: ${DATABASE_PASSWORD:dev_password}
     driver-class-name: org.postgresql.Driver
-  
+    hikari:
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      maximum-pool-size: 10
+      minimum-idle: 5
+    
   # JPA配置
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: ${JPA_SHOW_SQL:true}
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        default_schema: ${DB_SCHEMA:public}
+        jdbc:
+          time_zone: Asia/Shanghai
   
-  # CORS配置
-  web:
-    cors:
-      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
-      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-      allowed-headers: "*"
-      allow-credentials: true
-  
-# 缓存配置
-cache:
-  enabled: false  # 缓存开关，测试禁用状态
-  default-expire-minutes: 30  # 默认过期时间（分钟）
-  max-size: 1000  # 最大缓存大小
+  # 多环境配置
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+        
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: NON_NULL
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKeyForWanliEducationBackendSystem2024}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7200000}
 
 # 日志配置
 logging:
   level:
-    com.wanli.backend: DEBUG
-    org.springframework.web: DEBUG
+    com.wanli: debug
+    org.springframework.web: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/wanli-backend.log
 
-
-
-# 应用信息
-info:
-  app:
-    name: 万里后端系统
-    description: 基于Spring Boot的Java后端项目
-    version: 1.0.0
-    author: wanli-team
+# 环境标识
+app:
+  environment: development
+  version: ${APP_VERSION:1.0.0-SNAPSHOT}
+  railway:
+    deployment: false

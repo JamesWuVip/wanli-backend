@@ -1,60 +1,101 @@
-# 万里后端应用配置文件 - 生产环境
+# 生产环境配置
+# 服务器配置
 server:
   port: ${PORT:8080}
   servlet:
-    context-path: /
+    context-path: /api
 
 spring:
   application:
-    name: wanli-backend
+    name: wanli-backend-prod
   
-  # 数据库配置 - 生产环境
+  # 数据源配置 - Railway PostgreSQL生产环境
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_backend_prod}
+    username: ${DATABASE_USERNAME:prod_user}
+    password: ${DATABASE_PASSWORD:prod_password}
     driver-class-name: org.postgresql.Driver
-  
-  # JPA配置 - 生产环境
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 30
+      minimum-idle: 10
+      leak-detection-threshold: 60000
+      connection-test-query: SELECT 1
+    
   jpa:
     hibernate:
-      ddl-auto: validate  # 生产环境使用validate，不自动创建表
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
-        default_schema: ${DB_SCHEMA:production}
+        jdbc:
+          time_zone: Asia/Shanghai
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        connection:
+          provider_disables_autocommit: true
   
-  # CORS配置 - 生产环境
-  web:
-    cors:
-      allowed-origins: ${CORS_ALLOWED_ORIGINS:https://app.wanli.ai}
-      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-      allowed-headers: "*"
-      allow-credentials: true
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: NON_NULL
 
-# 日志配置 - 生产环境
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:productionSecretKeyForWanliEducationBackendSystem2024}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7200000}
+
+# 日志配置
 logging:
   level:
-    com.wanli.backend: INFO
-    org.springframework.web: WARN
+    com.wanli: info
+    org.springframework.web: warn
+    org.springframework.security: warn
+    org.hibernate: warn
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /tmp/wanli-backend-prod.log
 
-# 应用信息
-info:
-  app:
-    name: 万里后端系统
-    description: 基于Spring Boot的Java后端项目 - 生产环境
-    version: 1.0.0
-
-# 健康检查配置
+# Railway特定配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
       show-details: when-authorized
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+
+# 安全配置
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+
+# 环境标识
+app:
+  environment: production
+  version: ${APP_VERSION:1.0.0}
+  railway:
+    deployment: true
+  security:
+    headers:
+      frame-options: DENY
+      content-type-options: nosniff
+      xss-protection: "1; mode=block"
