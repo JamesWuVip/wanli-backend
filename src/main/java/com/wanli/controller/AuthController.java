@@ -1,140 +1,117 @@
 package com.wanli.controller;
 
-import com.wanli.service.MetricsService;
-import com.wanli.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wanli.common.ApiResponse;
+import com.wanli.dto.LoginRequestDto;
+import com.wanli.dto.LoginResponseDto;
+import com.wanli.dto.UserRegistrationDto;
+import com.wanli.dto.UserResponseDto;
+import com.wanli.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 认证控制器
- * 处理用户登录、注册、token刷新等认证相关请求
+ * 
+ * @author wanli
+ * @version 1.0.0
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
+@Tag(name = "认证管理", description = "用户注册、登录、登出等认证相关接口")
 public class AuthController {
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private MetricsService metricsService;
-
+    
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    
+    private final AuthService authService;
+    
+    /**
+     * 用户注册
+     */
+    @PostMapping("/register")
+    @Operation(summary = "用户注册", description = "新用户注册接口")
+    public ResponseEntity<ApiResponse<UserResponseDto>> register(
+            @Valid @RequestBody UserRegistrationDto registrationDto) {
+        
+        log.info("User registration attempt: {}", registrationDto.getUsername());
+        
+        UserResponseDto user = authService.register(registrationDto);
+        
+        log.info("User registered successfully: {}", user.getUsername());
+        
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("用户注册成功", user));
+    }
+    
     /**
      * 用户登录
-     * @param loginRequest 登录请求
-     * @return 登录结果
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
-            );
-
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtUtil.generateToken(userDetails.getUsername());
-            String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
-
-            // 记录登录成功指标
-            metricsService.recordLoginSuccess();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("refreshToken", refreshToken);
-            response.put("username", userDetails.getUsername());
-            response.put("authorities", userDetails.getAuthorities());
-
-            return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
-            // 记录登录失败指标
-            metricsService.recordLoginFailure();
-            
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Invalid credentials");
-            return ResponseEntity.badRequest().body(error);
-        }
+    @Operation(summary = "用户登录", description = "用户登录接口")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+            @Valid @RequestBody LoginRequestDto loginRequest) {
+        
+        log.info("User login attempt: {}", loginRequest.getUsername());
+        
+        LoginResponseDto loginResponse = authService.login(loginRequest);
+        
+        log.info("User logged in successfully: {}", loginRequest.getUsername());
+        
+        return ResponseEntity.ok(ApiResponse.success("登录成功", loginResponse));
     }
-
+    
     /**
-     * 刷新token
-     * @param refreshRequest 刷新请求
-     * @return 新的token
+     * 获取当前用户信息
      */
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshRequest) {
-        try {
-            String refreshToken = refreshRequest.getRefreshToken();
-            if (jwtUtil.validateToken(refreshToken)) {
-                String username = jwtUtil.getUsernameFromToken(refreshToken);
-                String newToken = jwtUtil.generateToken(username);
-                
-                Map<String, String> response = new HashMap<>();
-                response.put("token", newToken);
-                return ResponseEntity.ok(response);
-            } else {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid refresh token");
-                return ResponseEntity.badRequest().body(error);
-            }
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Token refresh failed");
-            return ResponseEntity.badRequest().body(error);
-        }
+    @GetMapping("/me")
+    @Operation(summary = "获取当前用户信息", description = "获取当前登录用户的详细信息")
+    public ResponseEntity<ApiResponse<UserResponseDto>> getCurrentUser() {
+        
+        log.info("Getting current user info");
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        UserResponseDto user = authService.getCurrentUser(username);
+        
+        return ResponseEntity.ok(ApiResponse.success("获取用户信息成功", user));
     }
-
+    
     /**
-     * 登录请求DTO
+     * 用户登出
      */
-    public static class LoginRequest {
-        private String username;
-        private String password;
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
+    @PostMapping("/logout")
+    @Operation(summary = "用户登出", description = "用户登出接口")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+        
+        log.info("User logout");
+        
+        String token = extractTokenFromRequest(request);
+        authService.logout(token);
+        
+        log.info("User logged out successfully");
+        
+        return ResponseEntity.ok(ApiResponse.success("登出成功", null));
     }
-
+    
     /**
-     * 刷新Token请求DTO
+     * 从请求中提取JWT Token
      */
-    public static class RefreshTokenRequest {
-        private String refreshToken;
-
-        public String getRefreshToken() {
-            return refreshToken;
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
         }
-
-        public void setRefreshToken(String refreshToken) {
-            this.refreshToken = refreshToken;
-        }
+        return null;
     }
 }
