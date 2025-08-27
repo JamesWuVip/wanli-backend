@@ -24,8 +24,8 @@ spring:
 # JWT配置
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400000}  # 默认24小时
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 默认7天
+  access-token-expiration: ${JWT_EXPIRATION:86400000}  # 默认24小时
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 默认7天
 
 # 服务器配置
 server:

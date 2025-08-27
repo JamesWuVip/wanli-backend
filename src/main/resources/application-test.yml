@@ -1,9 +1,9 @@
 # 测试环境配置
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/wanli_backend_test
-    username: test_user
-    password: test_password
+    url: jdbc:postgresql://test-db:5432/wanli_backend_test
+    username: ${TEST_DB_USER:test_user}
+    password: ${TEST_DB_PASSWORD:test_password}
     driver-class-name: org.postgresql.Driver
     
   jpa:
@@ -18,15 +18,21 @@ spring:
 
 # JWT配置
 jwt:
-  secret: test-secret-key-for-unit-testing-only
+  secret: ${JWT_SECRET_TEST:test-secret-key-for-staging-environment-2024}
   access-token-expiration: 3600000  # 1小时
   refresh-token-expiration: 7200000  # 2小时
+
+# 服务器配置
+server:
+  port: ${PORT:8080}
 
 # 日志配置
 logging:
   level:
-    com.wanli: debug
-    org.springframework.web: debug
-    org.springframework.security: debug
+    com.wanli: info
+    org.springframework.web: warn
+    org.springframework.security: warn
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/wanli-backend-test.log
