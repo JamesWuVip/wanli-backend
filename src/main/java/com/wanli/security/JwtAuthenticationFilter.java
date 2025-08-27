@@ -43,10 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         // 跳过公开端点
         String requestPath = request.getRequestURI();
+        log.info("Processing request path: {}", requestPath);
         if (isPublicPath(requestPath)) {
+            log.info("Skipping JWT authentication for public path: {}", requestPath);
             filterChain.doFilter(request, response);
             return;
         }
+        log.info("Applying JWT authentication for protected path: {}", requestPath);
         
         try {
             String jwt = getJwtFromRequest(request);
