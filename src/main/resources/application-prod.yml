@@ -1,19 +1,23 @@
-# 生产环境配置
+# Production环境配置
 # 服务器配置
 server:
   port: ${PORT:8080}
   servlet:
     context-path: /api
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
 
 spring:
   application:
-    name: wanli-backend-prod
+    name: wanli-backend-production
   
-  # 数据源配置 - Railway PostgreSQL生产环境
+  # 数据源配置 - Railway PostgreSQL Production
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_backend_prod}
-    username: ${DATABASE_USERNAME:prod_user}
-    password: ${DATABASE_PASSWORD:prod_password}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wanli_backend_prod}
+    username: ${SPRING_DATASOURCE_USERNAME:prod_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:prod_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 30000
@@ -23,7 +27,7 @@ spring:
       minimum-idle: 10
       leak-detection-threshold: 60000
       connection-test-query: SELECT 1
-    
+      
   jpa:
     hibernate:
       ddl-auto: validate
@@ -35,16 +39,19 @@ spring:
         jdbc:
           time_zone: Asia/Shanghai
           batch_size: 20
-        order_inserts: true
-        order_updates: true
         connection:
           provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
   
   # Jackson配置
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
     default-property-inclusion: NON_NULL
+    serialization:
+      write-dates-as-timestamps: false
 
 # JWT配置
 jwt:
@@ -58,11 +65,15 @@ logging:
     com.wanli: info
     org.springframework.web: warn
     org.springframework.security: warn
-    org.hibernate: warn
+    org.hibernate.SQL: warn
+    org.hibernate.type.descriptor.sql.BasicBinder: warn
+    org.springframework.boot.autoconfigure: warn
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    name: /tmp/wanli-backend-prod.log
+    name: /tmp/wanli-backend-production.log
+    max-size: 100MB
+    max-history: 30
 
 # Railway特定配置
 management:
@@ -70,23 +81,16 @@ management:
     web:
       exposure:
         include: health,info,metrics
+      base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
-    info:
-      enabled: true
     metrics:
       enabled: true
-  server:
-    port: ${MANAGEMENT_PORT:8081}
-
-# 安全配置
-server:
-  error:
-    include-message: never
-    include-binding-errors: never
-    include-stacktrace: never
-    include-exception: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 # 环境标识
 app:
@@ -94,8 +98,11 @@ app:
   version: ${APP_VERSION:1.0.0}
   railway:
     deployment: true
-  security:
-    headers:
-      frame-options: DENY
-      content-type-options: nosniff
-      xss-protection: "1; mode=block"
+
+# 安全配置
+security:
+  require-ssl: false
+  headers:
+    frame-options: DENY
+    content-type-options: nosniff
+    xss-protection: 1; mode=block
