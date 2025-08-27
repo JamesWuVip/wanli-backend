@@ -1,100 +1,74 @@
 package com.wanli.dto;
 
-import com.wanli.entity.UserRole;
-import com.wanli.entity.UserStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
-/**
- * 用户信息响应数据传输对象
- * 
- * @author wanli
- * @version 1.0.0
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserResponseDto {
-    
-    private UUID userId;
+
+    private Long id;
     private String username;
     private String email;
-    private String fullName;
-    private UserRole role;
-    private UserStatus status;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime lastLoginAt;
-    private boolean isActive;
-    
-    // 手动添加builder方法以解决Lombok注解处理器问题
-    public static UserResponseDtoBuilder builder() {
-        return new UserResponseDtoBuilder();
+    private String role;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    // Constructors
+    public UserResponseDto() {}
+
+    public UserResponseDto(Long id, String username, String email, String role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = role;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
-    
-    public static class UserResponseDtoBuilder {
-        private UUID userId;
-        private String username;
-        private String email;
-        private String fullName;
-        private UserRole role;
-        private UserStatus status;
-        private OffsetDateTime createdAt;
-        private OffsetDateTime lastLoginAt;
-        private boolean isActive;
-        
-        public UserResponseDtoBuilder userId(UUID userId) {
-            this.userId = userId;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder username(String username) {
-            this.username = username;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder email(String email) {
-            this.email = email;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder fullName(String fullName) {
-            this.fullName = fullName;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder role(UserRole role) {
-            this.role = role;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder status(UserStatus status) {
-            this.status = status;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder createdAt(OffsetDateTime createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder lastLoginAt(OffsetDateTime lastLoginAt) {
-            this.lastLoginAt = lastLoginAt;
-            return this;
-        }
-        
-        public UserResponseDtoBuilder isActive(boolean isActive) {
-            this.isActive = isActive;
-            return this;
-        }
-        
-        public UserResponseDto build() {
-            return new UserResponseDto(userId, username, email, fullName, role, status, createdAt, lastLoginAt, isActive);
-        }
+
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

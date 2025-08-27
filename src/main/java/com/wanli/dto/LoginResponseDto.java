@@ -1,138 +1,95 @@
 package com.wanli.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
-/**
- * 登录响应数据传输对象
- * 
- * @author wanli
- * @version 1.0.0
- */
-@Data
 public class LoginResponseDto {
-    
+
+    private String token;
+    private UserInfoDto user;
+    private long expiresIn;
+
+    // Constructors
     public LoginResponseDto() {}
-    
-    public LoginResponseDto(String accessToken, String tokenType, Long expiresIn, UserInfoDto user) {
-        this.accessToken = accessToken;
-        this.tokenType = tokenType;
+
+    public LoginResponseDto(String token, UserInfoDto user, long expiresIn) {
+        this.token = token;
+        this.user = user;
         this.expiresIn = expiresIn;
+    }
+
+    // Getters and Setters
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public UserInfoDto getUser() {
+        return user;
+    }
+
+    public void setUser(UserInfoDto user) {
         this.user = user;
     }
-    
-    private String accessToken;
-    private String tokenType;
-    private Long expiresIn;
-    private UserInfoDto user;
-    
-    // 手动添加builder方法以解决Lombok注解处理器问题
-    public static LoginResponseDtoBuilder builder() {
-        return new LoginResponseDtoBuilder();
+
+    public long getExpiresIn() {
+        return expiresIn;
     }
-    
-    public static class LoginResponseDtoBuilder {
-        private String accessToken;
-        private String tokenType;
-        private Long expiresIn;
-        private UserInfoDto user;
-        
-        public LoginResponseDtoBuilder accessToken(String accessToken) {
-            this.accessToken = accessToken;
-            return this;
-        }
-        
-        public LoginResponseDtoBuilder tokenType(String tokenType) {
-            this.tokenType = tokenType;
-            return this;
-        }
-        
-        public LoginResponseDtoBuilder expiresIn(Long expiresIn) {
-            this.expiresIn = expiresIn;
-            return this;
-        }
-        
-        public LoginResponseDtoBuilder user(UserInfoDto user) {
-            this.user = user;
-            return this;
-        }
-        
-        public LoginResponseDto build() {
-            return new LoginResponseDto(accessToken, tokenType, expiresIn, user);
-        }
+
+    public void setExpiresIn(long expiresIn) {
+        this.expiresIn = expiresIn;
     }
-    
-    @Data
+
+    // Inner class for user info
     public static class UserInfoDto {
-        
-        public UserInfoDto() {}
-        
-        public UserInfoDto(UUID userId, String username, String email, String fullName, String role, OffsetDateTime lastLoginAt) {
-            this.userId = userId;
-            this.username = username;
-            this.email = email;
-            this.fullName = fullName;
-            this.role = role;
-            this.lastLoginAt = lastLoginAt;
-        }
-        private UUID userId;
+        private Long id;
         private String username;
         private String email;
-        private String fullName;
         private String role;
-        private OffsetDateTime lastLoginAt;
-        
-        // 手动添加builder方法以解决Lombok注解处理器问题
-        public static UserInfoDtoBuilder builder() {
-            return new UserInfoDtoBuilder();
+
+        // Constructors
+        public UserInfoDto() {}
+
+        public UserInfoDto(Long id, String username, String email, String role) {
+            this.id = id;
+            this.username = username;
+            this.email = email;
+            this.role = role;
         }
-        
-        public static class UserInfoDtoBuilder {
-            private UUID userId;
-            private String username;
-            private String email;
-            private String fullName;
-            private String role;
-            private OffsetDateTime lastLoginAt;
-            
-            public UserInfoDtoBuilder userId(UUID userId) {
-                this.userId = userId;
-                return this;
-            }
-            
-            public UserInfoDtoBuilder username(String username) {
-                this.username = username;
-                return this;
-            }
-            
-            public UserInfoDtoBuilder email(String email) {
-                this.email = email;
-                return this;
-            }
-            
-            public UserInfoDtoBuilder fullName(String fullName) {
-                this.fullName = fullName;
-                return this;
-            }
-            
-            public UserInfoDtoBuilder role(String role) {
-                this.role = role;
-                return this;
-            }
-            
-            public UserInfoDtoBuilder lastLoginAt(OffsetDateTime lastLoginAt) {
-                this.lastLoginAt = lastLoginAt;
-                return this;
-            }
-            
-            public UserInfoDto build() {
-                return new UserInfoDto(userId, username, email, fullName, role, lastLoginAt);
-            }
+
+        // Getters and Setters
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }
