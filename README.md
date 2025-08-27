@@ -1,87 +1,62 @@
-# 万里在线教育平台后端
+# 万里后端系统
 
-基于Spring Boot 3.2.1的在线教育平台后端服务。
+基于Spring Boot的后端API系统，提供用户认证和管理功能。
+
+## 功能特性
+
+- 用户注册和登录
+- JWT身份认证
+- 用户信息管理
+- 系统健康检查
+- 完整的API文档
 
 ## 技术栈
 
-- **框架**: Spring Boot 3.2.1
-- **数据库**: MySQL 8.0
-- **ORM**: MyBatis Plus 3.5.5
-- **安全**: Spring Security + JWT
-- **缓存**: Redis
-- **文档**: Knife4j (Swagger)
-- **构建工具**: Maven
-- **Java版本**: 17
+- Spring Boot 3.x
+- Spring Security
+- JWT
+- MySQL
+- Maven
 
 ## 快速开始
 
-### 环境要求
-
-- JDK 17+
-- Maven 3.6+
-- MySQL 8.0+
-- Redis 6.0+
-
-### 运行应用
-
+1. 克隆项目
 ```bash
-# 克隆项目
 git clone https://github.com/JamesWuVip/wanli-backend.git
 cd wanli-backend
+```
 
-# 编译项目
-mvn clean compile
+2. 配置数据库
+- 创建MySQL数据库
+- 修改 `application.yml` 中的数据库配置
 
-# 运行测试
-mvn test
-
-# 启动应用
+3. 运行项目
+```bash
 mvn spring-boot:run
 ```
 
-### 配置文件
+4. 访问API
+- 基础URL: http://localhost:8080
+- API文档: 查看 `api_documentation.md`
 
-- `application.yml` - 基础配置
-- `application-staging.yml` - 测试环境配置
-- `application-production.yml` - 生产环境配置
+## API接口
 
-## API文档
+### 用户认证
+- POST `/api/auth/register` - 用户注册
+- POST `/api/auth/login` - 用户登录
+- GET `/api/auth/me` - 获取当前用户信息
+- POST `/api/auth/logout` - 用户登出
 
-启动应用后访问: http://localhost:8080/doc.html
+### 系统接口
+- GET `/api/health` - 健康检查
 
-## 项目结构
+## 开发规范
 
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/
-│   │       └── wanli/
-│   │           └── backend/
-│   └── resources/
-│       ├── application.yml
-│       ├── application-staging.yml
-│       ├── application-production.yml
-│       └── db/
-└── test/
-    └── java/
-```
+- 遵循GitFlow工作流
+- 代码提交到dev分支
+- 通过测试后合并到main分支
+- 完整的接口测试和文档
 
-## 代码质量
+## 许可证
 
-项目集成了以下代码质量工具:
-
-- **SonarQube**: 代码质量分析
-- **JaCoCo**: 代码覆盖率
-- **OWASP Dependency Check**: 安全漏洞检测
-
-```bash
-# 运行代码质量检查
-mvn clean verify sonar:sonar
-
-# 生成测试覆盖率报告
-mvn clean test jacoco:report
-
-# 安全漏洞检测
-mvn dependency-check:check
-```
+MIT License
