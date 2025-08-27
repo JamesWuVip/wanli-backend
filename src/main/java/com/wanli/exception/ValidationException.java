@@ -1,11 +1,9 @@
 package com.wanli.exception;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 验证异常类
- * 用于处理参数验证失败异常
+ * 参数校验失败异常
  * 
  * @author wanli
  * @version 1.0.0
@@ -16,11 +14,11 @@ public class ValidationException extends BaseException {
     
     public ValidationException(String errorMessage) {
         super("VALIDATION_ERROR", errorMessage);
-        this.fieldErrors = new ArrayList<>();
+        this.fieldErrors = null;
     }
     
-    public ValidationException(List<FieldError> fieldErrors) {
-        super("VALIDATION_ERROR", "参数验证失败");
+    public ValidationException(String errorMessage, List<FieldError> fieldErrors) {
+        super("VALIDATION_ERROR", errorMessage);
         this.fieldErrors = fieldErrors;
     }
     

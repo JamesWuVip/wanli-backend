@@ -1,7 +1,7 @@
 package com.wanli.exception;
 
 import com.wanli.common.ApiResponse;
-import com.wanli.common.ErrorCode;
+import com.wanli.exception.user.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -17,15 +17,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 全局异常处理器
- * 统一处理系统中的各种异常
  * 
  * @author wanli
  * @version 1.0.0
@@ -33,66 +32,46 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
     /**
      * 处理用户不存在异常
      */
-    @ExceptionHandler(com.wanli.exception.user.UserNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(com.wanli.exception.user.UserNotFoundException e) {
-        log.warn("User not found: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage()
-        );
-        
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException e) {
+        logger.warn("User not found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
     
     /**
-     * 处理重复用户名异常
+     * 处理用户名重复异常
      */
-    @ExceptionHandler(com.wanli.exception.user.DuplicateUsernameException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDuplicateUsernameException(com.wanli.exception.user.DuplicateUsernameException e) {
-        log.warn("Duplicate username: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage()
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateUsernameException(DuplicateUsernameException e) {
+        logger.warn("Duplicate username: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
     
     /**
-     * 处理重复邮箱异常
+     * 处理邮箱重复异常
      */
-    @ExceptionHandler(com.wanli.exception.user.DuplicateEmailException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDuplicateEmailException(com.wanli.exception.user.DuplicateEmailException e) {
-        log.warn("Duplicate email: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage()
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateEmailException(DuplicateEmailException e) {
+        logger.warn("Duplicate email: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
-
+    
     /**
      * 处理密码无效异常
      */
-    @ExceptionHandler(com.wanli.exception.user.InvalidPasswordException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidPasswordException(com.wanli.exception.user.InvalidPasswordException e) {
-        log.warn("Invalid password: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage()
-        );
-        
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidPasswordException(InvalidPasswordException e) {
+        logger.warn("Invalid password: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
     
     /**
@@ -100,81 +79,55 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
-        log.warn("Business exception occurred: {}", e.getMessage(), e);
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage()
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        logger.warn("Business exception: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
     
     /**
-     * 处理验证异常
+     * 处理参数校验异常
      */
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(ValidationException e) {
-        log.warn("Validation exception occurred: {}", e.getMessage());
-        
-        Map<String, String> errors = new HashMap<>();
-        e.getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getMessage())
-        );
-        
-        ApiResponse<Map<String, String>> response = ApiResponse.error(
-            e.getErrorCode(),
-            e.getErrorMessage(),
-            errors
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    public ResponseEntity<ApiResponse<List<ValidationException.FieldError>>> handleValidationException(ValidationException e) {
+        logger.warn("Validation exception: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getErrorCode(), e.getErrorMessage(), e.getFieldErrors()));
     }
     
     /**
-     * 处理Bean Validation异常
+     * 处理方法参数校验失败异常
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e) {
-        log.warn("Method argument validation failed: {}", e.getMessage());
+    public ResponseEntity<ApiResponse<List<ValidationException.FieldError>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        logger.warn("Method argument not valid: {}", e.getMessage());
         
-        Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+        List<ValidationException.FieldError> fieldErrors = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ValidationException.FieldError(
+                        error.getField(),
+                        error.getDefaultMessage(),
+                        error.getRejectedValue()))
+                .collect(Collectors.toList());
         
-        ApiResponse<Map<String, String>> response = ApiResponse.error(
-            ErrorCode.VALIDATION_ERROR.getCode(),
-            "参数验证失败",
-            errors
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("VALIDATION_ERROR", "参数校验失败", fieldErrors));
     }
     
     /**
      * 处理约束违反异常
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(
-            ConstraintViolationException e) {
-        log.warn("Constraint violation occurred: {}", e.getMessage());
+    public ResponseEntity<ApiResponse<List<ValidationException.FieldError>>> handleConstraintViolationException(ConstraintViolationException e) {
+        logger.warn("Constraint violation: {}", e.getMessage());
         
-        Map<String, String> errors = new HashMap<>();
-        e.getConstraintViolations().forEach(violation -> {
-            String fieldName = violation.getPropertyPath().toString();
-            String message = violation.getMessage();
-            errors.put(fieldName, message);
-        });
+        List<ValidationException.FieldError> fieldErrors = e.getConstraintViolations().stream()
+                .map(violation -> new ValidationException.FieldError(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage(),
+                        violation.getInvalidValue()))
+                .collect(Collectors.toList());
         
-        ApiResponse<Map<String, String>> response = ApiResponse.error(
-            ErrorCode.VALIDATION_ERROR.getCode(),
-            "参数验证失败",
-            errors
-        );
-        
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error("VALIDATION_ERROR", "参数校验失败", fieldErrors));
     }
     
     /**
@@ -182,94 +135,59 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException e) {
-        log.warn("Authentication failed: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.UNAUTHORIZED.getCode(),
-            "认证失败"
-        );
-        
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        logger.warn("Authentication exception: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("AUTHENTICATION_ERROR", "认证失败: " + e.getMessage()));
     }
     
     /**
-     * 处理授权异常
+     * 处理访问拒绝异常
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(AccessDeniedException e) {
-        log.warn("Access denied: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.FORBIDDEN.getCode(),
-            "访问被拒绝"
-        );
-        
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        logger.warn("Access denied: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("ACCESS_DENIED", "访问被拒绝: " + e.getMessage()));
     }
     
     /**
-     * 处理数据库异常
+     * 处理数据访问异常
      */
-    @ExceptionHandler({DataAccessException.class})
-    public ResponseEntity<ApiResponse<Void>> handleDatabaseException(Exception e) {
-        log.error("Database exception occurred: {}", e.getMessage(), e);
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.DATABASE_ERROR.getCode(),
-            "数据库操作失败"
-        );
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataAccessException(DataAccessException e) {
+        logger.error("Data access exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("DATABASE_ERROR", "数据库访问异常"));
     }
     
     /**
      * 处理数据完整性违反异常
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        log.error("Data integrity violation: {}", e.getMessage(), e);
-        
-        String message = "数据操作失败";
-        if (e.getCause() instanceof ConstraintViolationException) {
-            message = "数据重复或违反约束条件";
-        }
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.DATA_INTEGRITY_VIOLATION.getCode(),
-            message
-        );
-        
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        logger.error("Data integrity violation: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("DATA_INTEGRITY_ERROR", "数据完整性约束违反"));
     }
     
     /**
      * 处理HTTP请求方法不支持异常
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
-        log.warn("Method not supported: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.METHOD_NOT_ALLOWED.getCode(),
-            "请求方法不支持: " + e.getMethod()
-        );
-        
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+    public ResponseEntity<ApiResponse<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        logger.warn("HTTP method not supported: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(ApiResponse.error("METHOD_NOT_ALLOWED", "不支持的HTTP方法: " + e.getMethod()));
     }
     
     /**
      * 处理HTTP媒体类型不支持异常
      */
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
-        log.warn("Media type not supported: {}", e.getMessage());
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.INVALID_PARAMETER.getCode(),
-            "不支持的媒体类型: " + e.getContentType()
-        );
-        
-        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(response);
+    public ResponseEntity<ApiResponse<Void>> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+        logger.warn("HTTP media type not supported: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(ApiResponse.error("MEDIA_TYPE_NOT_SUPPORTED", "不支持的媒体类型: " + e.getContentType()));
     }
     
     /**
@@ -277,33 +195,23 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(SystemException.class)
     public ResponseEntity<ApiResponse<Void>> handleSystemException(SystemException e) {
-        log.error("System exception occurred: {}", e.getMessage(), e);
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            e.getErrorCode(),
-            "系统内部错误"
-        );
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        logger.error("System exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error(e.getErrorCode(), formatMessage(e.getErrorMessage(), e.getArgs())));
     }
     
     /**
-     * 处理未知异常
+     * 处理其他未捕获的异常
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
-        log.error("Unexpected exception occurred: {}", e.getMessage(), e);
-        
-        ApiResponse<Void> response = ApiResponse.error(
-            ErrorCode.SYSTEM_ERROR.getCode(),
-            "系统内部错误"
-        );
-        
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+        logger.error("Unexpected exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("INTERNAL_ERROR", "系统内部错误"));
     }
     
     /**
-     * 格式化错误消息
+     * 格式化消息
      */
     private String formatMessage(String message, Object[] args) {
         if (args == null || args.length == 0) {
