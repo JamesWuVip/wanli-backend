@@ -10,11 +10,7 @@ import com.wanli.exception.BusinessException;
  */
 public class InvalidPasswordException extends BusinessException {
     
-    public InvalidPasswordException() {
-        super("INVALID_PASSWORD", "密码不正确");
-    }
-    
-    public InvalidPasswordException(String reason) {
-        super("INVALID_PASSWORD", "密码不符合要求: {0}", reason);
+    public InvalidPasswordException(String message) {
+        super("INVALID_PASSWORD", message);
     }
 }
