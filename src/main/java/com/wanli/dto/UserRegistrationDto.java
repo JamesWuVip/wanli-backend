@@ -25,6 +25,9 @@ public class UserRegistrationDto {
     @Size(min = 6, max = 100, message = "密码长度必须在6-100个字符之间")
     private String password;
     
+    @NotBlank(message = "确认密码不能为空")
+    private String confirmPassword;
+    
     @NotBlank(message = "邮箱不能为空")
     @Email(message = "邮箱格式不正确")
     private String email;
@@ -42,6 +45,10 @@ public class UserRegistrationDto {
     
     public String getPassword() {
         return password;
+    }
+    
+    public String getConfirmPassword() {
+        return confirmPassword;
     }
     
     public String getEmail() {
@@ -63,6 +70,10 @@ public class UserRegistrationDto {
     
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
     
     public void setEmail(String email) {
