@@ -11,9 +11,9 @@ spring:
   
   # 数据源配置 - Railway PostgreSQL
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_backend_staging}
-    username: ${DATABASE_USERNAME:staging_user}
-    password: ${DATABASE_PASSWORD:staging_password}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wanli_backend_staging}
+    username: ${SPRING_DATASOURCE_USERNAME:staging_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:staging_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 30000
@@ -56,6 +56,7 @@ logging:
     org.springframework.security: warn
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: /tmp/wanli-backend-staging.log
 
