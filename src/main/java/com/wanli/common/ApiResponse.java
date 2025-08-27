@@ -1,130 +1,108 @@
 package com.wanli.common;
 
-/**
- * 统一API响应格式
- * 用于封装所有API接口的响应数据
- * 
- * @author wanli
- * @version 1.0.0
- * @param <T> 响应数据类型
- */
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
+
 public class ApiResponse<T> {
-    
+
     private boolean success;
-    private String code;
+    private int code;
     private String message;
     private T data;
-    private Long timestamp;
     
-    private ApiResponse(boolean success, String code, String message, T data) {
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
+
+    // Constructors
+    public ApiResponse() {
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public ApiResponse(boolean success, int code, String message, T data) {
         this.success = success;
         this.code = code;
         this.message = message;
         this.data = data;
-        this.timestamp = System.currentTimeMillis();
+        this.timestamp = LocalDateTime.now();
     }
-    
-    /**
-     * 成功响应
-     * @param data 响应数据
-     * @param <T> 数据类型
-     * @return ApiResponse
-     */
+
+    // Static factory methods for success responses
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(true, ErrorCode.SUCCESS.getCode(), "操作成功", data);
+        return new ApiResponse<>(true, 200, "操作成功", data);
     }
-    
-    /**
-     * 成功响应（仅消息）
-     * @param message 响应消息
-     * @return ApiResponse
-     */
-    public static ApiResponse<Void> success(String message) {
-        return new ApiResponse<>(true, ErrorCode.SUCCESS.getCode(), message, null);
+
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return new ApiResponse<>(true, 200, message, data);
     }
-    
-    /**
-     * 成功响应（自定义消息）
-     * @param message 响应消息
-     * @param data 响应数据
-     * @param <T> 数据类型
-     * @return ApiResponse
-     */
-    public static <T> ApiResponse<T> success(String message, T data) {
-        return new ApiResponse<>(true, ErrorCode.SUCCESS.getCode(), message, data);
+
+    public static <T> ApiResponse<T> success() {
+        return new ApiResponse<>(true, 200, "操作成功", null);
     }
-    
-    /**
-     * 失败响应
-     * @param code 错误码
-     * @param message 错误消息
-     * @param <T> 数据类型
-     * @return ApiResponse
-     */
-    public static <T> ApiResponse<T> error(String code, String message) {
+
+    // Static factory methods for error responses
+    public static <T> ApiResponse<T> error(int code, String message) {
         return new ApiResponse<>(false, code, message, null);
     }
-    
-    /**
-     * 失败响应（带数据）
-     * @param code 错误码
-     * @param message 错误消息
-     * @param data 响应数据
-     * @param <T> 数据类型
-     * @return ApiResponse
-     */
-    public static <T> ApiResponse<T> error(String code, String message, T data) {
-        return new ApiResponse<>(false, code, message, data);
+
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(false, 500, message, null);
     }
-    
-    /**
-     * 失败响应（使用错误码枚举）
-     * @param errorCode 错误码枚举
-     * @param <T> 数据类型
-     * @return ApiResponse
-     */
-    public static <T> ApiResponse<T> error(ErrorCode errorCode) {
-        return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null);
+
+    public static <T> ApiResponse<T> badRequest(String message) {
+        return new ApiResponse<>(false, 400, message, null);
     }
-    
+
+    public static <T> ApiResponse<T> unauthorized(String message) {
+        return new ApiResponse<>(false, 401, message, null);
+    }
+
+    public static <T> ApiResponse<T> forbidden(String message) {
+        return new ApiResponse<>(false, 403, message, null);
+    }
+
+    public static <T> ApiResponse<T> notFound(String message) {
+        return new ApiResponse<>(false, 404, message, null);
+    }
+
     // Getters and Setters
     public boolean isSuccess() {
         return success;
     }
-    
+
     public void setSuccess(boolean success) {
         this.success = success;
     }
-    
-    public String getCode() {
+
+    public int getCode() {
         return code;
     }
-    
-    public void setCode(String code) {
+
+    public void setCode(int code) {
         this.code = code;
     }
-    
+
     public String getMessage() {
         return message;
     }
-    
+
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
     public T getData() {
         return data;
     }
-    
+
     public void setData(T data) {
         this.data = data;
     }
-    
-    public Long getTimestamp() {
+
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
-    
-    public void setTimestamp(Long timestamp) {
+
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }
