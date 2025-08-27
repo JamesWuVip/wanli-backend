@@ -2,10 +2,14 @@ package com.wanli;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+/**
+ * 万里后端应用主启动类
+ * 
+ * @author wanli
+ * @version 1.0.0
+ */
 @SpringBootApplication
-@EnableJpaAuditing
 public class WanliBackendApplication {
 
     public static void main(String[] args) {
