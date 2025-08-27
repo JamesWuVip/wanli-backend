@@ -1,56 +1,46 @@
-# 服务器配置
-server:
-  port: 8080
-  servlet:
-    context-path: /api
-
-# Spring配置
 spring:
   application:
     name: wanli-backend
-  
-  # 数据源配置
+  profiles:
+    active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/wanli_db
-    username: wanli_user
-    password: wanli_password
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 10
-      minimum-idle: 5
-    
-  # JPA配置
+    url: jdbc:mysql://localhost:3306/wanli_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        jdbc:
-          time_zone: Asia/Shanghai
-  
-  # 多环境配置
-  profiles:
-    active: local
-        
-  # Jackson配置
   jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
-    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
 
-# 日志配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
 logging:
   level:
-    com.wanli: debug
-    org.springframework.web: debug
+    com.wanli: DEBUG
+    org.springframework.security: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/wanli-backend.log
+
+jwt:
+  secret: mySecretKey
+  expiration: 86400000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
