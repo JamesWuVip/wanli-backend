@@ -1,35 +1,37 @@
-# SP1 自动化验收测试配置
-# 使用本地PostgreSQL数据库进行测试
-
+# Test Configuration
 spring:
-  # 数据源配置 - 使用H2内存数据库进行测试
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
   
-  # JPA配置
+  # Database Configuration for Tests
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wanli_backend_test
+    username: test_user
+    password: test_password
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA Configuration
   jpa:
     hibernate:
-      ddl-auto: create  # 测试时自动创建表结构，但不删除数据
-    show-sql: true  # 显示SQL语句，便于调试
+      ddl-auto: create-drop
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   
-  # H2控制台配置（可选，用于调试）
-  h2:
-    console:
-      enabled: true
+  # Security Configuration
+  security:
+    user:
+      name: test
+      password: test
 
-# JWT配置
+# JWT Configuration for Tests
 jwt:
-  secret: test-secret-key-for-sp1-acceptance-testing-wanli-academy-2024
-  expiration: 86400000  # 24小时（毫秒）
+  secret: testSecretKeyForJWTTokenGenerationInTestEnvironmentThatShouldBeLongEnough
+  access-token-expiration: 3600000  # 1 hour in milliseconds
+  refresh-token-expiration: 86400000  # 24 hours in milliseconds
 
-# 日志配置
+# Logging Configuration
 logging:
   level:
     com.wanli: DEBUG
@@ -39,7 +41,9 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
-# 测试环境标识
+# Test specific configurations
 test:
-  environment: sp1-acceptance
-  description: "SP1 Sprint自动化验收测试环境"
+  database:
+    cleanup: true
+  security:
+    disable-csrf: true
