@@ -198,4 +198,78 @@ public class User extends BaseEntity {
             return user;
         }
     }
+    
+    // 手动添加getter方法以解决Lombok注解处理器问题
+    public UserStatus getStatus() {
+        return status;
+    }
+    
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public UserRole getRole() {
+        return role;
+    }
+    
+    public String getFullName() {
+        return fullName;
+    }
+    
+    public OffsetDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+    
+    public Integer getLoginAttempts() {
+        return loginAttempts;
+    }
+    
+    public OffsetDateTime getLockedUntil() {
+        return lockedUntil;
+    }
+    
+    // 手动添加setter方法以解决Lombok注解处理器问题
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+    
+    public void setLockedUntil(OffsetDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
+    }
+    
+    public void setLoginAttempts(Integer loginAttempts) {
+        this.loginAttempts = loginAttempts;
+    }
+    
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+    
+    public void setLastLoginAt(OffsetDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+    
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+    
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
