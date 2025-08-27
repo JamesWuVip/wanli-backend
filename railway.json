@@ -1,0 +1,34 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "mvn clean package -DskipTests"
+  },
+  "deploy": {
+    "startCommand": "java -Dserver.port=$PORT -Dspring.profiles.active=$RAILWAY_ENVIRONMENT -jar target/wanli-backend-1.0.0.jar",
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  },
+  "environments": {
+    "staging": {
+      "variables": {
+        "SPRING_PROFILES_ACTIVE": "staging",
+        "RAILWAY_ENVIRONMENT": "staging",
+        "APP_VERSION": "1.0.0-staging",
+        "JWT_ACCESS_TOKEN_EXPIRATION": "3600000",
+        "JWT_REFRESH_TOKEN_EXPIRATION": "7200000"
+      }
+    },
+    "production": {
+      "variables": {
+        "SPRING_PROFILES_ACTIVE": "prod",
+        "RAILWAY_ENVIRONMENT": "production",
+        "APP_VERSION": "1.0.0",
+        "JWT_ACCESS_TOKEN_EXPIRATION": "3600000",
+        "JWT_REFRESH_TOKEN_EXPIRATION": "7200000"
+      }
+    }
+  }
+}
