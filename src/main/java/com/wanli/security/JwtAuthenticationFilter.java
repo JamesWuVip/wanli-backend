@@ -46,6 +46,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("Processing request path: {}", requestPath);
         if (isPublicPath(requestPath)) {
             log.info("Skipping JWT authentication for public path: {}", requestPath);
+            // 为公开路径设置匿名认证，确保Spring Security不会拦截
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken("anonymous", null, java.util.Collections.emptyList())
+                );
+                log.info("Set anonymous authentication for public path: {}", requestPath);
+            }
             filterChain.doFilter(request, response);
             return;
         }
