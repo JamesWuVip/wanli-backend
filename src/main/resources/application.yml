@@ -1,26 +1,16 @@
-# 服务器配置
-server:
-  port: 8080
-  servlet:
-    context-path: /api
-
-# Spring配置
+# 万里教育后台管理系统 - 测试环境配置
 spring:
+  profiles:
+    active: test
   application:
     name: wanli-backend
   
-  # 数据源配置
+  # 数据库配置
   datasource:
-    url: jdbc:postgresql://localhost:5432/wanli_db
-    username: wanli_user
-    password: wanli_password
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_test}
+    username: ${DATABASE_USERNAME:wanli_test}
+    password: ${DATABASE_PASSWORD:test123}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 10
-      minimum-idle: 5
     
   # JPA配置
   jpa:
@@ -31,26 +21,27 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        jdbc:
-          time_zone: Asia/Shanghai
-  
-  # 多环境配置
-  profiles:
-    active: local
         
-  # Jackson配置
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Shanghai
-    default-property-inclusion: non_null
-
+  # 服务器配置
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+    
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:testSecretKeyForWanliEducationBackendSystemTesting2024}
+  expiration: ${JWT_EXPIRATION:86400}
+  
 # 日志配置
 logging:
   level:
-    com.wanli: debug
-    org.springframework.web: debug
+    com.wanli: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  file:
+    name: logs/wanli-backend-test.log
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/wanli-backend.log
