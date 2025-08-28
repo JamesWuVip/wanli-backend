@@ -52,6 +52,24 @@ const router = createRouter({
         title: '个人资料 - 万里学习平台',
         requiresAuth: true
       }
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: () => import('../views/settings/SettingsPage.vue'),
+      meta: {
+        title: '系统设置 - 万里学习平台',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/assignments',
+      name: 'Assignments',
+      component: () => import('../views/assignments/AssignmentsPage.vue'),
+      meta: {
+        title: '作业管理 - 万里学习平台',
+        requiresAuth: true
+      }
     }
   ]
 })
