@@ -129,6 +129,28 @@ staging-deployment-guide.md
 *-prod.yml
 *-staging.yml
 *-production.yml
+*-local.yml
+
+# Database files with sensitive data
+database_init_production.sql
+database_init_staging.sql
+database_init_production_fixed.sql
+database_init_staging_fixed.sql
+*_production.sql
+*_staging.sql
+
+# Test reports and API test files
+api_test_report.md
+final_api_test_analysis_report.md
+comprehensive_api_test_report.json
+debug_api_test_report.json
+*_api_test*.js
+*_api_test*.json
+*_test_report*
+
+# Sensitive documentation in .trae folder
+.trae/documents/database_connection_config.md
+.trae/documents/deployment-configuration-guide.md
 
 # Build artifacts
 build/
