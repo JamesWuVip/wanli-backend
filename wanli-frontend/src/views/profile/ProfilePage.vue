@@ -175,7 +175,7 @@
               class="hidden"
             >
             <button
-              @click="$refs.fileInput?.click()"
+              @click="() => fileInput?.click()"
               class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               选择图片文件
@@ -209,7 +209,7 @@
 import { ref, computed, onMounted, reactive } from 'vue'
 import { useUserStore, type UserProfile } from '../../stores/user'
 import { useNotification } from '../../composables/useNotification'
-import AppButton from '../../components/common/AppButton.vue'
+import AppButton from '../../components/AppButton.vue'
 
 interface FormData {
   name: string
