@@ -41,18 +41,96 @@ buildNumber.properties
 *.iml
 *.ipr
 .vscode/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-
-# Application
-application-local.yml
-application-dev.yml
-*.pid
 
 # Logs
 logs/
+*.log
 
-# Test
-.scannerwork/
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Application specific
+application-local.yml
+application-dev.yml
+application-prod.yml
+application-test.yml
+
+# JaCoCo
+*.exec
+
+# Test reports
+surefire-reports/
+failsafe-reports/
+
+# Spring Boot
+*.original
+
+# Temporary files
+*.tmp
+*.temp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Security
+*.key
+*.pem
+*.p12
+*.jks
+
+# Sensitive configuration documents
+deployment-configuration-guide.md
+internal-deployment-guide.md
+staging-deployment-guide.md
+*-deployment-guide.md
+
+# Sensitive configuration files
+*-prod.yml
+*-staging.yml
+*-production.yml
+
+# Build artifacts
+build/
+dist/
+out/
