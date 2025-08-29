@@ -1,0 +1,80 @@
+# Production环境配置
+# 服务器配置
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: wanli-backend-production
+  
+  # 数据源配置 - Railway PostgreSQL
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wanli_backend_production}
+    username: ${SPRING_DATASOURCE_USERNAME:production_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:production_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 30
+      minimum-idle: 10
+      leak-detection-threshold: 60000
+    
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        jdbc:
+          time_zone: Asia/Shanghai
+        connection:
+          provider_disables_autocommit: true
+  
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: NON_NULL
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:productionSecretKeyForWanliEducationBackendSystem2024}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7200000}
+
+# 日志配置
+logging:
+  level:
+    com.wanli: info
+    org.springframework.web: warn
+    org.springframework.security: warn
+    org.hibernate.SQL: warn
+    org.hibernate.type.descriptor.sql.BasicBinder: warn
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /tmp/wanli-backend-production.log
+
+# Railway特定配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+# 环境标识
+app:
+  environment: production
+  version: ${APP_VERSION:1.0.0}
+  railway:
+    deployment: true
