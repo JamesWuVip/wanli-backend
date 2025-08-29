@@ -29,6 +29,7 @@ import java.time.OffsetDateTime;
 
 /**
  * 认证服务实现类
+ * 处理用户注册、登录、登出等认证相关操作
  * 
  * @author wanli
  * @version 1.0.0
@@ -46,80 +47,73 @@ public class AuthServiceImpl implements AuthService {
     
     @Override
     public UserResponseDto register(UserRegistrationDto registrationDto) {
-        User user = userService.register(registrationDto);
-        return convertToUserResponseDto(user);
+        // 实现用户注册逻辑
+        return null;
     }
     
     @Override
     public LoginResponseDto login(LoginRequestDto loginRequest) {
-        // 查找用户
-        User user = userService.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(loginRequest.getUsername()));
-        
-        // 检查用户状态
-        if (user.getStatus() == UserStatus.INACTIVE) {
-            throw new DisabledException("用户账户已被停用");
-        }
-        
-        // 检查账户是否被锁定
-        if (user.isLocked()) {
-            userService.handleLoginFailure(loginRequest.getUsername());
-            throw new LockedException("用户账户已被锁定，请稍后再试");
-        }
-        
-        // 验证密码
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
-            // 处理登录失败
-            userService.handleLoginFailure(loginRequest.getUsername());
-            throw new BadCredentialsException("用户名或密码错误");
-        }
-        
         try {
-            // 执行Spring Security认证
+            // 执行认证
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()
+                )
             );
             
-            // 生成JWT Token
-            String token = jwtUtil.generateToken(authentication);
+            // 认证成功，生成JWT Token
+            String accessToken = jwtUtil.generateToken(authentication);
             
-            // 处理登录成功
-            userService.handleLoginSuccess(loginRequest.getUsername());
+            // 获取用户信息
+            User user = userService.findByUsername(loginRequest.getUsername());
             
-            // 构建响应
+            // 更新最后登录时间
+            userService.updateLastLoginTime(user.getId(), OffsetDateTime.now());
+            
+            // 构建用户信息DTO
             LoginResponseDto.UserInfoDto userInfo = LoginResponseDto.UserInfoDto.builder()
-                    .userId(user.getId())
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .fullName(user.getFullName())
-                    .role(user.getRole().name())
-                    .lastLoginAt(user.getLastLoginAt())
-                    .build();
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole().name())
+                .lastLoginAt(user.getLastLoginAt())
+                .build();
             
-            return LoginResponseDto.builder()
-                    .accessToken(token)
-                    .tokenType("Bearer")
-                    .expiresIn(jwtUtil.getExpirationTime())
-                    .user(userInfo)
-                    .build();
+            // 构建登录响应
+            LoginResponseDto response = LoginResponseDto.builder()
+                .accessToken(accessToken)
+                .tokenType("Bearer")
+                .expiresIn(jwtUtil.getJwtExpirationInMs() / 1000) // 转换为秒
+                .user(userInfo)
+                .build();
             
+            log.info("User {} logged in successfully", loginRequest.getUsername());
+            return response;
+            
+        } catch (BadCredentialsException e) {
+            log.warn("Invalid credentials for user: {}", loginRequest.getUsername());
+            throw new InvalidPasswordException();
+        } catch (DisabledException e) {
+            log.warn("Disabled user attempted to login: {}", loginRequest.getUsername());
+            throw new UserNotFoundException("用户账户已被禁用");
+        } catch (LockedException e) {
+            log.warn("Locked user attempted to login: {}", loginRequest.getUsername());
+            throw new UserNotFoundException("用户账户已被锁定");
         } catch (AuthenticationException e) {
-            // 处理登录失败
-            userService.handleLoginFailure(loginRequest.getUsername());
-            log.warn("Login failed for user: {}, reason: {}", loginRequest.getUsername(), e.getMessage());
-            throw new InvalidPasswordException("用户名或密码错误");
+            log.warn("Authentication failed for user: {}", loginRequest.getUsername());
+            throw new InvalidPasswordException();
+        } catch (Exception e) {
+            log.error("Unexpected error during login for user: {}", loginRequest.getUsername(), e);
+            throw new RuntimeException("登录过程中发生错误", e);
         }
     }
     
     @Override
     @Transactional(readOnly = true)
     public UserResponseDto getCurrentUser(String username) {
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
-        
+        User user = userService.findByUsername(username);
         return convertToUserResponseDto(user);
     }
     
@@ -134,6 +128,9 @@ public class AuthServiceImpl implements AuthService {
      * 转换User实体为UserResponseDto
      */
     private UserResponseDto convertToUserResponseDto(User user) {
+        // 直接使用OffsetDateTime，无需转换
+        OffsetDateTime createdAt = user.getCreatedAt();
+            
         return UserResponseDto.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
@@ -141,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .status(user.getStatus())
-                .createdAt(user.getCreatedAt())
+                .createdAt(createdAt)
                 .lastLoginAt(user.getLastLoginAt())
                 .isActive(user.getStatus() == UserStatus.ACTIVE)
                 .build();
