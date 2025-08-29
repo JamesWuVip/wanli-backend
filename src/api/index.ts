@@ -1,32 +1,48 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios from 'axios'
+import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/store/modules/auth'
-import { ElMessage } from 'element-plus'
+import router from '@/router'
+
+// API基础配置
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.staging.wanli.ai'
+const API_TIMEOUT = 10000 // 10秒超时
 
 // 创建axios实例
-const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
-  timeout: 10000,
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 // 请求拦截器
 apiClient.interceptors.request.use(
-  (config) => {
-    // 添加认证token
+  (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore()
+    
+    // 添加认证token
     if (authStore.token) {
       config.headers.Authorization = `Bearer ${authStore.token}`
     }
-    
-    // 添加请求ID用于追踪
+
+    // 添加请求ID
     config.headers['X-Request-ID'] = generateRequestId()
+    
+    // 开发环境下打印请求信息
+    if (import.meta.env.DEV) {
+      console.log('🚀 API Request:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        data: config.data,
+        params: config.params,
+      })
+    }
     
     return config
   },
   (error) => {
-    console.error('请求拦截器错误:', error)
+    console.error('❌ Request Error:', error)
     return Promise.reject(error)
   }
 )
@@ -34,33 +50,85 @@ apiClient.interceptors.request.use(
 // 响应拦截器
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
+    // 开发环境下打印响应信息
+    if (import.meta.env.DEV) {
+      console.log('✅ API Response:', {
+        status: response.status,
+        url: response.config.url,
+        data: response.data,
+      })
+    }
+    
     return response
   },
-  (error) => {
-    const { response } = error
+  async (error) => {
+    const authStore = useAuthStore()
     
-    if (response) {
-      switch (response.status) {
+    // 处理响应错误
+    if (error.response) {
+      const { status, data } = error.response
+      
+      switch (status) {
         case 401:
-          // 未授权，清除token并跳转登录
-          const authStore = useAuthStore()
-          authStore.logout()
-          ElMessage.error('登录已过期，请重新登录')
+          // Token失效或未认证
+          console.warn('🔒 Unauthorized: Token expired or invalid')
+          
+          // 尝试刷新token
+          if (authStore.refreshToken) {
+            try {
+              await authStore.refreshAccessToken()
+              // 重新发送原请求
+              return apiClient.request(error.config)
+            } catch (refreshError) {
+              // 刷新失败，清除认证信息并跳转登录
+              authStore.logout()
+              router.push({ name: 'login' })
+            }
+          } else {
+            // 没有refresh token，直接跳转登录
+            authStore.logout()
+            router.push({ name: 'login' })
+          }
           break
+          
         case 403:
-          ElMessage.error('权限不足')
+          // 权限不足
+          console.warn('🚫 Forbidden: Insufficient permissions')
+          // 可以显示权限不足的提示
           break
+          
         case 404:
-          ElMessage.error('请求的资源不存在')
+          // 资源不存在
+          console.warn('🔍 Not Found: Resource does not exist')
           break
+          
+        case 422:
+          // 表单验证错误
+          console.warn('📝 Validation Error:', data)
+          break
+          
+        case 429:
+          // 请求过于频繁
+          console.warn('⏰ Too Many Requests: Rate limit exceeded')
+          break
+          
         case 500:
-          ElMessage.error('服务器内部错误')
+        case 502:
+        case 503:
+        case 504:
+          // 服务器错误
+          console.error('🔥 Server Error:', status, data)
           break
+          
         default:
-          ElMessage.error(response.data?.message || '请求失败')
+          console.error('❌ API Error:', status, data)
       }
+    } else if (error.request) {
+      // 网络错误
+      console.error('🌐 Network Error: No response received')
     } else {
-      ElMessage.error('网络连接失败')
+      // 其他错误
+      console.error('⚠️ Request Setup Error:', error.message)
     }
     
     return Promise.reject(error)
@@ -69,32 +137,29 @@ apiClient.interceptors.response.use(
 
 // 生成请求ID
 function generateRequestId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
-// 封装常用HTTP方法
-export const api = {
-  get: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.get(url, config)
-  },
-  
-  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.post(url, data, config)
-  },
-  
-  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.put(url, data, config)
-  },
-  
-  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.patch(url, data, config)
-  },
-  
-  delete: <T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> => {
-    return apiClient.delete(url, config)
-  }
-}
-
-// 导出axios实例和类型
+// 导出API客户端实例
 export default apiClient
-export type { AxiosInstance, AxiosRequestConfig, AxiosResponse }
+
+// 导出常用的HTTP方法封装
+export const api = {
+  get: <T = any>(url: string, config?: AxiosRequestConfig) => 
+    apiClient.get<T>(url, config),
+    
+  post: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) => 
+    apiClient.post<T>(url, data, config),
+    
+  put: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) => 
+    apiClient.put<T>(url, data, config),
+    
+  patch: <T = any>(url: string, data?: any, config?: AxiosRequestConfig) => 
+    apiClient.patch<T>(url, data, config),
+    
+  delete: <T = any>(url: string, config?: AxiosRequestConfig) => 
+    apiClient.delete<T>(url, config),
+}
+
+// 导出类型
+export type { AxiosRequestConfig, AxiosResponse }
