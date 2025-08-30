@@ -112,9 +112,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 公开接口
                         .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
+                                "/api/register",
+                                "/api/login",
                                 "/api/health",
+                                "/api/info",
                                 "/api/swagger-ui/**",
                                 "/api/v3/api-docs/**",
                                 "/api/swagger-resources/**",
