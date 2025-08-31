@@ -79,9 +79,9 @@ management:
   endpoint:
     health:
       show-details: never
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
 
 # JWT配置
