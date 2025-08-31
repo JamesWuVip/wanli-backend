@@ -2,27 +2,17 @@
 spring:
   # 数据库配置
   datasource:
-    url: jdbc:mysql://staging-db:3306/wanli_staging?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: staging_user
-    password: staging_password
-  
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-  
-  # 缓存配置
-  cache:
-    type: redis
+    url: jdbc:mysql://${DB_HOST:staging-mysql}:${DB_PORT:3306}/${DB_NAME:wanli_staging}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:staging_user}
+    password: ${DB_PASSWORD:staging_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   
   # Redis配置
   data:
     redis:
       host: ${REDIS_HOST:staging-redis}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:staging_redis_password}
-      database: ${REDIS_DATABASE:0}
+      password: ${REDIS_PASSWORD:staging-redis-password}
       timeout: 2000ms
       lettuce:
         pool:
@@ -30,30 +20,44 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
 
 # 服务器配置
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 # 日志配置
 logging:
   level:
-    root: info
     com.wanli: info
+    org.springframework.security: warn
   file:
-    name: /var/log/wanli-backend/application.log
-  logback:
-    rollingpolicy:
-      max-file-size: 100MB
-      max-history: 30
+    name: ${LOG_FILE:logs/wanli-staging.log}
 
 # 管理端点配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
   metrics:
     export:
       prometheus:
         enabled: true
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:staging-jwt-secret-key-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}
