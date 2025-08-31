@@ -2,17 +2,27 @@
 spring:
   # 数据库配置
   datasource:
-    url: jdbc:mysql://${DB_HOST:staging-mysql}:${DB_PORT:3306}/${DB_NAME:wanli_staging}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST:staging-db}:${DB_PORT:3306}/${DB_NAME:wanli_staging}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${DB_USERNAME:staging_user}
     password: ${DB_PASSWORD:staging_password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  
+  # 缓存配置
+  cache:
+    type: redis
   
   # Redis配置
   data:
     redis:
       host: ${REDIS_HOST:staging-redis}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:staging-redis-password}
+      password: ${REDIS_PASSWORD:staging_redis_password}
+      database: ${REDIS_DATABASE:0}
       timeout: 2000ms
       lettuce:
         pool:
@@ -20,16 +30,19 @@ spring:
           max-idle: 8
           min-idle: 0
           max-wait: -1ms
-  
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
+
+  # 邮件配置
+  mail:
+    host: ${SPRING_MAIL_HOST:smtphz.qiye.163.com}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME:wuning@wanli.ai}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: false
+      mail:
+        smtp:
+          ssl:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_ENABLE:true}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
 
 # 服务器配置
 server:
@@ -38,20 +51,21 @@ server:
 # 日志配置
 logging:
   level:
+    root: info
     com.wanli: info
-    org.springframework.security: warn
   file:
-    name: ${LOG_FILE:logs/wanli-staging.log}
+    name: ${LOG_FILE_PATH:/var/log/wanli-backend/application.log}
+  logback:
+    rollingpolicy:
+      max-file-size: ${LOG_MAX_FILE_SIZE:100MB}
+      max-history: ${LOG_MAX_HISTORY:30}
 
 # 管理端点配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: when-authorized
+        include: health,info,metrics,prometheus
   metrics:
     export:
       prometheus:
