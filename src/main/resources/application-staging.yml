@@ -1,77 +1,74 @@
-# Staging环境配置
-# 服务器配置
-server:
-  port: ${PORT:8080}
-  servlet:
-    context-path: /api
-
+# 测试环境配置
 spring:
-  application:
-    name: wanli-backend-staging
-  
-  # 数据源配置 - Railway PostgreSQL
+  # 数据源配置
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/wanli_backend_staging}
-    username: ${DATABASE_USERNAME:staging_user}
-    password: ${DATABASE_PASSWORD:staging_password}
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 20
-      minimum-idle: 5
-      leak-detection-threshold: 60000
-    
+    url: jdbc:mysql://staging-db-host:3306/wanli_staging?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=GMT%2B8
+    username: ${DB_USERNAME:wanli_user}
+    password: ${DB_PASSWORD:staging_password}
+  
+  # JPA配置
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
-        jdbc:
-          time_zone: Asia/Shanghai
-        connection:
-          provider_disables_autocommit: true
   
-  # Jackson配置
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Shanghai
-    default-property-inclusion: NON_NULL
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST:staging-redis-host}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 1
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
 
-# JWT配置
-jwt:
-  secret: ${JWT_SECRET:stagingSecretKeyForWanliEducationBackendSystem2024}
-  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
-  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:7200000}
+# 服务器配置
+server:
+  port: ${SERVER_PORT:8080}
 
 # 日志配置
 logging:
   level:
-    com.wanli: info
-    org.springframework.web: warn
-    org.springframework.security: warn
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    com.wanli: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
   file:
-    name: /tmp/wanli-backend-staging.log
+    name: logs/wanli-backend-staging.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
 
-# Railway特定配置
+# 应用自定义配置
+app:
+  jwt:
+    secret: ${JWT_SECRET:wanli-backend-staging-jwt-secret-key-2024}
+    expiration: 86400000  # 24小时
+  
+  cors:
+    allowed-origins: "${CORS_ORIGINS:https://staging.wanli.com,https://test.wanli.com}"
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+  
+  upload:
+    path: ${UPLOAD_PATH:/app/uploads}
+    max-size: 10485760  # 10MB
+
+# 监控配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
       show-details: when-authorized
-
-# 环境标识
-app:
-  environment: staging
-  version: ${APP_VERSION:1.0.0}
-  railway:
-    deployment: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
