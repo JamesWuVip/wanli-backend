@@ -2,10 +2,9 @@
 spring:
   # 数据库配置
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:wanli_dev}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:wanli_dev}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: ${DB_PASSWORD:dev_password}
   
   # Redis配置
   data:
@@ -19,7 +18,6 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
-          max-wait: -1ms
   
   # JPA配置
   jpa:
@@ -29,7 +27,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: true
   
   # 开发工具配置
   devtools:
@@ -38,19 +35,33 @@ spring:
     livereload:
       enabled: true
 
+  # 邮件配置
+  mail:
+    host: ${SPRING_MAIL_HOST:smtphz.qiye.163.com}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME:wuning@wanli.ai}
+    password: ${SPRING_MAIL_PASSWORD:CPyx-8vBkKhn5Fx}
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_ENABLE:true}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+
 # 服务器配置
 server:
   port: ${SERVER_PORT:8080}
+
+# 日志配置
+logging:
+  level:
+    root: info
+    com.wanli: DEBUG
+    org.springframework.web: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
 
 # JWT配置
 jwt:
   secret: ${JWT_SECRET:dev-jwt-secret-key-change-in-production}
   expiration: ${JWT_EXPIRATION:86400000}
-
-# 日志配置
-logging:
-  level:
-    com.wanli: debug
-    org.springframework.security: debug
-  file:
-    name: logs/wanli-dev.log
