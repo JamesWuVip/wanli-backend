@@ -2,10 +2,9 @@
 spring:
   # 数据库配置
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://prod-db:3306/wanli_prod?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -13,63 +12,70 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
   
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  
+  # 缓存配置
+  cache:
+    type: redis
+  
   # Redis配置
   data:
     redis:
       host: ${REDIS_HOST}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
-      timeout: 2000ms
+      database: 0
       lettuce:
         pool:
           max-active: 20
           max-idle: 10
           min-idle: 5
-          max-wait: -1ms
-  
-  # JPA配置
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
+
+  # 邮件配置
+  mail:
+    host: ${SPRING_MAIL_HOST:smtphz.qiye.163.com}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME:wuning@wanli.ai}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: false
-        jdbc:
-          batch_size: 20
-        order_inserts: true
-        order_updates: true
+      mail:
+        smtp:
+          ssl:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_ENABLE:true}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
 
 # 服务器配置
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
   compression:
     enabled: true
-    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
-    min-response-size: 1024
+  http2:
+    enabled: true
 
 # 日志配置
 logging:
   level:
+    root: warn
     com.wanli: info
-    org.springframework.security: warn
-    org.hibernate.SQL: warn
-    org.hibernate.type.descriptor.sql.BasicBinder: warn
   file:
-    name: ${LOG_FILE:logs/wanli-prod.log}
+    name: /var/log/wanli-backend/application.log
   logback:
     rollingpolicy:
       max-file-size: 100MB
-      max-history: 30
-      total-size-cap: 3GB
+      max-history: 60
+      total-size-cap: 10GB
 
 # 管理端点配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
+      base-path: /actuator
   endpoint:
     health:
       show-details: never
