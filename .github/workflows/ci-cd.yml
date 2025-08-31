@@ -1,0 +1,234 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev, staging ]
+  pull_request:
+    branches: [ main, dev, staging ]
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_OPTS: '-Xmx1024m'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' || github.event_name == 'pull_request' || github.ref == 'refs/heads/staging'
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: wanli_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Wait for MySQL
+      run: |
+        for i in {30..0}; do
+          if mysqladmin ping -h"127.0.0.1" -P3306 -uroot -ptestpassword --silent; then
+            echo "MySQL is ready"
+            break
+          fi
+          echo "Waiting for MySQL..."
+          sleep 2
+        done
+    
+    - name: Run Unit Tests
+      run: |
+        mvn clean test -Dspring.profiles.active=unit-test \
+          -Dtest=!*IntegrationTest,!*E2ETest,!*SecurityTest \
+          -DfailIfNoTests=false
+    
+    - name: Run Integration Tests
+      run: |
+        mvn test -Dspring.profiles.active=integration-test \
+          -Dtest=*IntegrationTest \
+          -DfailIfNoTests=false
+    
+    - name: Generate Test Report
+      run: mvn surefire-report:report
+    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./target/site/jacoco/jacoco.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    
+    - name: Build and analyze
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        mvn clean verify sonar:sonar \
+          -Dsonar.projectKey=JamesWuVip_wanli-backend \
+          -Dsonar.organization=jameswuvip \
+          -Dsonar.host.url=https://sonarcloud.io
+
+  deploy-dev:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    environment: development
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build JAR
+      run: mvn clean package -DskipTests -Dspring.profiles.active=dev
+    
+    - name: Deploy to Railway Dev
+      run: |
+        echo "Deploying to Railway Dev environment..."
+        # Railway deployment commands here
+    
+    - name: Run Database Migration
+      run: |
+        echo "Running database migrations for dev..."
+        # Database migration commands here
+    
+    - name: Health Check
+      run: |
+        echo "Performing health check on dev environment..."
+        # Health check commands here
+
+  deploy-staging:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    environment: staging
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build JAR
+      run: mvn clean package -DskipTests -Dspring.profiles.active=staging
+    
+    - name: Login to Railway
+      run: |
+        echo "Logging into Railway..."
+        # Railway login commands here
+    
+    - name: Set Environment Variables
+      run: |
+        echo "Setting staging environment variables..."
+        # Set staging-specific environment variables
+    
+    - name: Deploy to Railway Staging
+      run: |
+        echo "Deploying to Railway Staging environment..."
+        # Railway deployment commands here
+    
+    - name: Run Database Migration
+      run: |
+        echo "Running database migrations for staging..."
+        # Database migration commands here
+    
+    - name: Health Check
+      run: |
+        echo "Performing health check on staging environment..."
+        # Health check commands here
+    
+    # TODO: Add E2E tests here
+    # - name: Run E2E Tests
+    #   run: echo "Running E2E tests..."
+    
+    # TODO: Add performance tests here
+    # - name: Run Performance Tests
+    #   run: echo "Running performance tests..."
+
+  deploy-prod:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build JAR
+      run: mvn clean package -DskipTests -Dspring.profiles.active=prod
+    
+    - name: Deploy to Railway Production
+      run: |
+        echo "Deploying to Railway Production environment..."
+        # Railway deployment commands here
+    
+    - name: Run Database Migration
+      run: |
+        echo "Running database migrations for production..."
+        # Database migration commands here
+    
+    - name: Health Check
+      run: |
+        echo "Performing health check on production environment..."
+        # Health check commands here
+    
+    - name: Notify Deployment
+      run: |
+        echo "Notifying team of successful production deployment..."
+        # Notification commands here
