@@ -1,10 +1,10 @@
 # 测试环境配置
 spring:
-  # 数据源配置
+  # 数据库配置
   datasource:
-    url: jdbc:mysql://staging-db-host:3306/wanli_staging?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=GMT%2B8
-    username: ${DB_USERNAME:wanli_user}
-    password: ${DB_PASSWORD:staging_password}
+    url: jdbc:mysql://staging-db:3306/wanli_staging?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: staging_user
+    password: staging_password
   
   # JPA配置
   jpa:
@@ -12,62 +12,47 @@ spring:
       ddl-auto: validate
     show-sql: false
   
+  # 缓存配置
+  cache:
+    type: redis
+  
   # Redis配置
   data:
     redis:
-      host: ${REDIS_HOST:staging-redis-host}
+      host: ${REDIS_HOST:staging-redis}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      database: 1
-      timeout: 3000ms
+      password: ${REDIS_PASSWORD:staging_redis_password}
+      database: ${REDIS_DATABASE:0}
+      timeout: 2000ms
       lettuce:
         pool:
-          max-active: 16
+          max-active: 8
           max-idle: 8
-          min-idle: 2
+          min-idle: 0
+          max-wait: -1ms
 
 # 服务器配置
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 # 日志配置
 logging:
   level:
-    com.wanli: INFO
-    org.springframework.web: WARN
-    org.hibernate.SQL: WARN
+    root: info
+    com.wanli: info
   file:
-    name: logs/wanli-backend-staging.log
+    name: /var/log/wanli-backend/application.log
   logback:
     rollingpolicy:
       max-file-size: 100MB
       max-history: 30
 
-# 应用自定义配置
-app:
-  jwt:
-    secret: ${JWT_SECRET:wanli-backend-staging-jwt-secret-key-2024}
-    expiration: 86400000  # 24小时
-  
-  cors:
-    allowed-origins: "${CORS_ORIGINS:https://staging.wanli.com,https://test.wanli.com}"
-    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-    allowed-headers: "*"
-    allow-credentials: true
-  
-  upload:
-    path: ${UPLOAD_PATH:/app/uploads}
-    max-size: 10485760  # 10MB
-
-# 监控配置
+# 管理端点配置
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
-  endpoint:
-    health:
-      show-details: when-authorized
+        include: health,info,metrics,prometheus
   metrics:
     export:
       prometheus:
