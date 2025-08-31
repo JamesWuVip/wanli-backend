@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * 万里后端应用主启动类
+ * 万里项目后端服务主应用类
  * 
- * @author wanli
- * @version 1.0.0
+ * @author JamesWu
+ * @since 1.0.0
  */
 @SpringBootApplication
 public class WanliBackendApplication {
