@@ -1,67 +1,56 @@
 # 开发环境配置
 spring:
-  # 数据源配置
+  # 数据库配置
   datasource:
-    url: jdbc:mysql://localhost:3306/wanli_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:wanli_dev}?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
   
   # JPA配置
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
   
-  # Redis配置（开发环境可选）
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 0
-      timeout: 3000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 0
+  # 开发工具配置
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
 
 # 服务器配置
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+
+# JWT配置
+jwt:
+  secret: ${JWT_SECRET:dev-jwt-secret-key-change-in-production}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # 日志配置
 logging:
   level:
-    com.wanli: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.wanli: debug
+    org.springframework.security: debug
   file:
-    name: logs/wanli-backend-dev.log
-
-# 应用自定义配置
-app:
-  jwt:
-    secret: wanli-backend-dev-jwt-secret-key-2024
-    expiration: 86400000  # 24小时
-  
-  cors:
-    allowed-origins: "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
-    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-    allowed-headers: "*"
-    allow-credentials: true
-  
-  upload:
-    path: /tmp/uploads/dev
-    max-size: 10485760  # 10MB
-
-# 开发工具配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,env
-  endpoint:
-    health:
-      show-details: always
+    name: logs/wanli-dev.log
