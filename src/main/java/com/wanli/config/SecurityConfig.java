@@ -1,53 +1,96 @@
 package com.wanli.config;
 
+import com.wanli.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Spring Security配置类
- * 用于配置应用的安全策略
- * 
- * @author wanli-team
- * @since 1.0.0
+ * Spring Security配置类.
+ * 配置认证和授权相关的安全设置.
+     *
+ * @author JamesWu.
+ * @since 1.0.0.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     /**
-     * 配置安全过滤器链
-     * 
-     * @param http HttpSecurity对象
-     * @return SecurityFilterChain
-     * @throws Exception 配置异常
+     * 配置密码编码器.
+     *
+     * @return BCrypt密码编码器.
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /** 自定义用户详情服务. */
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    /**
+     * 配置认证管理器.
+     * 用于处理用户认证请求，验证用户凭据的有效性.
+     *
+     * @param config 认证配置.
+     * @return 认证管理器.
+     * @throws Exception 配置异常.
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(
+            final AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    /**
+     * 配置DAO认证提供者.
+     *
+     * @return DAO认证提供者.
+     */
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider =
+                new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    /**
+     * 配置安全过滤器链.
+     *
+     * @param http HTTP安全配置.
+     * @return 安全过滤器链.
+     * @throws Exception 配置异常.
+     */
+    @Bean
+    public SecurityFilterChain filterChain(final HttpSecurity http)
+            throws Exception {
         http
-            // 禁用CSRF保护（对于REST API通常不需要）
             .csrf(csrf -> csrf.disable())
-            
-            // 配置会话管理为无状态（适用于JWT认证）
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            
-            // 配置授权规则
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                // 允许健康检查端点无需认证
-                .requestMatchers("/api/health", "/health").permitAll()
-                // 允许actuator端点无需认证（开发环境）
-                .requestMatchers("/api/actuator/**", "/actuator/**").permitAll()
-                // 允许认证相关端点无需认证
                 .requestMatchers("/api/auth/**").permitAll()
-                // 其他所有请求都需要认证
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
-            );
-            
+            )
+            .headers(headers ->
+                headers.frameOptions().disable()); // 允许H2控制台
+
         return http.build();
     }
 }
