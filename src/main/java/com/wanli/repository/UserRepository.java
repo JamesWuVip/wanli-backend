@@ -14,9 +14,9 @@ import java.util.Optional;
 
 /**
  * 用户数据访问层接口.
- *
- * @author JamesWu
- * @since 1.0.0
+ * 
+ * <p>提供用户实体的数据库操作方法，包括基本的CRUD操作和复杂的查询功能。
+ * 支持用户认证、用户管理、数据统计等业务场景的数据访问需求。</p>
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -25,15 +25,15 @@ public interface UserRepository extends JpaRepository<User, String> {
      * 根据用户名查询用户.
      *
      * @param username 用户名.
-     * @return 用户信息.
+     * @return 用户信息（如果存在）.
      */
     Optional<User> findByUsername(String username);
 
     /**
      * 根据邮箱查询用户.
      *
-     * @param email 邮箱.
-     * @return 用户信息.
+     * @param email 邮箱地址.
+     * @return 用户信息（如果存在）.
      */
     Optional<User> findByEmail(String email);
 
@@ -41,45 +41,45 @@ public interface UserRepository extends JpaRepository<User, String> {
      * 根据手机号查询用户.
      *
      * @param phone 手机号.
-     * @return 用户信息.
+     * @return 用户信息（如果存在）.
      */
     Optional<User> findByPhone(String phone);
 
     /**
-     * 根据用户名或邮箱查询用户.
+     * 根据用户名或邮箱查询用户（用于登录）.
      *
      * @param username 用户名.
-     * @param email 邮箱.
-     * @return 用户信息.
+     * @param email 邮箱地址.
+     * @return 用户信息（如果存在）.
      */
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     /**
-     * 检查用户名是否存在.
+     * 检查用户名是否已存在.
      *
      * @param username 用户名.
-     * @return 是否存在.
+     * @return 如果存在返回true，否则返回false.
      */
     boolean existsByUsername(String username);
 
     /**
-     * 检查邮箱是否存在.
+     * 检查邮箱是否已存在.
      *
-     * @param email 邮箱.
-     * @return 是否存在.
+     * @param email 邮箱地址.
+     * @return 如果存在返回true，否则返回false.
      */
     boolean existsByEmail(String email);
 
     /**
-     * 检查手机号是否存在.
+     * 检查手机号是否已存在.
      *
      * @param phone 手机号.
-     * @return 是否存在.
+     * @return 如果存在返回true，否则返回false.
      */
     boolean existsByPhone(String phone);
 
     /**
-     * 根据状态查询用户列表.
+     * 根据用户状态分页查询用户.
      *
      * @param status 用户状态.
      * @param pageable 分页参数.
@@ -88,7 +88,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Page<User> findByStatus(User.UserStatus status, Pageable pageable);
 
     /**
-     * 根据状态统计用户数量.
+     * 统计指定状态的用户数量.
      *
      * @param status 用户状态.
      * @return 用户数量.
@@ -96,7 +96,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     long countByStatus(User.UserStatus status);
 
     /**
-     * 查询邮箱已验证的用户.
+     * 查询已验证邮箱的用户.
      *
      * @param pageable 分页参数.
      * @return 用户分页列表.
@@ -104,7 +104,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Page<User> findByEmailVerifiedTrue(Pageable pageable);
 
     /**
-     * 查询手机号已验证的用户.
+     * 查询已验证手机号的用户.
      *
      * @param pageable 分页参数.
      * @return 用户分页列表.
@@ -146,7 +146,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             LocalDateTime lastLoginBefore, Pageable pageable);
 
     /**
-     * 根据全名模糊查询用户.
+     * 根据全名模糊查询用户（忽略大小写）.
      *
      * @param fullName 全名关键字.
      * @param pageable 分页参数.
@@ -156,7 +156,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                   Pageable pageable);
 
     /**
-     * 根据用户名模糊查询用户.
+     * 根据用户名模糊查询用户（忽略大小写）.
      *
      * @param username 用户名关键字.
      * @param pageable 分页参数.
@@ -166,7 +166,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                   Pageable pageable);
 
     /**
-     * 根据邮箱模糊查询用户.
+     * 根据邮箱模糊查询用户（忽略大小写）.
      *
      * @param email 邮箱关键字.
      * @param pageable 分页参数.
@@ -176,9 +176,9 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                Pageable pageable);
 
     /**
-     * 多条件模糊查询用户.
+     * 多条件模糊查询用户（用户名、手机号、全名）.
      *
-     * @param keyword 关键字.
+     * @param keyword 搜索关键字.
      * @param pageable 分页参数.
      * @return 用户分页列表.
      */
