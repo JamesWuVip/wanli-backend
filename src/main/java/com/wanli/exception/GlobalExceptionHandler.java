@@ -1,130 +1,114 @@
 package com.wanli.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import com.wanli.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 全局异常处理器
- * 统一处理系统中的各种异常
- * 
- * @author JamesWu
- * @since 1.0.0
+ * 全局异常处理器.
+ * 统一处理应用程序中的异常.
+     *
+ * @author JamesWu.
+ * @since 1.0.0.
  */
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * 处理参数验证异常
-     * 
-     * @param ex 方法参数验证异常
-     * @return 错误响应
+     * 参数验证失败错误码.
+     */
+    private static final String VALIDATION_ERROR_CODE = "2001";
+
+    /**
+     * 请求格式错误码.
+     */
+    private static final String REQUEST_FORMAT_ERROR_CODE = "2002";
+
+    /**
+     * 不支持的媒体类型错误码.
+     */
+    private static final String UNSUPPORTED_MEDIA_TYPE_ERROR_CODE = "2003";
+
+    /**
+     * 系统内部错误码.
+     */
+    private static final String INTERNAL_ERROR_CODE = "1001";
+
+    /**
+     * 处理参数验证异常.
+     *
+     * @param ex 参数验证异常.
+     * @return 错误响应.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<Map<String, String>>>
+            handleValidationExceptions(
+                    final MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        
-        ex.getBindingResult().getAllErrors().forEach(error -> {
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        
-        response.put("code", 6001);
-        response.put("message", "参数验证失败");
-        response.put("errors", errors);
-        response.put("timestamp", LocalDateTime.now());
-        
-        log.warn("参数验证失败: {}", errors);
-        return ResponseEntity.badRequest().body(response);
+
+        ApiResponse<Map<String, String>> response =
+                ApiResponse.error("参数验证失败", VALIDATION_ERROR_CODE);
+        response.setData(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     /**
-     * 处理绑定异常
-     * 
-     * @param ex 绑定异常
-     * @return 错误响应
+     * 处理JSON格式错误.
+     *
+     * @param ex JSON解析异常.
+     * @return 错误响应.
      */
-    @ExceptionHandler(BindException.class)
-    public ResponseEntity<Map<String, Object>> handleBindException(BindException ex) {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, String> errors = new HashMap<>();
-        
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        
-        response.put("code", 6002);
-        response.put("message", "数据绑定失败");
-        response.put("errors", errors);
-        response.put("timestamp", LocalDateTime.now());
-        
-        log.warn("数据绑定失败: {}", errors);
-        return ResponseEntity.badRequest().body(response);
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Object>> handleHttpMessageNotReadable(
+            final HttpMessageNotReadableException ex) {
+        ApiResponse<Object> response = ApiResponse.error("请求格式错误",
+                REQUEST_FORMAT_ERROR_CODE);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     /**
-     * 处理非法参数异常
-     * 
-     * @param ex 非法参数异常
-     * @return 错误响应
+     * 处理不支持的媒体类型.
+     *
+     * @param ex 媒体类型不支持异常.
+     * @return 错误响应.
      */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 6003);
-        response.put("message", "参数错误: " + ex.getMessage());
-        response.put("timestamp", LocalDateTime.now());
-        
-        log.warn("参数错误: {}", ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleHttpMediaTypeNotSupported(
+            final HttpMediaTypeNotSupportedException ex) {
+        ApiResponse<Object> response = ApiResponse.error("不支持的媒体类型",
+                UNSUPPORTED_MEDIA_TYPE_ERROR_CODE);
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                .body(response);
     }
 
     /**
-     * 处理运行时异常
-     * 
-     * @param ex 运行时异常
-     * @return 错误响应
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 1001);
-        response.put("message", "系统运行异常");
-        response.put("timestamp", LocalDateTime.now());
-        
-        log.error("系统运行异常: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
-
-    /**
-     * 处理通用异常
-     * 
-     * @param ex 异常
-     * @return 错误响应
+     * 处理通用异常.
+     *
+     * @param ex 通用异常.
+     * @return 错误响应.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("code", 1000);
-        response.put("message", "系统内部错误");
-        response.put("timestamp", LocalDateTime.now());
-        
-        log.error("系统内部错误: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    public ResponseEntity<ApiResponse<Object>> handleGenericException(
+            final Exception ex) {
+        ApiResponse<Object> response = ApiResponse.error("系统内部错误",
+                INTERNAL_ERROR_CODE);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
     }
-
 }
