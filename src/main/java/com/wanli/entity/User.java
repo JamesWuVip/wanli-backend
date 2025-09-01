@@ -22,15 +22,15 @@ import java.util.Objects;
  * 用户实体类.
  * 
  * <p>用于映射数据库中的users表，包含用户的基本信息、状态和审计字段。
- * 支持JPA审计功能，自动记录创建和更新时间。</p>
+ * 支持JPA审计功能，自动记录创建时间和更新时间。</p>
  * 
- * <p>主要功能：</p>
+ * <p>核心功能：</p>
  * <ul>
  *   <li>用户基本信息管理（用户名、邮箱、手机号等）</li>
- *   <li>用户状态管理（激活、停用、暂停、删除）</li>
- *   <li>用户角色管理（学生、教师、管理员）</li>
+ *   <li>用户状态管理（活跃、非活跃、暂停、删除）</li>
+ *   <li>用户角色管理（学生、教师、店铺管理员、管理员）</li>
  *   <li>验证状态管理（邮箱验证、手机验证）</li>
- *   <li>审计信息记录（创建时间、更新时间、操作人）</li>
+ *   <li>审计信息记录（创建时间、更新时间、操作者）</li>
  * </ul>
  * 
  * @author AI Generated
@@ -64,7 +64,7 @@ public class User {
 
     /**
      * 用户邮箱地址.
-     * 用于邮箱验证、密码重置等功能，可选字段.
+     * 用于用户通信和账户验证，支持邮箱格式验证.
      */
     @Email(message = "邮箱格式不正确")
     @Column(name = "email", length = Constants.EMAIL_MAX_LENGTH)
@@ -89,7 +89,7 @@ public class User {
 
     /**
      * 用户手机号.
-     * 用于短信验证、登录等功能，必须唯一且不能为空.
+     * 用于用户联系和验证，必须唯一且不能为空.
      */
     @NotBlank(message = "手机号不能为空")
     @Size(max = Constants.PHONE_MAX_LENGTH, message = "手机号长度不能超过20个字符")
@@ -99,7 +99,7 @@ public class User {
 
     /**
      * 用户头像URL.
-     * 存储用户头像的访问地址，可选字段.
+     * 存储用户头像图片的访问地址.
      */
     @Column(name = "avatar_url", length = Constants.AVATAR_URL_MAX_LENGTH)
     private String avatarUrl;
@@ -114,7 +114,7 @@ public class User {
 
     /**
      * 用户状态.
-     * 定义用户账户的当前状态，默认为激活状态.
+     * 定义用户账户的当前状态，默认为活跃状态.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -136,14 +136,14 @@ public class User {
 
     /**
      * 最后登录时间.
-     * 记录用户最近一次登录的时间，用于统计和安全监控.
+     * 记录用户最近一次登录系统的时间.
      */
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
     /**
      * 创建时间.
-     * 记录用户账户的创建时间，由JPA审计自动设置.
+     * 记录用户账户创建的时间，由JPA审计自动设置.
      */
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -151,7 +151,7 @@ public class User {
 
     /**
      * 更新时间.
-     * 记录用户信息的最后更新时间，由JPA审计自动维护.
+     * 记录用户信息最后更新的时间，由JPA审计自动维护.
      */
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
@@ -159,30 +159,30 @@ public class User {
 
     /**
      * 创建者.
-     * 记录创建该用户记录的操作人ID.
+     * 记录创建该用户记录的操作者ID.
      */
     @Column(name = "created_by", length = Constants.UUID_LENGTH)
     private String createdBy;
 
     /**
      * 更新者.
-     * 记录最后更新该用户记录的操作人ID.
+     * 记录最后更新该用户记录的操作者ID.
      */
     @Column(name = "updated_by", length = Constants.UUID_LENGTH)
     private String updatedBy;
 
     /**
      * 用户状态枚举.
-     * 定义用户账户的各种状态.
+     * 定义用户在系统中可能的状态类型.
      */
     public enum UserStatus {
-        /** 激活状态 - 用户可以正常使用系统 */
+        /** 活跃状态 - 用户可以正常使用系统 */
         ACTIVE,
-        /** 非激活状态 - 用户暂时无法使用系统 */
+        /** 非活跃状态 - 用户暂时不活跃但可以激活 */
         INACTIVE,
-        /** 暂停状态 - 用户因违规等原因被暂停使用 */
+        /** 暂停状态 - 用户被管理员暂停使用 */
         SUSPENDED,
-        /** 删除状态 - 用户账户已被删除（软删除） */
+        /** 删除状态 - 用户已被软删除 */
         DELETED
     }
 
@@ -195,12 +195,12 @@ public class User {
     /**
      * 构造函数 - 创建用户实例.
      * 
-     * <p>用于创建新用户时的便捷构造方法，包含必需的基本信息。</p>
+     * <p>用于创建新用户时的便捷构造函数，包含必需的基本信息。</p>
      * 
-     * @param userId 用户ID，必须是有效的UUID格式
-     * @param userName 用户名，必须符合长度和格式要求
-     * @param userPhone 手机号，必须符合格式要求
-     * @param userPasswordHash 密码哈希值，必须是加密后的密码
+     * @param userId 用户ID
+     * @param userName 用户名
+     * @param userPhone 手机号
+     * @param userPasswordHash 密码哈希
      */
     public User(final String userId, final String userName,
                 final String userPhone, final String userPasswordHash) {
