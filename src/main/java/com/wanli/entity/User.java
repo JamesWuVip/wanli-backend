@@ -21,21 +21,21 @@ import java.util.Objects;
 /**
  * 用户实体类.
  * 
- * <p>用于映射数据库中的users表，包含用户的基本信息、状态信息和审计信息。
- * 该类实现了JPA审计功能，自动记录创建时间和更新时间。</p>
+ * <p>映射数据库中的users表，包含用户的基本信息、状态和审计字段。
+ * 支持JPA审计功能，自动管理创建时间和更新时间。</p>
  * 
- * <p>主要功能：</p>
+ * <p>核心功能：</p>
  * <ul>
- *   <li>用户基本信息管理（用户名、邮箱、密码、全名、手机号等）</li>
- *   <li>用户状态管理（激活、非激活、暂停、删除）</li>
- *   <li>用户角色管理</li>
- *   <li>邮箱和手机号验证状态管理</li>
- *   <li>审计信息自动记录</li>
+ *   <li>用户基本信息管理（用户名、邮箱、手机号等）</li>
+ *   <li>用户状态管理（激活、停用、暂停、删除）</li>
+ *   <li>用户角色管理（学生、教师、管理员）</li>
+ *   <li>验证状态管理（邮箱验证、手机验证）</li>
+ *   <li>审计信息管理（创建时间、更新时间、操作人）</li>
  * </ul>
  * 
  * @author AI Generated
  * @version 1.0
- * @since 2024-01-01
+ * @since 2025-01-01
  */
 @Entity
 @Table(name = "users")
@@ -44,15 +44,13 @@ public class User {
 
     /**
      * 用户唯一标识符.
-     * 使用UUID格式，确保全局唯一性.
      */
     @Id
     @Column(name = "id", length = Constants.UUID_LENGTH)
     private String id;
 
     /**
-     * 用户名.
-     * 用于用户登录和标识，必须唯一且不能为空.
+     * 用户名，必须唯一.
      */
     @NotBlank(message = "用户名不能为空")
     @Size(min = Constants.USERNAME_MIN_LENGTH,
@@ -64,7 +62,6 @@ public class User {
 
     /**
      * 用户邮箱地址.
-     * 用于接收系统通知和密码重置等功能.
      */
     @Email(message = "邮箱格式不正确")
     @Column(name = "email", length = Constants.EMAIL_MAX_LENGTH)
@@ -72,7 +69,6 @@ public class User {
 
     /**
      * 用户密码哈希值.
-     * 存储加密后的密码，不存储明文密码.
      */
     @NotBlank(message = "密码不能为空")
     @Column(name = "password_hash", nullable = false)
@@ -80,7 +76,6 @@ public class User {
 
     /**
      * 用户全名.
-     * 用户的真实姓名，可选字段.
      */
     @Size(max = Constants.FULL_NAME_MAX_LENGTH,
           message = "全名长度不能超过100个字符")
@@ -88,8 +83,7 @@ public class User {
     private String fullName;
 
     /**
-     * 用户手机号码.
-     * 用于手机验证和接收短信通知，必须唯一.
+     * 用户手机号，必须唯一.
      */
     @NotBlank(message = "手机号不能为空")
     @Size(max = Constants.PHONE_MAX_LENGTH, message = "手机号长度不能超过20个字符")
@@ -99,107 +93,94 @@ public class User {
 
     /**
      * 用户头像URL.
-     * 存储用户头像图片的访问地址.
      */
     @Column(name = "avatar_url", length = Constants.AVATAR_URL_MAX_LENGTH)
     private String avatarUrl;
 
     /**
-     * 用户角色.
-     * 定义用户在系统中的权限级别，默认为学生角色.
+     * 用户角色，默认为学生.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private com.wanli.enums.UserRole role = com.wanli.enums.UserRole.STUDENT;
 
     /**
-     * 用户状态.
-     * 表示用户账户的当前状态，默认为激活状态.
+     * 用户状态，默认为激活状态.
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
 
     /**
-     * 邮箱验证状态.
-     * 标识用户邮箱是否已通过验证，默认为未验证.
+     * 邮箱验证状态，默认为未验证.
      */
     @Column(name = "email_verified", nullable = false)
     private Boolean emailVerified = false;
 
     /**
-     * 手机号验证状态.
-     * 标识用户手机号是否已通过验证，默认为未验证.
+     * 手机验证状态，默认为未验证.
      */
     @Column(name = "phone_verified", nullable = false)
     private Boolean phoneVerified = false;
 
     /**
      * 最后登录时间.
-     * 记录用户最近一次成功登录的时间.
      */
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
     /**
-     * 创建时间.
-     * 记录用户账户创建的时间，由JPA审计功能自动设置.
+     * 记录创建时间，由JPA审计自动管理.
      */
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     /**
-     * 更新时间.
-     * 记录用户信息最后更新的时间，由JPA审计功能自动维护.
+     * 记录更新时间，由JPA审计自动管理.
      */
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     /**
-     * 创建者.
-     * 记录创建该用户记录的操作者ID.
+     * 记录创建者.
      */
     @Column(name = "created_by", length = Constants.UUID_LENGTH)
     private String createdBy;
 
     /**
-     * 更新者.
-     * 记录最后更新该用户记录的操作者ID.
+     * 记录更新者.
      */
     @Column(name = "updated_by", length = Constants.UUID_LENGTH)
     private String updatedBy;
 
     /**
      * 用户状态枚举.
-     * 定义用户账户可能的状态值.
      */
     public enum UserStatus {
-        /** 激活状态 - 用户可以正常使用系统 */
+        /** 激活状态 */
         ACTIVE,
-        /** 非激活状态 - 用户暂时无法使用系统 */
+        /** 非激活状态 */
         INACTIVE,
-        /** 暂停状态 - 用户因违规等原因被暂停使用 */
+        /** 暂停状态 */
         SUSPENDED,
-        /** 删除状态 - 用户账户已被软删除 */
+        /** 删除状态 */
         DELETED
     }
 
     /**
      * 默认构造函数.
-     * JPA要求实体类必须有无参构造函数.
      */
     public User() { }
 
     /**
-     * 带参数的构造函数.
-     * 用于创建新用户时快速设置基本信息.
+     * 构造函数，用于创建新用户.
      *
-     * @param userId 用户ID
-     * @param userName 用户名
-     * @param userPhone 手机号
-     * @param userPasswordHash 密码哈希
+     * @param userId 用户ID.
+     * @param userName 用户名.
+     * @param userPhone 手机号.
+     * @param userPasswordHash 密码哈希.
      */
     public User(final String userId, final String userName,
                 final String userPhone, final String userPasswordHash) {
