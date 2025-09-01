@@ -14,9 +14,13 @@ import java.util.Optional;
 
 /**
  * 用户数据访问层接口.
- *
- * @author JamesWu
- * @since 1.0.0
+ * 
+ * <p>提供用户实体的数据访问操作，包括基本的CRUD操作以及各种查询方法。
+ * 支持根据用户名、邮箱、手机号等字段进行查询，以及分页查询、统计查询等功能。</p>
+ * 
+ * @author AI Generated
+ * @version 1.0
+ * @since 2025-01-22
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -25,15 +29,15 @@ public interface UserRepository extends JpaRepository<User, String> {
      * 根据用户名查询用户.
      *
      * @param username 用户名.
-     * @return 用户信息.
+     * @return 用户信息（可能为空）.
      */
     Optional<User> findByUsername(String username);
 
     /**
      * 根据邮箱查询用户.
      *
-     * @param email 邮箱.
-     * @return 用户信息.
+     * @param email 邮箱地址.
+     * @return 用户信息（可能为空）.
      */
     Optional<User> findByEmail(String email);
 
@@ -41,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      * 根据手机号查询用户.
      *
      * @param phone 手机号.
-     * @return 用户信息.
+     * @return 用户信息（可能为空）.
      */
     Optional<User> findByPhone(String phone);
 
@@ -49,13 +53,13 @@ public interface UserRepository extends JpaRepository<User, String> {
      * 根据用户名或邮箱查询用户.
      *
      * @param username 用户名.
-     * @param email 邮箱.
-     * @return 用户信息.
+     * @param email 邮箱地址.
+     * @return 用户信息（可能为空）.
      */
     Optional<User> findByUsernameOrEmail(String username, String email);
 
     /**
-     * 检查用户名是否存在.
+     * 检查用户名是否已存在.
      *
      * @param username 用户名.
      * @return 是否存在.
@@ -63,15 +67,15 @@ public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByUsername(String username);
 
     /**
-     * 检查邮箱是否存在.
+     * 检查邮箱是否已存在.
      *
-     * @param email 邮箱.
+     * @param email 邮箱地址.
      * @return 是否存在.
      */
     boolean existsByEmail(String email);
 
     /**
-     * 检查手机号是否存在.
+     * 检查手机号是否已存在.
      *
      * @param phone 手机号.
      * @return 是否存在.
@@ -79,7 +83,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByPhone(String phone);
 
     /**
-     * 根据状态查询用户列表.
+     * 根据用户状态查询用户列表.
      *
      * @param status 用户状态.
      * @param pageable 分页参数.
@@ -88,7 +92,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     Page<User> findByStatus(User.UserStatus status, Pageable pageable);
 
     /**
-     * 根据状态统计用户数量.
+     * 统计指定状态的用户数量.
      *
      * @param status 用户状态.
      * @return 用户数量.
@@ -176,9 +180,9 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                Pageable pageable);
 
     /**
-     * 根据关键字搜索用户（用户名、手机号、全名）.
+     * 多条件模糊查询用户.
      *
-     * @param keyword 搜索关键字.
+     * @param keyword 关键字.
      * @param pageable 分页参数.
      * @return 用户分页列表.
      */
@@ -190,7 +194,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                               Pageable pageable);
 
     /**
-     * 查询活跃用户（30天内登录过的用户）.
+     * 查询活跃用户（最近30天内登录过的用户）.
      *
      * @param thirtyDaysAgo 30天前的时间.
      * @param pageable 分页参数.
@@ -216,7 +220,7 @@ public interface UserRepository extends JpaRepository<User, String> {
             LocalDateTime thirtyDaysAgo);
 
     /**
-     * 查询新用户（7天内注册的用户）.
+     * 查询新注册用户（最近7天内注册的用户）.
      *
      * @param sevenDaysAgo 7天前的时间.
      * @param pageable 分页参数.
@@ -228,17 +232,17 @@ public interface UserRepository extends JpaRepository<User, String> {
             Pageable pageable);
 
     /**
-     * 统计新用户数量.
+     * 统计新注册用户数量.
      *
      * @param sevenDaysAgo 7天前的时间.
-     * @return 新用户数量.
+     * @return 新注册用户数量.
      */
     @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :sevenDaysAgo")
     long countNewUsers(
             @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo);
 
     /**
-     * 查询邮箱未验证的用户.
+     * 查询待验证邮箱的用户.
      *
      * @param status 用户状态.
      * @param pageable 分页参数.
@@ -248,7 +252,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                   Pageable pageable);
 
     /**
-     * 查询手机号未验证的用户.
+     * 查询待验证手机号的用户.
      *
      * @param status 用户状态.
      * @param pageable 分页参数.
@@ -260,14 +264,14 @@ public interface UserRepository extends JpaRepository<User, String> {
     /**
      * 根据创建者查询用户.
      *
-     * @param createdBy 创建者ID.
+     * @param createdBy 创建者.
      * @param pageable 分页参数.
      * @return 用户分页列表.
      */
     Page<User> findByCreatedBy(String createdBy, Pageable pageable);
 
     /**
-     * 根据ID列表查询用户.
+     * 批量查询用户.
      *
      * @param ids 用户ID列表.
      * @return 用户列表.
@@ -275,7 +279,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByIdIn(List<String> ids);
 
     /**
-     * 根据状态查询用户列表（不分页）.
+     * 查询指定状态的用户列表（不分页）.
      *
      * @param status 用户状态.
      * @return 用户列表.
@@ -283,10 +287,10 @@ public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByStatus(User.UserStatus status);
 
     /**
-     * 删除旧的已删除用户记录.
+     * 删除指定时间之前创建的已删除用户.
      *
      * @param deletedBefore 删除时间之前.
-     * @param status 用户状态.
+     * @param status 用户状态（已删除）.
      */
     @Query("DELETE FROM User u WHERE u.updatedAt < :deletedBefore "
             + "AND u.status = :status")
