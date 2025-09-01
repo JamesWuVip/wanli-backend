@@ -5,60 +5,38 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * 用户注册请求DTO.
+ * 用户注册请求数据传输对象.
  *
- * <p>用于接收用户注册请求的数据，包含用户名、手机号、密码等信息，
- * 并提供完整的数据验证规则。</p>
+ * <p>用于封装用户注册时提交的所有必要信息，包含相应的验证规则。</p>
  *
  * @author JamesWu
  * @since 1.0.0
  */
-public class RegisterDTO {
-
-    /** 用户名最小长度. */
-    private static final int MIN_USERNAME_LENGTH = 3;
-
-    /** 用户名最大长度. */
-    private static final int MAX_USERNAME_LENGTH = 50;
-
-    /** 密码最小长度. */
-    private static final int MIN_PASSWORD_LENGTH = 6;
-
-    /** 密码最大长度. */
-    private static final int MAX_PASSWORD_LENGTH = 100;
-
-    /** 全名最大长度. */
-    private static final int MAX_FULL_NAME_LENGTH = 100;
-
-    /** 手机号长度. */
-    private static final int PHONE_LENGTH = 11;
+public final class RegisterDTO {
 
     /** 用户名. */
     @NotBlank(message = "用户名不能为空")
-    @Size(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH,
-          message = "用户名长度必须在3-50个字符之间")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$",
-             message = "用户名只能包含字母、数字和下划线")
+    @Size(min = 3, max = 20, message = "用户名长度必须在3-20位之间")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "用户名只能包含字母、数字和下划线")
     private String username;
 
     /** 手机号. */
     @NotBlank(message = "手机号不能为空")
     @Pattern(regexp = "^1[3-9]\\d{9}$", message = "手机号格式不正确")
-    @Size(min = PHONE_LENGTH, max = PHONE_LENGTH, message = "手机号必须为11位数字")
-    private String phone;
+    private String phoneNumber;
 
     /** 密码. */
     @NotBlank(message = "密码不能为空")
-    @Size(min = MIN_PASSWORD_LENGTH, max = MAX_PASSWORD_LENGTH,
-          message = "密码长度必须在6-100个字符之间")
+    @Size(min = 6, max = 20, message = "密码长度必须在6-20位之间")
     private String password;
 
     /** 确认密码. */
     @NotBlank(message = "确认密码不能为空")
     private String confirmPassword;
 
-    /** 全名（可选）. */
-    @Size(max = MAX_FULL_NAME_LENGTH, message = "全名长度不能超过100个字符")
+    /** 全名. */
+    @NotBlank(message = "全名不能为空")
+    @Size(min = 2, max = 50, message = "全名长度必须在2-50位之间")
     private String fullName;
 
     /**
@@ -68,19 +46,24 @@ public class RegisterDTO {
     }
 
     /**
-     * 带参数的构造函数.
+     * 全参构造函数.
      *
-     * @param userName 用户名
-     * @param userPhone 手机号
-     * @param userPassword 密码
-     * @param confirmUserPassword 确认密码
+     * @param username 用户名
+     * @param phoneNumber 手机号
+     * @param password 密码
+     * @param confirmPassword 确认密码
+     * @param fullName 全名
      */
-    public RegisterDTO(final String userName, final String userPhone,
-                      final String userPassword, final String confirmUserPassword) {
-        this.username = userName;
-        this.phone = userPhone;
-        this.password = userPassword;
-        this.confirmPassword = confirmUserPassword;
+    public RegisterDTO(final String username,
+                      final String phoneNumber,
+                      final String password,
+                      final String confirmPassword,
+                      final String fullName) {
+        this.username = username;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.confirmPassword = confirmPassword;
+        this.fullName = fullName;
     }
 
     /**
@@ -95,10 +78,10 @@ public class RegisterDTO {
     /**
      * 设置用户名.
      *
-     * @param userName 用户名
+     * @param username 用户名
      */
-    public void setUsername(final String userName) {
-        this.username = userName;
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     /**
@@ -106,17 +89,17 @@ public class RegisterDTO {
      *
      * @return 手机号
      */
-    public String getPhone() {
-        return phone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     /**
      * 设置手机号.
      *
-     * @param userPhone 手机号
+     * @param phoneNumber 手机号
      */
-    public void setPhone(final String userPhone) {
-        this.phone = userPhone;
+    public void setPhoneNumber(final String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     /**
@@ -131,10 +114,10 @@ public class RegisterDTO {
     /**
      * 设置密码.
      *
-     * @param userPassword 密码
+     * @param password 密码
      */
-    public void setPassword(final String userPassword) {
-        this.password = userPassword;
+    public void setPassword(final String password) {
+        this.password = password;
     }
 
     /**
@@ -149,10 +132,10 @@ public class RegisterDTO {
     /**
      * 设置确认密码.
      *
-     * @param confirmUserPassword 确认密码
+     * @param confirmPassword 确认密码
      */
-    public void setConfirmPassword(final String confirmUserPassword) {
-        this.confirmPassword = confirmUserPassword;
+    public void setConfirmPassword(final String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     /**
@@ -167,36 +150,27 @@ public class RegisterDTO {
     /**
      * 设置全名.
      *
-     * @param userFullName 全名
+     * @param fullName 全名
      */
-    public void setFullName(final String userFullName) {
-        this.fullName = userFullName;
+    public void setFullName(final String fullName) {
+        this.fullName = fullName;
     }
 
     /**
-     * 验证密码和确认密码是否一致.
+     * 重写toString方法.
      *
-     * @return 如果密码一致返回true，否则返回false
-     */
-    public boolean isPasswordMatching() {
-        return password != null && password.equals(confirmPassword);
-    }
-
-    /**
-     * 返回对象的字符串表示.
+     * <p>为了安全考虑，不输出密码信息。</p>
      *
-     * <p>为了安全考虑，密码字段显示为[PROTECTED]。</p>
-     *
-     * @return 对象的字符串表示
+     * @return 字符串表示
      */
     @Override
     public String toString() {
         return "RegisterDTO{"
                 + "username='" + username + "'"
-                + ", phone='" + phone + "'"
+                + ", phoneNumber='" + phoneNumber + "'"
                 + ", password='[PROTECTED]'"
                 + ", confirmPassword='[PROTECTED]'"
                 + ", fullName='" + fullName + "'"
-                + '}';
+                + "}";
     }
 }
