@@ -197,18 +197,18 @@ public class HealthController {
                     * PERCENTAGE_MULTIPLIER;
 
             boolean isHealthy = usagePercentage < DISK_USAGE_HEALTHY_THRESHOLD;
+
             result.put("status", isHealthy ? "UP" : "DOWN");
             result.put("total", totalSpace);
             result.put("free", freeSpace);
             result.put("used", usedSpace);
-            result.put("usagePercentage",
-                    Math.round(usagePercentage * PERCENTAGE_MULTIPLIER)
-                            / PERCENTAGE_MULTIPLIER);
+            result.put("usagePercentage", usagePercentage);
+            result.put("threshold", DISK_USAGE_HEALTHY_THRESHOLD);
 
             if (isHealthy) {
-                result.put("details", "Disk space is sufficient");
+                result.put("details", "Disk space usage is within healthy limits");
             } else {
-                result.put("details", "Disk space is running low");
+                result.put("details", "Disk space usage exceeds healthy threshold");
             }
         } catch (Exception e) {
             result.put("status", "DOWN");
@@ -219,44 +219,84 @@ public class HealthController {
     }
 
     /**
-     * Spring Boot Actuator健康检查方法.
+     * 简单的存活检查.
      *
-     * @return 健康检查结果.
+     * @return 简单的存活状态.
+     */
+    @GetMapping("/health/liveness")
+    public ResponseEntity<Map<String, Object>> liveness() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", "Application is alive");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 就绪检查.
+     *
+     * @return 应用程序就绪状态.
+     */
+    @GetMapping("/health/readiness")
+    public ResponseEntity<Map<String, Object>> readiness() {
+        Map<String, Object> response = new HashMap<>();
+        boolean isReady = true;
+
+        // 检查关键依赖
+        Map<String, Object> dbHealth = checkDatabase();
+        if (!"UP".equals(dbHealth.get("status"))) {
+            isReady = false;
+        }
+
+        Map<String, Object> redisHealth = checkRedis();
+        if (!"UP".equals(redisHealth.get("status"))) {
+            isReady = false;
+        }
+
+        response.put("status", isReady ? "UP" : "DOWN");
+        response.put("timestamp", LocalDateTime.now());
+        response.put("message", isReady ? "Application is ready" : "Application is not ready");
+
+        return isReady ? ResponseEntity.ok(response) :
+                ResponseEntity.status(HTTP_SERVICE_UNAVAILABLE).body(response);
+    }
+
+    /**
+     * Actuator兼容的健康检查端点.
+     *
+     * @return Actuator格式的健康检查结果.
      */
     @GetMapping("/health/actuator")
     public ResponseEntity<Map<String, Object>> actuatorHealth() {
-        try {
-            // 检查数据库
-            Connection connection = dataSource.getConnection();
-            boolean dbHealthy = connection.isValid(
-                    DB_CONNECTION_TIMEOUT_SECONDS);
-            connection.close();
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> components = new HashMap<>();
 
-            // 检查Redis
-            RedisConnection redisConnection = redisTemplate
-                    .getConnectionFactory().getConnection();
-            boolean redisHealthy = "PONG".equals(redisConnection.ping());
-            redisConnection.close();
+        boolean allHealthy = true;
 
-            Map<String, Object> health = new HashMap<>();
-            if (dbHealthy && redisHealthy) {
-                health.put("status", "UP");
-                health.put("database", "UP");
-                health.put("redis", "UP");
-                return ResponseEntity.ok(health);
-            } else {
-                health.put("status", "DOWN");
-                health.put("database", dbHealthy ? "UP" : "DOWN");
-                health.put("redis", redisHealthy ? "UP" : "DOWN");
-                return ResponseEntity.status(HTTP_SERVICE_UNAVAILABLE)
-                        .body(health);
-            }
-        } catch (Exception e) {
-            Map<String, Object> health = new HashMap<>();
-            health.put("status", "DOWN");
-            health.put("error", e.getMessage());
-            return ResponseEntity.status(HTTP_SERVICE_UNAVAILABLE)
-                    .body(health);
+        // 数据库检查
+        Map<String, Object> dbHealth = checkDatabase();
+        components.put("db", dbHealth);
+        if (!"UP".equals(dbHealth.get("status"))) {
+            allHealthy = false;
         }
+
+        // Redis检查
+        Map<String, Object> redisHealth = checkRedis();
+        components.put("redis", redisHealth);
+        if (!"UP".equals(redisHealth.get("status"))) {
+            allHealthy = false;
+        }
+
+        // 磁盘空间检查
+        Map<String, Object> diskHealth = checkDiskSpace();
+        components.put("diskSpace", diskHealth);
+        if (!"UP".equals(diskHealth.get("status"))) {
+            allHealthy = false;
+        }
+
+        response.put("status", allHealthy ? "UP" : "DOWN");
+        response.put("components", components);
+
+        return ResponseEntity.ok(response);
     }
 }
