@@ -1,108 +1,131 @@
-# Wanli Backend
-
-万里后端服务项目
+# 万里加盟连锁门店作业管理系统
 
 ## 项目概述
 
-这是一个基于Spring Boot的后端服务项目，集成了监控、测试覆盖率和错误追踪等功能。
+万里加盟连锁门店作业管理系统是一个专为教育培训机构设计的全栈Web应用，支持总部、门店、教师和学生的多角色协作管理。
 
 ## 技术栈
 
-- Java 17
-- Spring Boot 3.2.0
-- Spring Security
-- Spring Data JPA
-- MySQL
-- Maven
-- JaCoCo (代码覆盖率)
-- Sentry (错误追踪)
-- Codecov (覆盖率报告)
+### 前端
+- React 18 + TypeScript
+- Ant Design 5.x (UI组件库)
+- Zustand (状态管理)
+- React Router (路由管理)
+- Vite (构建工具)
+- Tailwind CSS (样式框架)
 
-## 快速开始
+### 后端
+- Node.js + Express
+- Supabase (数据库 + 认证)
+- TypeScript
 
-### 环境要求
+### 测试
+- Vitest (单元测试)
+- Playwright (E2E测试)
 
-- Java 17+
-- Maven 3.6+
-- MySQL 8.0+
+## 功能模块
 
-### 配置监控服务
+### 1. 用户管理
+- 多角色用户系统（总部管理员、门店管理员、教师、学生）
+- 用户注册、登录、权限管理
+- 用户信息维护
 
-运行监控服务配置脚本：
+### 2. 门店管理
+- 门店信息管理
+- 门店用户分配
+- 门店数据统计
 
+### 3. 课程管理
+- 课程创建和编辑
+- 课程分类管理
+- 课程发布和下架
+
+### 4. 作业管理
+- 作业创建和分发
+- 学生作业提交
+- 教师批改和评分
+- 作业统计分析
+
+### 5. 班级管理
+- 班级创建和管理
+- 学生分班
+- 班级作业分配
+
+## 项目结构
+
+```
+├── api/                    # 后端API服务
+├── src/                    # 前端源码
+│   ├── components/         # React组件
+│   ├── pages/             # 页面组件
+│   ├── services/          # API服务
+│   ├── stores/            # 状态管理
+│   ├── types/             # TypeScript类型定义
+│   └── utils/             # 工具函数
+├── supabase/              # 数据库迁移文件
+├── tests/                 # 测试文件
+└── public/                # 静态资源
+```
+
+## 开发环境搭建
+
+### 1. 克隆项目
 ```bash
-./setup-monitoring.sh
+git clone https://github.com/JamesWuVip/wanli-backend.git
+cd wanli-backend
 ```
 
-该脚本将自动配置：
-- Codecov token
-- Sentry DSN
-- 生成测试覆盖率报告
-- 验证服务连接
-
-### 运行应用
-
+### 2. 安装依赖
 ```bash
-# 开发环境
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
-
-# 生产环境
-mvn spring-boot:run -Dspring-boot.run.profiles=prod
+npm install
 ```
 
-### 测试端点
-
-应用启动后，可以访问以下测试端点：
-
-- `GET /api/test/health` - 健康检查
-- `GET /api/test/monitoring-info` - 监控配置信息
-- `GET /api/test/sentry-error` - 测试Sentry错误报告
-- `GET /api/test/sentry-message` - 测试Sentry消息报告
-
-## 开发规范
-
-### Git Flow
-
-- `main` - 生产环境分支
-- `staging` - 测试环境分支  
-- `dev` - 开发分支
-- `feature/*` - 功能分支
-- `fix/*` - 修复分支
-
-### 提交规范
-
-使用 Conventional Commits 规范：
-
-```
-feat(scope): 添加新功能
-fix(scope): 修复bug
-docs(scope): 文档更新
-style(scope): 代码格式调整
-refactor(scope): 代码重构
-test(scope): 测试相关
-chore(scope): 构建过程或辅助工具的变动
-```
-
-## 监控和质量保证
-
-### 代码覆盖率
-
-使用 JaCoCo 生成覆盖率报告：
-
+### 3. 环境配置
+复制 `.env.example` 到 `.env` 并配置相关环境变量：
 ```bash
-mvn clean test jacoco:report
+cp .env.example .env
 ```
 
-### 错误追踪
+### 4. 启动开发服务器
+```bash
+# 启动前端和后端服务
+npm run dev
+```
 
-集成 Sentry 进行实时错误监控和性能追踪。
+### 5. 运行测试
+```bash
+# 单元测试
+npm test
 
-### 持续集成
+# 集成测试
+npm run test:integration
 
-- 自动运行测试
-- 生成覆盖率报告
-- 上传到 Codecov
-- Sentry 错误监控
+# E2E测试
+npm run test:e2e
+```
+
+## 部署说明
+
+### 开发环境
+- 分支：`dev`
+- 自动部署到测试环境
+
+### 测试环境
+- 分支：`staging`
+- 用于功能测试和验收
+
+### 生产环境
+- 分支：`main`
+- 生产环境部署
+
+## 贡献指南
+
+1. 从 `dev` 分支创建功能分支
+2. 完成开发并通过测试
+3. 提交 Pull Request 到 `dev` 分支
+4. 代码审查通过后合并
+5. 测试通过后合并到 `staging` 分支
+6. 最终合并到 `main` 分支发布
 
 ## 许可证
 
