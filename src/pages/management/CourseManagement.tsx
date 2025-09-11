@@ -634,39 +634,34 @@ const CourseManagement: React.FC = () => {
                 <Option value="teacher2">李老师</Option>
                 <Option value="teacher3">王老师</Option>
               </Select>
-              <Button icon={<FilterOutlined />}>高级筛选</Button>
             </Space>
           </Col>
           <Col>
             <Space>
+              {selectedRowKeys.length > 0 && (
+                <Popconfirm
+                  title={`确定要删除选中的 ${selectedRowKeys.length} 个课程吗？`}
+                  onConfirm={handleBatchDelete}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button danger icon={<DeleteOutlined />}>
+                    批量删除 ({selectedRowKeys.length})
+                  </Button>
+                </Popconfirm>
+              )}
               <Button
                 icon={<ExportOutlined />}
                 onClick={handleExport}
               >
-                导出
+                导出数据
               </Button>
-              <PermissionGuard requiredPermissions={['course:delete']}>
-                <Popconfirm
-                  title="确认批量删除"
-                  description={`确定要删除选中的 ${selectedRowKeys.length} 个课程吗？`}
-                  onConfirm={handleBatchDelete}
-                  disabled={selectedRowKeys.length === 0}
-                >
-                  <Button
-                    danger
-                    disabled={selectedRowKeys.length === 0}
-                    icon={<DeleteOutlined />}
-                  >
-                    批量删除 ({selectedRowKeys.length})
-                  </Button>
-                </Popconfirm>
-              </PermissionGuard>
               <PermissionGuard requiredPermissions={['course:create']}>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreate}
-                  data-testid="create-course-btn"
+                  data-testid="create-course-button"
                 >
                   新建课程
                 </Button>
@@ -685,14 +680,13 @@ const CourseManagement: React.FC = () => {
           loading={loading}
           rowSelection={rowSelection}
           scroll={{ x: 1200 }}
-          data-testid="course-list-table"
           pagination={{
             total: courses.length,
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+              `第 ${range[0]}-${range[1]} 条/共 ${total} 条`,
           }}
         />
       </Card>
@@ -707,7 +701,8 @@ const CourseManagement: React.FC = () => {
         }}
         footer={null}
         width={800}
-        destroyOnClose
+        destroyOnHidden
+        data-testid="course-form-modal"
       >
         <CourseForm
           course={editingCourse}
@@ -765,7 +760,8 @@ const CourseManagement: React.FC = () => {
         }}
         footer={null}
         width={1000}
-        destroyOnClose
+        destroyOnHidden
+        data-testid="course-detail-modal"
       >
         {viewingCourse && (
           <CourseDetail
@@ -774,33 +770,9 @@ const CourseManagement: React.FC = () => {
               setIsDetailVisible(false);
               handleEdit(viewingCourse);
             }}
-            onDelete={() => {
+            onClose={() => {
               setIsDetailVisible(false);
-              handleDelete(viewingCourse.id);
-            }}
-            onCopy={() => {
-              // 复制课程逻辑
-              const copiedCourse: Course = {
-                ...viewingCourse,
-                id: Date.now().toString(),
-                title: `${viewingCourse.title} (副本)`,
-                status: CourseStatus.DRAFT,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              };
-              setCourses([copiedCourse, ...courses]);
-              message.success('课程复制成功');
-              setIsDetailVisible(false);
-            }}
-            onPublish={(published) => {
-              const newStatus = published ? CourseStatus.PUBLISHED : CourseStatus.DRAFT;
-              handleStatusChange(viewingCourse.id, newStatus);
-              setViewingCourse({ ...viewingCourse, status: newStatus });
-              message.success(published ? '课程发布成功' : '课程取消发布成功');
-            }}
-            onStatusChange={(newStatus) => {
-              handleStatusChange(viewingCourse.id, newStatus);
-              setViewingCourse({ ...viewingCourse, status: newStatus });
+              setViewingCourse(null);
             }}
           />
         )}
