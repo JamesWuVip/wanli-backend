@@ -403,7 +403,7 @@ export const UserManagement: React.FC = () => {
           />
           <div>
             <div>
-              <Text strong>{user.fullName}</Text>
+              <Text strong>{user.full_name}</Text>
               {user.role === UserRole.SUPER_ADMIN && (
                 <Tag color="red" size="small" style={{ marginLeft: 4 }}>超管</Tag>
               )}
@@ -664,44 +664,53 @@ export const UserManagement: React.FC = () => {
             </PermissionGuard>
           </Space>
         </div>
-
+        
         {/* 用户表格 */}
-        <Table
+        <Table<User>
           columns={columns}
           dataSource={users}
           rowKey="id"
           loading={loading}
+          rowSelection={canManageUsers ? rowSelection : undefined}
           pagination={pagination}
-          rowSelection={hasAnyPermission(['user:manage']) ? rowSelection : undefined}
           onChange={handleTableChange}
-          scroll={{ x: 1300 }}
+          scroll={{ x: 1200 }}
         />
       </Card>
-
+      
       {/* 用户表单弹窗 */}
       <Modal
         title={editingUser ? '编辑用户' : '新建用户'}
         open={isFormModalVisible}
-        onCancel={() => setIsFormModalVisible(false)}
+        onCancel={() => {
+          setIsFormModalVisible(false);
+          setEditingUser(null);
+        }}
         footer={null}
-        width={800}
-        destroyOnClose
+        width={600}
+        destroyOnHidden
       >
         <UserForm
           user={editingUser}
           onSubmit={handleFormSubmit}
-          onCancel={() => setIsFormModalVisible(false)}
+          onCancel={() => {
+            setIsFormModalVisible(false);
+            setEditingUser(null);
+          }}
         />
       </Modal>
-
+      
       {/* 用户详情弹窗 */}
       <Modal
         title="用户详情"
         open={isDetailModalVisible}
-        onCancel={() => setIsDetailModalVisible(false)}
+        onCancel={() => {
+          setIsDetailModalVisible(false);
+          setViewingUser(null);
+        }}
         footer={null}
-        width={1000}
-        destroyOnClose
+        width={800}
+        destroyOnHidden
       >
         {viewingUser && (
           <UserDetail
@@ -710,9 +719,9 @@ export const UserManagement: React.FC = () => {
               setIsDetailModalVisible(false);
               handleEditUser(viewingUser);
             }}
-            onDelete={() => {
+            onClose={() => {
               setIsDetailModalVisible(false);
-              handleDeleteUser(viewingUser.id);
+              setViewingUser(null);
             }}
           />
         )}
