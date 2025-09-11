@@ -611,35 +611,35 @@ const AssignmentManagement: React.FC = () => {
                 <Option value="all">全部课程</Option>
                 <Option value="course1">React入门课程</Option>
                 <Option value="course2">JavaScript进阶</Option>
-                <Option value="course3">CSS高级技巧</Option>
               </Select>
-              <Button icon={<FilterOutlined />}>高级筛选</Button>
+              <Button
+                icon={<FilterOutlined />}
+                onClick={loadAssignments}
+              >
+                刷新
+              </Button>
             </Space>
           </Col>
           <Col>
             <Space>
+              {selectedRowKeys.length > 0 && (
+                <Popconfirm
+                  title={`确定要删除选中的 ${selectedRowKeys.length} 个作业吗？`}
+                  onConfirm={handleBatchDelete}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button danger icon={<DeleteOutlined />}>
+                    批量删除 ({selectedRowKeys.length})
+                  </Button>
+                </Popconfirm>
+              )}
               <Button
                 icon={<ExportOutlined />}
                 onClick={handleExport}
               >
                 导出
               </Button>
-              <PermissionGuard requiredPermissions={['assignment:delete']}>
-                <Popconfirm
-                  title="确认批量删除"
-                  description={`确定要删除选中的 ${selectedRowKeys.length} 个作业吗？`}
-                  onConfirm={handleBatchDelete}
-                  disabled={selectedRowKeys.length === 0}
-                >
-                  <Button
-                    danger
-                    disabled={selectedRowKeys.length === 0}
-                    icon={<DeleteOutlined />}
-                  >
-                    批量删除 ({selectedRowKeys.length})
-                  </Button>
-                </Popconfirm>
-              </PermissionGuard>
               <PermissionGuard requiredPermissions={['assignment:create']}>
                 <Button
                   type="primary"
@@ -663,15 +663,14 @@ const AssignmentManagement: React.FC = () => {
           rowKey="id"
           loading={loading}
           rowSelection={rowSelection}
-          scroll={{ x: 1400 }}
-          data-testid="assignment-list-table"
+          scroll={{ x: 1200 }}
           pagination={{
             total: assignments.length,
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `第 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+              `第 ${range[0]}-${range[1]} 条/共 ${total} 条`,
           }}
         />
       </Card>
@@ -680,13 +679,10 @@ const AssignmentManagement: React.FC = () => {
       <Modal
         title={editingAssignment ? '编辑作业' : '新建作业'}
         open={isFormVisible}
-        onCancel={() => {
-          setIsFormVisible(false);
-          setEditingAssignment(null);
-        }}
+        onCancel={() => setIsFormVisible(false)}
         footer={null}
         width={800}
-        destroyOnClose
+        destroyOnHidden
       >
         <AssignmentForm
           assignment={editingAssignment}
@@ -708,14 +704,13 @@ const AssignmentManagement: React.FC = () => {
                 const newAssignment: Assignment = {
                   id: Date.now().toString(),
                   ...assignmentData,
-                  teacherId: 'current-user-id',
-                  teacherName: '当前用户',
                   submissionCount: 0,
                   completionRate: 0,
                   averageScore: 0,
+                  attachments: [],
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString()
-                } as Assignment;
+                };
                 setAssignments([newAssignment, ...assignments]);
                 message.success('作业创建成功');
               }
@@ -723,7 +718,7 @@ const AssignmentManagement: React.FC = () => {
               setIsFormVisible(false);
               setEditingAssignment(null);
             } catch (error) {
-              message.error(editingAssignment ? '作业更新失败' : '作业创建失败');
+              handleError(error, editingAssignment ? '更新作业失败' : '创建作业失败');
             }
           }}
           onCancel={() => {
@@ -737,42 +732,28 @@ const AssignmentManagement: React.FC = () => {
       <Modal
         title="作业详情"
         open={isDetailVisible}
-        onCancel={() => {
-          setIsDetailVisible(false);
-          setViewingAssignment(null);
-        }}
-        footer={null}
-        width={1000}
-        destroyOnClose
+        onCancel={() => setIsDetailVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsDetailVisible(false)}>
+            关闭
+          </Button>,
+          <PermissionGuard key="edit" requiredPermissions={['assignment:update']}>
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsDetailVisible(false);
+                handleEdit(viewingAssignment!);
+              }}
+            >
+              编辑
+            </Button>
+          </PermissionGuard>
+        ]}
+        width={900}
+        destroyOnHidden
       >
         {viewingAssignment && (
-          <AssignmentDetail
-            assignment={viewingAssignment}
-            onEdit={() => {
-              setIsDetailVisible(false);
-              handleEdit(viewingAssignment);
-            }}
-            onDelete={() => {
-              setIsDetailVisible(false);
-              handleDelete(viewingAssignment.id);
-            }}
-            onCopy={() => {
-              // TODO: 实现复制功能
-              message.info('复制功能待实现');
-            }}
-            onPublish={() => {
-              // TODO: 实现发布功能
-              message.info('发布功能待实现');
-            }}
-            onUnpublish={() => {
-              // TODO: 实现取消发布功能
-              message.info('取消发布功能待实现');
-            }}
-            onStatusChange={(newStatus) => {
-              handleStatusChange(viewingAssignment.id, newStatus as any);
-              setViewingAssignment({ ...viewingAssignment, status: newStatus as any });
-            }}
-          />
+          <AssignmentDetail assignment={viewingAssignment} />
         )}
       </Modal>
     </div>
